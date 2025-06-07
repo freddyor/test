@@ -195,7 +195,7 @@ export const buildings = [
     "videoUrl": "https://www.britmap.com/videos/Capti",
     "subtitle": "The oldest church in York",
     tldr: "",
-                                "posterUrl": "https://www.britmap.com/videos/IMG_6042.jpeg",
+                                "posterUrl": "https://www.britmap.com/videos/IMG_6042.webp",
     events: [  ]
   },
                       {
