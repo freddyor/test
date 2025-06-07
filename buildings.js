@@ -8,7 +8,7 @@ export const buildings = [
     "videoUrl": "https://www.britmap.com/videos/Captions_D86667.mp4",
     "subtitle": "Third-oldest pub in York with an interesting history",
     "tldr": "",
-             "posterUrl": "https://www.britmap.com/videos/IMG_6033.jpeg",
+             "posterUrl": "https://www.britmap.com/videos/IMG_6033.webp",
     "events": [
     ]
   },
