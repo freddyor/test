@@ -117,19 +117,19 @@ locations.forEach(location => {
                 overlay.style.alignItems = 'center';
                 overlay.style.justifyContent = 'center';
                 overlay.style.zIndex = 100000;
-                const posterContainer = document.createElement('div');
-                posterContainer.style.position = 'relative';
-                posterContainer.style.marginTop = '-60px';
-                const posterImg = document.createElement('img');
-                posterImg.src = posterUrl || '';
-                posterImg.alt = 'Video cover';
-                posterImg.style.maxWidth = '88vw';
-                posterImg.style.maxHeight = '80vh';
-                posterImg.style.borderRadius = '14px';
-                posterImg.style.display = 'block';
-                posterImg.addEventListener('load', () => {
-                    posterImg.style.border = '1.5px solid #E9E8E0';
-                });
+
+
+
+
+
+
+
+
+
+
+
+
+              
                 const playBtn = document.createElement('button');
                 playBtn.innerHTML = '▶';
                 playBtn.style.position = 'absolute';
@@ -202,8 +202,8 @@ locations.forEach(location => {
                     playBtn.style.display = 'flex';
                     closeBtn.style.display = 'flex';
                 };
-                posterContainer.appendChild(posterImg);
-                posterContainer.appendChild(playBtn);
+
+              
                 posterContainer.appendChild(spinner);
                 posterContainer.appendChild(closeBtn);
                 overlay.appendChild(posterContainer);
@@ -215,8 +215,7 @@ locations.forEach(location => {
                     playBtn.style.display = 'none';
                     spinner.style.display = 'block';
                     const videoElement = document.createElement('video');
-                    videoElement.src = videoUrl;
-                    if (posterUrl) videoElement.poster = posterUrl;
+                    
                     videoElement.style.border = '1.5px solid #E9E8E0';
                     videoElement.style.maxWidth = '88vw';
                     videoElement.style.maxHeight = '80vh';
@@ -233,7 +232,6 @@ let hasStarted = false;
 function showVideo() {
     if (!hasStarted) {
         hasStarted = true;
-        posterContainer.replaceChild(videoElement, posterImg);
         spinner.style.display = 'none';
     }
 }
