@@ -30,4 +30,82 @@ export const buildings = [
    "posterUrl": "https://www.britmap.com/videos/IMG_6522.webp",
   events: []
 },
+                             {
+  name: "St Helen’s Burial Ground",
+  coords: [ -1.0830780227993537, 53.95966607784507 ],
+  image: "https://www.britmap.com/videos/IMG_6694.webp",
+  description: "",
+  occupation: "",
+  tldr: "",
+  "videoUrl": "https://www.britmap.com/videos/Captions_07F51B.mp4",
+   "posterUrl": "https://www.britmap.com/videos/IMG_6518.webp",
+  events: []
+},
+    {'name': 'Salem Chapel',
+     'coords': [-1.0769951340621942, 53.96046077025504],
+     'image': 'https://www.britmap.com/videos/Screenshot 2025-06-07 at 22-30-08 salem_from_SAVE_Fall_of_Zion.jpg (JPEG Image 600 × 487 pixels).webp',
+     'description': '',
+     'occupation': '1839',
+     'tldr': '',
+           "videoUrl": "https://www.britmap.com/videos/Captions_A08F33.mp4",
+      "posterUrl": "https://www.britmap.com/videos/IMG_6475.webp",
+     'events': []
+   },
+    {
+    "name": "Ingram House",
+    "coords": [-1.0902817392673825, 53.965384792879576],
+    "image": "https://www.britmap.com/videos/IMG_6215.webp",
+    "description": "",
+    "occupation": "",
+    "tldr": "",
+      "videoUrl": "https://www.britmap.com/videos/Captions_040E35.mp4",
+      "posterUrl": "https://www.britmap.com/videos/IMG_6214.webp",
+    "events": [ ]
+  },
+                {
+    "name": "Etty Statue Hand",
+    "coords": [-1.0858983757252028, 53.96278755058766],
+    "image": "https://www.britmap.com/videos/IMG_6180.webp",
+    "description": "",
+    "occupation": " ",
+    "videoUrl": "https://www.britmap.com/videos/Captions_99AA7F.mp4",
+    "tldr": " ",
+                  "colour": "yes",
+                "posterUrl": "https://www.britmap.com/videos/IMG_6176.webp",
+    "events": [  ]
+  },
+                {
+    "name": "St Maurice Street",
+    "coords": [-1.0779773485377184, 53.96301889037769],
+    "image": "https://www.britmap.com/videos/IMG_6191.webp",
+    "description": "",
+    "occupation": " ",
+    "videoUrl": "https://www.britmap.com/videos/Captions_B7547E.mp4",
+    "tldr": " ",
+                "posterUrl": "https://www.britmap.com/videos/IMG_6189.webp",
+    "events": [  ]
+  },
+                {
+    "name": "St Maurice Church",
+    "coords": [-1.0782164820427336, 53.96339048321918],
+    "image": "https://www.britmap.com/videos/IMG_6181.webp",
+    "description": "",
+    "occupation": " ",
+    "videoUrl": "https://www.britmap.com/videos/Captions_EF707F.mp4",
+    "tldr": " ",
+                  "colour": "yes",
+                "posterUrl": "https://www.britmap.com/videos/IMG_6179.webp",
+    "events": [  ]
+  },
+        {
+    "name": "Lendal Tower",
+    "coords": [-1.0871091424158719, 53.9603294803262],
+    "image": "https://www.britmap.com/videos/lendaltower-1.webp",
+    "description": "",
+    "occupation": " ",
+    "videoUrl": "https://www.britmap.com/videos/Captions_ED3D9E(1).mp4",
+    "tldr": " ",
+                "posterUrl": "https://www.britmap.com/videos/IMG_6003.webp",
+    "events": [  ]
+  },
 ];
