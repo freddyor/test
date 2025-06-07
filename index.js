@@ -233,6 +233,7 @@ locations.forEach(location => {
                 videoElement.style.maxWidth = '88vw';
                 videoElement.style.maxHeight = '80vh';
                 videoElement.style.borderRadius = '14px';
+              videoElement.style.marginTop = '-60px';
                 videoElement.controls = false;
                 videoElement.preload = 'auto';
                 videoElement.autoplay = true;
