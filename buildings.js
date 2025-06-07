@@ -389,7 +389,7 @@ export const buildings = [
   { 
     "name": "Hans Hess",
     "coords": [-1.0837224, 53.9553593],
-    "image": "https://upload.wikimedia.org/wikipedia/en/6/65/Hans_Hess_%28museologist%29.jpg",
+    "image": "https://www.britmap.com/videos/Screenshot 2025-06-08 at 00-07-16 Hans_Hess_(museologist).jpg (JPEG Image 268 × 372 pixels).webp",
     "occupation": "1907–1975",
     "description": " ",
     "videoUrl": "https://www.britmap.com/videos/Captions_12AA18.mp4",
@@ -580,7 +580,7 @@ export const buildings = [
                 {
     "name": "Eye of York",
     "coords": [-1.0789737325379596, 53.95538800264272],
-    "image": "https://www.yorkpress.co.uk/resources/images/12869391/?type=responsive-gallery-fullscreen",
+    "image": "https://www.britmap.com/videos/IMG_6697.webp",
     "description": "",
     "occupation": " ",
 "videoUrl": "https://www.britmap.com/videos/Captions_79729E.mp4",
@@ -592,7 +592,7 @@ export const buildings = [
          {
     "name": "Colliergiate Drill Hall",
     "coords": [-1.0795023251420366, 53.96036710551679],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Colliergate_drill_hall_2023.jpg",
+    "image": "https://www.britmap.com/videos/IMG_6698.webp",
     "description": "",
     "occupation": "1872",
 "videoUrl": "https://www.britmap.com/videos/Captions_4396D2.mp4",
@@ -629,7 +629,7 @@ export const buildings = [
     {
     "name": "Baile Hill",
     "coords": [-1.082972820397241323, 53.95394761457478],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/7/77/Baile_Hill%2C_York.JPG",
+    "image": "https://www.britmap.com/videos/IMG_6699.webp",
     "description": "",
       "videoUrl": "https://www.britmap.com/videos/copy_70DADB1F-4F3C-4E0C-9042-06EC7BC59F2E.mp4", 
     "occupation": "1068",
@@ -666,7 +666,7 @@ export const buildings = [
       {
     "name": "Cross Keys Symbols",
     "coords": [-1.0839206184987948, 53.9620920783174],
-    "image": "https://live.staticflickr.com/7084/13927402284_f1a3583bb0_b.jpg",
+    "image": "https://www.britmap.com/videos/Screenshot 2025-06-08 at 00-09-09 13927402284_f1a3583bb0_b.jpg (JPEG Image 621 × 1024 pixels) — Scaled (94_).webp",
     "description": "",
     "videoUrl": "https://www.britmap.com/videos/copy_80CA9C38-D963-4632-AB3A-DFA00E94E35F.mp4", 
     "occupation": " ",
