@@ -28,47 +28,47 @@ var map = new maplibregl.Map({
     maxZoom: 19,
 });
 
-    // Geolocate control and user location marker
-    const geolocate = new maplibregl.GeolocateControl({
-        positionOptions: {
-            enableHighAccuracy: true
-        },
-        trackUserLocation: true,
-        showUserHeading: true,
-        showAccuracyCircle: false,
-        fitBoundsOptions: {
-            maxZoom: 15
-        },
-        showUserLocation: false
-    });
-    map.addControl(geolocate);
+// Geolocate control and user location marker
+const geolocate = new maplibregl.GeolocateControl({
+    positionOptions: {
+        enableHighAccuracy: true
+    },
+    trackUserLocation: true,
+    showUserHeading: true,
+    showAccuracyCircle: false,
+    fitBoundsOptions: {
+        maxZoom: 15
+    },
+    showUserLocation: false
+});
+map.addControl(geolocate);
 
-    const userLocationEl = document.createElement('div');
-    userLocationEl.className = 'user-location-marker';
-    const textEl = document.createElement('div');
-    textEl.style.position = 'absolute';
-    textEl.style.top = '50%';
-    textEl.style.left = '50%';
-    textEl.style.transform = 'translate(-50%, -50%)';
-    textEl.style.fontFamily = 'Poppins, sans-serif';
-    textEl.style.fontWeight = 'bold';
-    textEl.style.fontSize = '10px';
-    textEl.style.color = '#87CEFA';
-    textEl.textContent = 'me';
-    userLocationEl.appendChild(textEl);
+const userLocationEl = document.createElement('div');
+userLocationEl.className = 'user-location-marker';
+const textEl = document.createElement('div');
+textEl.style.position = 'absolute';
+textEl.style.top = '50%';
+textEl.style.left = '50%';
+textEl.style.transform = 'translate(-50%, -50%)';
+textEl.style.fontFamily = 'Poppins, sans-serif';
+textEl.style.fontWeight = 'bold';
+textEl.style.fontSize = '10px';
+textEl.style.color = '#87CEFA';
+textEl.textContent = 'me';
+userLocationEl.appendChild(textEl);
 
-    const userLocationMarker = new maplibregl.Marker({element: userLocationEl})
-      .setLngLat([0, 0])
-      .addTo(map);
+const userLocationMarker = new maplibregl.Marker({element: userLocationEl})
+  .setLngLat([0, 0])
+  .addTo(map);
 
-    geolocate.on('error', (e) => {
-      if (e.code === 1) console.log('Location access denied by user');
-    });
-    geolocate.on('geolocate', (e) => {
-      userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
-    });
+geolocate.on('error', (e) => {
+  if (e.code === 1) console.log('Location access denied by user');
+});
+geolocate.on('geolocate', (e) => {
+  userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
+});
 
-    // --- Marker and helper functions ---
+// --- Marker and helper functions ---
 locations.forEach(location => {
     const { element: markerElement } = createCustomMarker(location.image, '#FFFFFF', true);
     markerElement.className += ' location-marker';
@@ -85,161 +85,166 @@ locations.forEach(location => {
     });
 });
 
-    buildings.forEach(building => {
-        const outlineColor = building.colour === "yes" ? '#FF69B4' : '#FFFFFF';
-        const { element: markerElement } = createCustomMarker(building.image, outlineColor, false);
-        markerElement.className += ' building-marker';
+buildings.forEach(building => {
+    const outlineColor = building.colour === "yes" ? '#FF69B4' : '#FFFFFF';
+    const { element: markerElement } = createCustomMarker(building.image, outlineColor, false);
+    markerElement.className += ' building-marker';
 
-        if (building.colour === "yes") markerElement.style.zIndex = '3';
+    if (building.colour === "yes") markerElement.style.zIndex = '3';
 
-        const marker = new maplibregl.Marker({element: markerElement})
-            .setLngLat(building.coords)
-            .addTo(map);
+    const marker = new maplibregl.Marker({element: markerElement})
+        .setLngLat(building.coords)
+        .addTo(map);
 
-        marker.getElement().addEventListener('click', () => {
-            map.getCanvas().style.cursor = 'pointer';
-            const videoUrl = building.videoUrl;
-            const posterUrl = building.posterUrl;
-            if (!videoUrl) {
-                console.error('Video URL not available for this building.'); return;
+    marker.getElement().addEventListener('click', () => {
+        map.getCanvas().style.cursor = 'pointer';
+        const videoUrl = building.videoUrl;
+        const posterUrl = building.posterUrl;
+        if (!videoUrl) {
+            console.error('Video URL not available for this building.'); return;
+        }
+        document.querySelectorAll('.video-modal-overlay').forEach(el => el.remove());
+        const overlay = document.createElement('div');
+        overlay.className = 'video-modal-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = 0;
+        overlay.style.left = 0;
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.background = 'rgba(0,0,0,0.75)';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = 100000;
+        const posterContainer = document.createElement('div');
+        posterContainer.style.position = 'relative';
+        posterContainer.style.marginTop = '-60px';
+
+        // --- Make both poster and video styled identically ---
+        function applyMediaStyles(el) {
+          el.style.display = 'block';           // NEW
+          el.style.margin = '0 auto';           // NEW
+          el.style.maxWidth = '88vw';
+          el.style.maxHeight = '80vh';
+          el.style.borderRadius = '14px';
+          el.style.border = '1.5px solid #E9E8E0';
+        }
+
+        const posterImg = document.createElement('img');
+        posterImg.src = posterUrl || '';
+        posterImg.alt = 'Video cover';
+        applyMediaStyles(posterImg);            // NEW
+        posterImg.addEventListener('load', () => {
+            posterImg.style.border = '1.5px solid #E9E8E0';
+        });
+        const playBtn = document.createElement('button');
+        playBtn.innerHTML = '▶';
+        playBtn.style.position = 'absolute';
+        playBtn.style.top = '50%';
+        playBtn.style.left = '50%';
+        playBtn.style.transform = 'translate(-50%, -50%)';
+        playBtn.style.background = 'rgba(0,0,0,0.6)';
+        playBtn.style.border = 'none';
+        playBtn.style.borderRadius = '50%';
+        playBtn.style.width = '64px';
+        playBtn.style.height = '64px';
+        playBtn.style.color = '#fff';
+        playBtn.style.fontSize = '2.5rem';
+        playBtn.style.cursor = 'pointer';
+        playBtn.style.display = 'flex';
+        playBtn.style.alignItems = 'center';
+        playBtn.style.justifyContent = 'center';
+        playBtn.style.zIndex = 2;
+        const spinner = document.createElement('div');
+        spinner.style.position = 'absolute';
+        spinner.style.top = '50%';
+        spinner.style.left = '50%';
+        spinner.style.transform = 'translate(-50%, -50%)';
+        spinner.style.width = '48px';
+        spinner.style.height = '48px';
+        spinner.style.border = '6px solid #eee';
+        spinner.style.borderTop = '6px solid #9b4dca';
+        spinner.style.borderRadius = '50%';
+        spinner.style.animation = 'spin 1s linear infinite';
+        spinner.style.display = 'none';
+        spinner.style.zIndex = 3;
+        const spinnerStyle = document.createElement('style');
+        spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
+        document.head.appendChild(spinnerStyle);
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = '❌';
+        closeBtn.style.position = 'absolute';
+        closeBtn.style.top = '-8px';
+        closeBtn.style.right = '-8px';
+        closeBtn.style.width = '25px';
+        closeBtn.style.height = '25px';
+        closeBtn.style.background = '#000';
+        closeBtn.style.color = '#fff';
+        closeBtn.style.border = '1.5px solid #E9E8E0';
+        closeBtn.style.borderRadius = '50%';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.style.fontSize = '0.7rem';
+        closeBtn.style.zIndex = '100001';
+        closeBtn.style.display = 'flex';
+        closeBtn.style.alignItems = 'center';
+        closeBtn.style.justifyContent = 'center';
+
+        // New: Keep reference to the video element for pausing
+        let videoElement = null;
+
+        // Helper function to pause and remove overlay
+        function removeOverlayAndPauseVideo() {
+            if (videoElement) {
+                videoElement.pause();
+                videoElement.currentTime = 0;
             }
-            document.querySelectorAll('.video-modal-overlay').forEach(el => el.remove());
-            const overlay = document.createElement('div');
-            overlay.className = 'video-modal-overlay';
-            overlay.style.position = 'fixed';
-            overlay.style.top = 0;
-            overlay.style.left = 0;
-            overlay.style.width = '100vw';
-            overlay.style.height = '100vh';
-            overlay.style.background = 'rgba(0,0,0,0.75)';
-            overlay.style.display = 'flex';
-            overlay.style.alignItems = 'center';
-            overlay.style.justifyContent = 'center';
-            overlay.style.zIndex = 100000;
-            const posterContainer = document.createElement('div');
-            posterContainer.style.position = 'relative';
-            posterContainer.style.marginTop = '-60px';
-            const posterImg = document.createElement('img');
-            posterImg.src = posterUrl || '';
-            posterImg.alt = 'Video cover';
-            posterImg.style.maxWidth = '88vw';
-            posterImg.style.maxHeight = '80vh';
-            posterImg.style.borderRadius = '14px';
-            posterImg.style.display = 'block';
-            posterImg.addEventListener('load', () => {
-                posterImg.style.border = '1.5px solid #E9E8E0';
-            });
-            const playBtn = document.createElement('button');
-            playBtn.innerHTML = '▶';
-            playBtn.style.position = 'absolute';
-            playBtn.style.top = '50%';
-            playBtn.style.left = '50%';
-            playBtn.style.transform = 'translate(-50%, -50%)';
-            playBtn.style.background = 'rgba(0,0,0,0.6)';
-            playBtn.style.border = 'none';
-            playBtn.style.borderRadius = '50%';
-            playBtn.style.width = '64px';
-            playBtn.style.height = '64px';
-            playBtn.style.color = '#fff';
-            playBtn.style.fontSize = '2.5rem';
-            playBtn.style.cursor = 'pointer';
+            overlay.remove();
+        }
+
+        closeBtn.onclick = () => removeOverlayAndPauseVideo();
+        let startY;
+        overlay.addEventListener('touchstart', e => {
+            if (e.touches.length === 1) startY = e.touches[0].clientY;
+        });
+        overlay.addEventListener('touchmove', e => {
+            if (startY !== undefined && e.touches.length === 1) {
+                const dy = e.touches[0].clientY - startY;
+                if (dy > 70) {
+                    removeOverlayAndPauseVideo();
+                    startY = undefined;
+                }
+            }
+        });
+        overlay.addEventListener('touchend', () => { startY = undefined; });
+        playBtn.style.display = 'none';
+        closeBtn.style.display = 'none';
+        posterImg.onload = function() {
             playBtn.style.display = 'flex';
-            playBtn.style.alignItems = 'center';
-            playBtn.style.justifyContent = 'center';
-            playBtn.style.zIndex = 2;
-            const spinner = document.createElement('div');
-            spinner.style.position = 'absolute';
-            spinner.style.top = '50%';
-            spinner.style.left = '50%';
-            spinner.style.transform = 'translate(-50%, -50%)';
-            spinner.style.width = '48px';
-            spinner.style.height = '48px';
-            spinner.style.border = '6px solid #eee';
-            spinner.style.borderTop = '6px solid #9b4dca';
-            spinner.style.borderRadius = '50%';
-            spinner.style.animation = 'spin 1s linear infinite';
-            spinner.style.display = 'none';
-            spinner.style.zIndex = 3;
-            const spinnerStyle = document.createElement('style');
-            spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
-            document.head.appendChild(spinnerStyle);
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = '❌';
-            closeBtn.style.position = 'absolute';
-            closeBtn.style.top = '-8px';
-            closeBtn.style.right = '-8px';
-            closeBtn.style.width = '25px';
-            closeBtn.style.height = '25px';
-            closeBtn.style.background = '#000';
-            closeBtn.style.color = '#fff';
-            closeBtn.style.border = '1.5px solid #E9E8E0';
-            closeBtn.style.borderRadius = '50%';
-            closeBtn.style.cursor = 'pointer';
-            closeBtn.style.fontSize = '0.7rem';
-            closeBtn.style.zIndex = '100001';
             closeBtn.style.display = 'flex';
-            closeBtn.style.alignItems = 'center';
-            closeBtn.style.justifyContent = 'center';
-
-            // New: Keep reference to the video element for pausing
-            let videoElement = null;
-
-            // Helper function to pause and remove overlay
-            function removeOverlayAndPauseVideo() {
-                if (videoElement) {
-                    videoElement.pause();
-                    videoElement.currentTime = 0;
-                }
-                overlay.remove();
-            }
-
-            closeBtn.onclick = () => removeOverlayAndPauseVideo();
-            let startY;
-            overlay.addEventListener('touchstart', e => {
-                if (e.touches.length === 1) startY = e.touches[0].clientY;
-            });
-            overlay.addEventListener('touchmove', e => {
-                if (startY !== undefined && e.touches.length === 1) {
-                    const dy = e.touches[0].clientY - startY;
-                    if (dy > 70) {
-                        removeOverlayAndPauseVideo();
-                        startY = undefined;
-                    }
-                }
-            });
-            overlay.addEventListener('touchend', () => { startY = undefined; });
+        };
+        posterContainer.appendChild(posterImg);
+        posterContainer.appendChild(playBtn);
+        posterContainer.appendChild(spinner);
+        posterContainer.appendChild(closeBtn);
+        overlay.appendChild(posterContainer);
+        document.body.appendChild(overlay);
+        overlay.addEventListener('mousedown', function(e) {
+            if (e.target === overlay) removeOverlayAndPauseVideo();
+        });
+        playBtn.onclick = () => {
             playBtn.style.display = 'none';
-            closeBtn.style.display = 'none';
-            posterImg.onload = function() {
-                playBtn.style.display = 'flex';
-                closeBtn.style.display = 'flex';
-            };
-            posterContainer.appendChild(posterImg);
-            posterContainer.appendChild(playBtn);
-            posterContainer.appendChild(spinner);
-            posterContainer.appendChild(closeBtn);
-            overlay.appendChild(posterContainer);
-            document.body.appendChild(overlay);
-            overlay.addEventListener('mousedown', function(e) {
-                if (e.target === overlay) removeOverlayAndPauseVideo();
-            });
-            playBtn.onclick = () => {
-                playBtn.style.display = 'none';
-                spinner.style.display = 'block';
-                videoElement = document.createElement('video');
-                videoElement.src = videoUrl;
-                if (posterUrl) videoElement.poster = posterUrl;
-                videoElement.style.border = '1.5px solid #E9E8E0';
-                videoElement.style.maxWidth = '88vw';
-                videoElement.style.maxHeight = '80vh';
-                videoElement.style.borderRadius = '14px';
-                videoElement.controls = false;
-                videoElement.preload = 'auto';
-                videoElement.autoplay = true;
-                videoElement.setAttribute('playsinline', '');
-                videoElement.setAttribute('webkit-playsinline', '');
-                videoElement.playsInline = true;
-                showFirstVideoWaitMessage(videoElement);
+            spinner.style.display = 'block';
+            videoElement = document.createElement('video');
+            videoElement.src = videoUrl;
+            if (posterUrl) videoElement.poster = posterUrl;
+            applyMediaStyles(videoElement);     // NEW
+            videoElement.controls = false;
+            videoElement.preload = 'auto';
+            videoElement.autoplay = true;
+            videoElement.setAttribute('playsinline', '');
+            videoElement.setAttribute('webkit-playsinline', '');
+            videoElement.playsInline = true;
+            showFirstVideoWaitMessage(videoElement);
 let hasStarted = false;
 
 function showVideo() {
@@ -273,9 +278,9 @@ videoElement.addEventListener('error', () => {
     alert('Video failed to load.');
 });
 videoElement.load();
-            };
-        });
+        };
     });
+});
 
 function scaleMarkersBasedOnZoom() {
     const zoomLevel = map.getZoom();
@@ -291,19 +296,19 @@ function scaleMarkersBasedOnZoom() {
 }
 
 
-    scaleMarkersBasedOnZoom();
+scaleMarkersBasedOnZoom();
 
-    // Map event listeners immediately
-    map.on('click', (e) => {
-        const currentLat = e.lngLat.lat;
-        const currentLng = e.lngLat.lng;
-        const currentZoom = map.getZoom();
-        const mapLink = generateMapLink(currentLat, currentLng, currentZoom);
-        console.log('Map Link:', mapLink);
-    });
-    map.on('zoom', () => scaleMarkersBasedOnZoom());
+// Map event listeners immediately
+map.on('click', (e) => {
+    const currentLat = e.lngLat.lat;
+    const currentLng = e.lngLat.lng;
+    const currentZoom = map.getZoom();
+    const mapLink = generateMapLink(currentLat, currentLng, currentZoom);
+    console.log('Map Link:', mapLink);
+});
+map.on('zoom', () => scaleMarkersBasedOnZoom());
 
-    // Only what requires style load
+// Only what requires style load
 map.on('load', () => {
     geolocate.trigger();
 
