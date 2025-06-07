@@ -119,7 +119,6 @@ locations.forEach(location => {
                 overlay.style.zIndex = 100000;
                 const posterContainer = document.createElement('div');
                 posterContainer.style.position = 'relative';
-                posterContainer.style.marginTop = '-60px';
                 const posterImg = document.createElement('img');
                 posterImg.src = posterUrl || '';
                 posterImg.alt = 'Video cover';
