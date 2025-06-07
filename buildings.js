@@ -492,7 +492,7 @@ export const buildings = [
         {
     "name": "The Milner York",
     "coords": [-1.091757496638528, 53.95866308006686],
-    "image": "https://upload.wikimedia.org/wikipedia/commons/c/cc/York_Station_Hotel.JPG",
+    "image": "https://www.britmap.com/videos/IMG_6700.webp",
     "description": "",
     "occupation": "1878",
     "videoUrl": "https://www.britmap.com/videos/Captions_5443BE.mp4",
