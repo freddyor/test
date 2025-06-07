@@ -158,10 +158,20 @@ locations.forEach(location => {
                 alert('Video failed to load.');
             });
 
-            const videoContainer = document.createElement('div');
-            videoContainer.style.position = 'relative';
-            videoContainer.appendChild(videoElement);
-            videoContainer.appendChild(closeBtn);
+const videoContainer = document.createElement('div');
+videoContainer.style.position = 'relative';
+videoContainer.style.width = '88vw';            // Match the maxWidth of your video
+videoContainer.style.maxWidth = '88vw';
+videoContainer.style.height = '80vh';           // Match the maxHeight of your video
+videoContainer.style.maxHeight = '80vh';
+videoContainer.style.display = 'flex';
+videoContainer.style.alignItems = 'center';
+videoContainer.style.justifyContent = 'center';
+videoContainer.style.background = '#222';       // Optional: dark background before video loads
+videoContainer.style.borderRadius = '14px';
+
+videoContainer.appendChild(videoElement);
+videoContainer.appendChild(closeBtn);
 
             overlay.appendChild(videoContainer);
             document.body.appendChild(overlay);
