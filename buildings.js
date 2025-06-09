@@ -3,8 +3,6 @@ export const buildings = [
   name: "St Sampson’s Square",
   coords: [ -1.0820857546658986, 53.95964878951261 ],
   image: "https://freddyor.github.io/british-map/videos/IMG_6805.webp",
-  description: "",
-  occupation: " ",
   tldr: "",
    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D69295.mp4",
    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6800.webp",
