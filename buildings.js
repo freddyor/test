@@ -8,7 +8,7 @@ export const buildings = [
   },
   {'name': 'Ouse Bridge ',
    'coords': [-1.0838338489009738, 53.95746620889665],
-   'image': 'https://freddyor.github.io/british-map/videos/IMG_68002.webp',
+   'image': 'https://freddyor.github.io/british-map/videos/IMG_6802.webp',
    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_9850E0.mp4",
    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6798.webp",
   },
