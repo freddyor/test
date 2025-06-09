@@ -1,4 +1,81 @@
 export const buildings = [
+                                    {
+ 'name': 'Ouse Toilet',
+ 'coords': [-1.0836093085493574, 53.95750273380572],
+  image: "https://freddyor.github.io/british-map/videos/IMG_6771.webp",
+  description: "",
+  occupation: "",
+  tldr: "",
+  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4A7AA7.mp4",
+   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6770.webp",
+  events: []
+},
+                                    {
+ 'name': 'Parliament Street',
+ 'coords': [-1.0809358891178542, 53.95878011748771],
+  image: "https://freddyor.github.io/british-map/videos/IMG_6772.webp",
+  description: "",
+  occupation: "",
+  tldr: "",
+  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_356766.mp4",
+   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6769.webp",
+  events: []
+},
+                                    {
+ 'name': 'Saltmarsh House',
+ 'coords': [-1.077166042144438, 53.961091204662],
+  image: "https://freddyor.github.io/british-map/videos/IMG_6763.webp",
+  description: "",
+  occupation: "",
+  tldr: "",
+  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_F00F34.mp4",
+   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6767.webp",
+  events: []
+},
+                                    {
+ 'name': 'Aldwark Synagogue',
+ 'coords': [-1.0781713307115592, 53.962115124608395],
+  image: "https://freddyor.github.io/british-map/videos/IMG_6761.webp",
+  description: "",
+  occupation: "",
+  tldr: "",
+  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_991278.mp4",
+   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6768.webp",
+  events: []
+},
+                                    {
+ 'name': 'Aldwark Wesleyan Chapel',
+ 'coords': [-1.0764619462942004, 53.960526655335016],
+  image: "https://freddyor.github.io/british-map/videos/IMG_6759.webp",
+  description: "",
+  occupation: "",
+  tldr: "",
+  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D460FE.mp4",
+   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6765.webp",
+  events: []
+},
+                                    {
+ 'name': 'Aldwark',
+ 'coords': [-1.0771367438107966, 53.96102006398069],
+  image: "https://freddyor.github.io/british-map/videos/IMG_6762.webp",
+  description: "",
+  occupation: "",
+  tldr: "",
+  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_89C2E8.mp4",
+   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6764.webp",
+  events: []
+},
+                                  {
+ 'name': 'Benedict of York',
+ 'coords': [-1.0778701048380208, 53.96071218519194],
+  image: "https://freddyor.github.io/british-map/videos/IMG_6760.webp",
+  description: "",
+  occupation: "",
+  tldr: "",
+  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8EFB54.mp4",
+   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6766.webp",
+  events: []
+},
   {'name': 'Stuart Feather',
  'coords': [-1.0828678455724547, 53.9578982808366],
  'image': 'https://freddyor.github.io/british-map/videos/IMG_6675.webp',
