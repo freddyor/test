@@ -19,8 +19,8 @@ const yorkBounds = [
 var map = new maplibregl.Map({
     container: 'map',
     style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=gYFEdggSAlArkAt4iOei',
-    center: [-1.08643774070107, 53.95996305984138],
-    zoom: 16,
+    center: [-1.0812025894431188, 53.958916884514004],
+    zoom: 14,
     pitch: 45,
     bearing: -17.6,
     maxBounds: yorkBounds,
