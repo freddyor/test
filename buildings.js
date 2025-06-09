@@ -56,7 +56,7 @@ export const buildings = [
 },
                                     {
  'name': 'Aldwark',
- 'coords': [-1.0771367438107966, 53.96102006398069],
+ 'coords': [-1.0761003581073905, 53.96032023807792],
   image: "https://freddyor.github.io/british-map/videos/IMG_6762.webp",
   description: "",
   occupation: "",
