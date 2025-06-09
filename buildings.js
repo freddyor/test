@@ -1,782 +1,507 @@
 export const buildings = [
-                                     {
-  name: "St Sampson’s Square",
-  coords: [ -1.0820857546658986, 53.95964878951261 ],
-  image: "https://freddyor.github.io/british-map/videos/IMG_6805.webp",
-   "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D69295.mp4",
-   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6800.webp",
-},
+  {
+    name: "St Sampson’s Square",
+    coords: [ -1.0820857546658986, 53.95964878951261 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6805.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D69295.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6800.webp",
+  },
   {'name': 'Ouse Bridge ',
- 'coords': [-1.0838338489009738, 53.95746620889665],
- 'image': 'https://freddyor.github.io/british-map/videos/IMG_68002.webp',
- 'description': '',
- 'occupation': '',
- 'tldr': '',
+   'coords': [-1.0838338489009738, 53.95746620889665],
+   'image': 'https://freddyor.github.io/british-map/videos/IMG_68002.webp',
    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_9850E0.mp4",
    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6798.webp",
- 'events': []},
-  
-{'name': 'Margaret Clitherow',
- 'coords': [-1.0843346978453228, 53.957361521330085],
- 'image': 'https://freddyor.github.io/british-map/videos/IMG_6801.webp',
- 'description': '',
- 'occupation': '',
-    'tldr': '',
- "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_21DDAC.mp4",
+  },
+  {'name': 'Margaret Clitherow',
+   'coords': [-1.0843346978453228, 53.957361521330085],
+   'image': 'https://freddyor.github.io/british-map/videos/IMG_6801.webp',
+   "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_21DDAC.mp4",
    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6799.webp",
- 'events': []},
-                                    {
- 'name': 'Ouse Toilet',
- 'coords': [-1.0836093085493574, 53.95750273380572],
-  image: "https://freddyor.github.io/british-map/videos/IMG_6771.webp",
-  description: "",
-  occupation: "",
-  tldr: "",
-  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4A7AA7.mp4",
-   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6770.webp",
-  events: []
-},
-                                    {
- 'name': 'Parliament Street',
- 'coords': [-1.0809358891178542, 53.95878011748771],
-  image: "https://freddyor.github.io/british-map/videos/IMG_6772.webp",
-  description: "",
-  occupation: "",
-  tldr: "",
-  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_356766.mp4",
-   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6769.webp",
-  events: []
-},
-                                    {
- 'name': 'Saltmarsh House',
- 'coords': [-1.077166042144438, 53.961091204662],
-  image: "https://freddyor.github.io/british-map/videos/IMG_6763.webp",
-  description: "",
-  occupation: "",
-  tldr: "",
-  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_F00F34.mp4",
-   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6767.webp",
-  events: []
-},
-                                    {
- 'name': 'Aldwark Synagogue',
- 'coords': [-1.0781713307115592, 53.962115124608395],
-  image: "https://freddyor.github.io/british-map/videos/IMG_6761.webp",
-  description: "",
-  occupation: "",
-  tldr: "",
-  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_991278.mp4",
-   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6768.webp",
-  events: []
-},
-                                    {
- 'name': 'Aldwark Wesleyan Chapel',
- 'coords': [-1.0764619462942004, 53.960526655335016],
-  image: "https://freddyor.github.io/british-map/videos/IMG_6759.webp",
-  description: "",
-  occupation: "",
-  tldr: "",
-  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D460FE.mp4",
-   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6765.webp",
-  events: []
-},
-                                    {
- 'name': 'Aldwark',
- 'coords': [-1.0761003581073905, 53.96032023807792],
-  image: "https://freddyor.github.io/british-map/videos/IMG_6762.webp",
-  description: "",
-  occupation: "",
-  tldr: "",
-  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_89C2E8.mp4",
-   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6764.webp",
-  events: []
-},
-                                  {
- 'name': 'Benedict of York',
- 'coords': [-1.0778701048380208, 53.96071218519194],
-  image: "https://freddyor.github.io/british-map/videos/IMG_6760.webp",
-  description: "",
-  occupation: "",
-  tldr: "",
-  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8EFB54.mp4",
-   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6766.webp",
-  events: []
-},
+  },
+  {
+    'name': 'Ouse Toilet',
+    'coords': [-1.0836093085493574, 53.95750273380572],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6771.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4A7AA7.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6770.webp",
+  },
+  {
+    'name': 'Parliament Street',
+    'coords': [-1.0809358891178542, 53.95878011748771],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6772.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_356766.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6769.webp",
+  },
+  {
+    'name': 'Saltmarsh House',
+    'coords': [-1.077166042144438, 53.961091204662],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6763.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_F00F34.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6767.webp",
+  },
+  {
+    'name': 'Aldwark Synagogue',
+    'coords': [-1.0781713307115592, 53.962115124608395],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6761.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_991278.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6768.webp",
+  },
+  {
+    'name': 'Aldwark Wesleyan Chapel',
+    'coords': [-1.0764619462942004, 53.960526655335016],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6759.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D460FE.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6765.webp",
+  },
+  {
+    'name': 'Aldwark',
+    'coords': [-1.0761003581073905, 53.96032023807792],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6762.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_89C2E8.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6764.webp",
+  },
+  {
+    'name': 'Benedict of York',
+    'coords': [-1.0778701048380208, 53.96071218519194],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6760.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8EFB54.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6766.webp",
+  },
   {'name': 'Stuart Feather',
- 'coords': [-1.0828678455724547, 53.9578982808366],
- 'image': 'https://freddyor.github.io/british-map/videos/IMG_6675.webp',
- 'description': '',
- 'occupation': ' ',
-     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_49652B.mp4",
+   'coords': [-1.0828678455724547, 53.9578982808366],
+   'image': 'https://freddyor.github.io/british-map/videos/IMG_6675.webp',
+   "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_49652B.mp4",
    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6673.webp",
- 'tldr': ' ',
- 'events': []},
-                                {
- 'name': 'St William',
- 'coords': [-1.0814491294017095, 53.9624467151365],
-  image: "https://freddyor.github.io/british-map/videos/Screenshot 2025-06-07 at 20-50-44 st-william-of-york-header.jpg (JPEG Image 540 × 752 pixels).webp",
-  description: "",
-  occupation: "",
-  tldr: "",
-  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_5022D2.mp4",
-   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6522.webp",
-  events: []
-},
-                                {
- 'name': 'St William',
- 'coords': [-1.084117684084615, 53.957460834182356],
-  image: "https://freddyor.github.io/british-map/videos/Screenshot 2025-06-07 at 20-50-44 st-william-of-york-header.jpg (JPEG Image 540 × 752 pixels).webp",
-  description: "",
-  occupation: "",
-  tldr: "",
-  "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_5022D2.mp4",
-   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6522.webp",
-  events: []
-},
-                             {
+  },
+  {
+    'name': 'St William',
+    'coords': [-1.0814491294017095, 53.9624467151365],
+    image: "https://freddyor.github.io/british-map/videos/Screenshot 2025-06-07 at 20-50-44 st-william-of-york-header.jpg (JPEG Image 540 × 752 pixels).webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_5022D2.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6522.webp",
+  },
+  {
+    'name': 'St William',
+    'coords': [-1.084117684084615, 53.957460834182356],
+    image: "https://freddyor.github.io/british-map/videos/Screenshot 2025-06-07 at 20-50-44 st-william-of-york-header.jpg (JPEG Image 540 × 752 pixels).webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_5022D2.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6522.webp",
+  },
+  {
     name: "St Helen’s Burial Ground",
     coords: [ -1.0830780227993537, 53.95966607784507 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_6694.webp",
-    description: "",
-    occupation: "",
-    tldr: "",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_07F51B.mp4",
-     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6518.webp",
-    events: []
-},
-    {'name': 'Salem Chapel',
-     'coords': [-1.0769951340621942, 53.96046077025504],
-     'image': 'https://freddyor.github.io/british-map/videos/Screenshot 2025-06-07 at 22-30-08 salem_from_SAVE_Fall_of_Zion.jpg (JPEG Image 600 × 487 pixels).webp',
-     'description': '',
-     'occupation': '1839',
-     'tldr': '',
-           "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_A08F33.mp4",
-      "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6475.webp",
-     'events': []
-   },
-    {
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6518.webp",
+  },
+  {'name': 'Salem Chapel',
+   'coords': [-1.0769951340621942, 53.96046077025504],
+   'image': 'https://freddyor.github.io/british-map/videos/Screenshot 2025-06-07 at 22-30-08 salem_from_SAVE_Fall_of_Zion.jpg (JPEG Image 600 × 487 pixels).webp',
+   "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_A08F33.mp4",
+   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6475.webp",
+  },
+  {
     "name": "Ingram House",
     "coords": [-1.0902817392673825, 53.965384792879576],
     "image": "https://freddyor.github.io/british-map/videos/IMG_6215.webp",
-    "description": "",
-    "occupation": "",
-    "tldr": "",
-      "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_040E35.mp4",
-      "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6214.webp",
-    "events": [ ]
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_040E35.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6214.webp",
   },
-                {
+  {
     "name": "Etty Statue Hand",
     "coords": [-1.0858983757252028, 53.96278755058766],
     "image": "https://freddyor.github.io/british-map/videos/IMG_6180.webp",
-    "description": "",
-    "occupation": " ",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_99AA7F.mp4",
-    "tldr": " ",
-                  "colour": "yes",
-                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6176.webp",
-    "events": [  ]
+    "colour": "yes",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6176.webp",
   },
-                {
+  {
     "name": "St Maurice Street",
     "coords": [-1.0779773485377184, 53.96301889037769],
     "image": "https://freddyor.github.io/british-map/videos/IMG_6191.webp",
-    "description": "",
-    "occupation": " ",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B7547E.mp4",
-    "tldr": " ",
-                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6189.webp",
-    "events": [  ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6189.webp",
   },
-                {
+  {
     "name": "St Maurice Church",
     "coords": [-1.0782164820427336, 53.96339048321918],
     "image": "https://freddyor.github.io/british-map/videos/IMG_6181.webp",
-    "description": "",
-    "occupation": " ",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_EF707F.mp4",
-    "tldr": " ",
-                  "colour": "yes",
-                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6179.webp",
-    "events": [  ]
+    "colour": "yes",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6179.webp",
   },
-        {
+  {
     "name": "Lendal Tower",
     "coords": [-1.0871091424158719, 53.9603294803262],
     "image": "https://freddyor.github.io/british-map/videos/lendaltower-1.webp",
-    "description": "",
-    "occupation": " ",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_ED3D9E(1).mp4",
-    "tldr": " ",
-                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6003.webp",
-    "events": [  ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6003.webp",
   },
-                     {
+  {
     "name": "St Leonard's Hospital Windows",
     "coords": [-1.0861441746752907, 53.961203974350866],
     "image": "https://freddyor.github.io/british-map/videos/leonardwindow.webp",
-    "description": "",
-    "occupation": "1866-?",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_BA8635.mp4", 
-    "tldr": "",
-                             "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6002.webp",
-    "events": []
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6002.webp",
   },
-              {
+  {
     "name": "Lendal Bridge Toll Booths",
     "coords": [-1.087467580549237, 53.9597560230991],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5646.webp",
-    "description": "",
-    "occupation": "1866-?",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_2ED448.mp4", 
-    "tldr": "",
-                      "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6056.webp",
-    "events": []
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6056.webp",
   },
-       {
+  {
     "name": "Lendal Bridge Arch",
     "coords": [-1.0869891645941883, 53.96018862807536],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5565.webp",
-    "description": "",
-    "occupation": "1866-?",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_7978BD.mp4", 
-    "tldr": "",
-         "colour": "yes",
+    "colour": "yes",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6001.webp",
-    "events": []
   },
-       {
+  {
     "name": "Lendal AV Symbols",
     "coords": [-1.0871930124790716, 53.959968092170136],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5564.webp",
-    "description": "",
-    "occupation": "1863",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8C1281.mp4", 
-    "tldr": "",
-               "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6049.webp",
-    "events": []
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6049.webp",
   },
-       {
+  {
     "name": "Lendal Bridge",
     "coords": [-1.0873884839256371, 53.95992558014929],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5569.webp",
-    "description": "",
-    "occupation": "1863",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_40E9B5.mp4", 
-    "tldr": "",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_5998.webp",
-    "events": []
   },
-       {
+  {
     "name": "Lendal Ferry",
     "coords": [-1.0877585352552135, 53.95984269725424],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5566.webp",
-    "description": "",
-    "occupation": " ",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_1F175B.mp4", 
-    "tldr": "",
-               "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6005.webp",
-    "events": []
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6005.webp",
   },
-    {
+  {
     "name": "Second Boer War Memorial",
     "coords": [-1.083717126021606, 53.961700693395734],
     "image": "https://freddyor.github.io/british-map/videos/boerwarmemorial.webp",
-    "description": "",
-    "occupation": "1905",
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_8250E92B-5789-4C53-9148-68E554C7075E.mp4", 
-    "tldr": "",
-            "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6007.webp",
-    "events": []
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6007.webp",
   },
-                        {
+  {
     name: "St Mary's Church",
     coords: [-1.0872068097255867, 53.95590619549012], 
     image: "https://freddyor.github.io/british-map/videos/IMG_5429.webp", 
-    description: "",
-    occupation: " ", 
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_2AAF6B(1).mp4",
-    "subtitle": "The oldest church in York",
-    tldr: "",
-                                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6042-1.webp",
-    events: [  ]
+    subtitle: "The oldest church in York",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6042-1.webp",
   },
-                      {
+  {
     name: "Walmgate Killing Grounds",
     coords: [-1.0707008249072183, 53.95517595722506], 
     image: "https://freddyor.github.io/british-map/videos/IMG_5364.webp", 
-    description: "",
-    occupation: " ", 
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_61B047.mp4",
-                        "subtitle": "The only reminder of the brutal death traps of medieval York",
-    tldr: "",
-                              "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6046.webp",
-    events: [  ]
+    subtitle: "The only reminder of the brutal death traps of medieval York",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6046.webp",
   },
-                      {
+  {
     name: "Murage Doors",
     coords: [-1.0785514627213102, 53.96275261954293], 
     image: "https://freddyor.github.io/british-map/videos/IMG_5366.webp", 
-    description: "",
-    occupation: "11th Century", 
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_AC995F.mp4",
-                        "subtitle": "The site of ancient tax collection",
-    tldr: "",
-                        "colour": "yes",
-                              "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6048.webp",
-    events: [  ]
+    subtitle: "The site of ancient tax collection",
+    "colour": "yes",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6048.webp",
   },
-                      {
+  {
     name: "Little Admiral",
     coords: [-1.0843086038471415, 53.95941652596521], 
     image: "https://freddyor.github.io/british-map/videos/IMG_6050.webp", 
-    description: "",
-    occupation: "11th Century", 
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8F5743.mp4",
-    "subtitle": "York's old figurine that disappeared",
-    tldr: "",
-                        "colour": "yes",
-                              "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6041.webp",
-    events: [  ]
+    subtitle: "York's old figurine that disappeared",
+    "colour": "yes",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6041.webp",
   },
-           {
+  {
     name: "King's Manor",
     coords: [-1.0862176206651686, 53.96250673808531], 
     image: "https://freddyor.github.io/british-map/videos/kingsmanor.webp", 
-    description: "",
-    occupation: "11th Century", 
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_746FC9.mp4",
-             "subtitle": "The HQ of Henry VIII's Council of the North",
-    tldr: "",
-                   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6047.webp",
-    events: [  ]
+    subtitle: "The HQ of Henry VIII's Council of the North",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6047.webp",
   },
-             {
+  {
     name: "York Dispensary",
     coords: [-1.0846377100592663, 53.961304511725615],
     image: "https://freddyor.github.io/british-map/videos/yorkdispensary.webp",
-    description: "",
-    occupation: "1899",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_E34A23.mp4",
-              "subtitle": "One of York's greatest ever pre-NHS charities",
-    tldr: "",
-                    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6045.webp",
-    events: [    ]
+    subtitle: "One of York's greatest ever pre-NHS charities",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6045.webp",
   },
-           {
+  {
     name: "York Magistrates' Court",
     coords: [-1.0817351891167126, 53.95632576626781],
     image: "https://freddyor.github.io/british-map/videos/IMG_5744.webp",
-    description: "",
-    occupation: "1892",
-   "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4581BD.mp4",
-             "subtitle": "Historic York carvings on an important building",
-    tldr: "",
-                   "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6043.webp",
-    events: [     ]
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4581BD.mp4",
+    subtitle: "Historic York carvings on an important building",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6043.webp",
   },
-                {
+  {
     name: "Jacobs Well",
     coords: [-1.0884877806115956, 53.9568223082359],
     image: "https://freddyor.github.io/british-map/videos/IMG_5717.webp",
-    description: "",
-    occupation: "1474",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_3D5670.mp4",
-    "subtitle": "York's ties to a Palestinian city",
-    tldr: "",
-                    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6040.webp",
-    events: []
+    subtitle: "York's ties to a Palestinian city",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6040.webp",
   },
-          {
+  {
     "name": "Medieval Jewish Burial Site",
     "coords": [-1.0755512348222946, 53.961803650730964],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5323.webp",
-    "description": "",
-    "occupation": " ",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_1C52DB.mp4",
     "subtitle": "The largest of its kind in England",
-    "tldr": "",
-                  "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6035.webp",
-    "events": [
-    ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6035.webp",
   },
-     {
+  {
     "name": "The Minster School",
     "coords": [-1.0806394582981738, 53.961338997265],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5738.webp",
-    "description": "",
-    "occupation": "Here 1903-2020",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_1FF9B1.mp4",
-    "tldr": "",
-             "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6036.webp",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6036.webp",
     "subtitle": "One of the oldest schools in human history",
-    "events": [
-    ]
   },
-       {
+  {
     "name": "St Andrew's Church",
     "coords": [-1.0783811617738115, 53.96086734865589],
     "image": "https://freddyor.github.io/british-map/videos/standrewschurch.webp",
-    "description": "",
-    "occupation": "11th CENTURY",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8118A9.mp4",
     "subtitle": "The church that became a brothel",
-    "tldr": "",
-               "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6037.webp",
-    "events": [
-    ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6037.webp",
   },
-       {
+  {
     "name": "St Marys Abbey Remains",
     "coords": [-1.0878747049737392, 53.96235328206902],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5735.webp",
-    "description": "",
-    "occupation": "1086",
-     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_DBE962.mp4",
-     "subtitle": "One of the most prosperous abbeys in the North",
-    "tldr": "",
-               "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6038.webp",
-    "events": []
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_DBE962.mp4",
+    "subtitle": "One of the most prosperous abbeys in the North",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6038.webp",
   },
-       {
+  {
     "name": "The Judge's Lodging",
     "coords": [-1.085422730301877, 53.9605969994961],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5755.webp",
-    "description": "",
-    "occupation": "1711",
-   "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_7A894C.mp4",
-   "subtitle": "The residence for the most important judges in England",
-    "tldr": "",
-               "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6039.webp",
-    "events": []
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_7A894C.mp4",
+    "subtitle": "The residence for the most important judges in England",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6039.webp",
   },
-     {
+  {
     "name": "St William's College",
     "coords": [-1.0802937994910167, 53.96232365544075],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5739.webp",
-    "description": "",
-    "occupation": "1460",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D8E302.mp4",
     "subtitle": "The college built for drunk priests",
-    "tldr": "",
-             "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6031.webp",
-    "events": [
-    ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6031.webp",
   },
-      {
+  {
     "name": "Judges Court",
     "coords": [-1.0836136853486988, 53.959103592652625],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5752.webp",
-    "description": "",
-    "occupation": "1720",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_56B7AF.mp4",
-                "subtitle": "The father of The Judge's Lodging",
-    "tldr": "",
-              "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6032.webp",
-    "events": [
-     ]
+    "subtitle": "The father of The Judge's Lodging",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6032.webp",
   },
-     {
+  {
     "name": "Old White Swan",
     "coords": [-1.0803558882668973, 53.960556085456],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5740.webp",
-    "description": "",
-    "occupation": "1703",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D86667.mp4",
     "subtitle": "Third-oldest pub in York with an interesting history",
-    "tldr": "",
-             "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6033.webp",
-    "events": [
-    ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6033.webp",
   },
   { 
     "name": "Hans Hess",
     "coords": [-1.0837224, 53.9553593],
     "image": "https://freddyor.github.io/british-map/videos/Screenshot 2025-06-08 at 00-07-16 Hans_Hess_(museologist).jpg (JPEG Image 268 × 372 pixels).webp",
-    "occupation": "1907–1975",
-    "description": " ",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_12AA18.mp4",
     "subtitle": "The Jew who fled Nazi Germany to York",
-    "tldr": "",
-          "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6034.webp",
-    "events": [
-    ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6034.webp",
   },
-    {
+  {
     "name": "St Denys Church",
     "coords": [-1.0761695874054933, 53.95668650245543],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5743.webp",
-    "description": "",
-    "occupation": "1154",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8F153F.mp4",
     "subtitle": "The church that experienced all of York's history",
-    "tldr": "",
-            "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6030.webp",
-    "events": [
-    ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6030.webp",
   },
-     {
+  {
     "name": "York College for Girls",
     "coords": [-1.0812830509958493, 53.96098935759324],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5756.webp",
-    "description": "",
-    "occupation": "1725",
-      "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_813457.mp4",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_813457.mp4",
     "subtitle": "This Italian restaurant gives clues to the building's past",
-    "tldr": "",
-            "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6029.webp",
-    "events": [
-    ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6029.webp",
   },
-   {
+  {
     "name": "The Blue Bell",
     "coords": [-1.079080001403896, 53.95873610791321],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5741.webp",
-    "description": "",
-    "occupation": "1798",
-     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_1AB667.mp4",
-                 "subtitle": "The smallest pub in York",
-           "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6028.webp",
-    "tldr": "",
-    "events": [
-    ]
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_1AB667.mp4",
+    "subtitle": "The smallest pub in York",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6028.webp",
   },
-                        {
+  {
     "name": "The Destructor",
     "coords": [-1.0714592650102257, 53.96033310550022],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5721.webp",
-    "description": "",
-    "occupation": "1899",
-                                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6022.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_31CDB1.mp4",
-  "subtitle": "That massive chimney you've seen",
-    "tldr": "",
-    "events": [
-    ]
+    "subtitle": "That massive chimney you've seen",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6022.webp",
   },
-            {
+  {
     "name": "Memorial Gardens",
     "coords": [-1.0895344308173005, 53.95991546490111],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5729.webp",
-    "description": "",
-    "occupation": "1925",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_194368.mp4",
     "subtitle": "Controversial war memorial",
-    "tldr": "",
-                    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6021.webp",
-    "events": [
-    ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6021.webp",
   },
-              {
+  {
     "name": "York Fiddler",
     "coords": [-1.0820912596212449, 53.961976155693264],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5714.webp",
-    "description": "",
-    "occupation": " ",
     "subtitle": "Removed from the Minster for being too inappropriate", 
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_583941.mp4",
-    "tldr": "",
-                "colour": "yes",
-                      "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6020.webp",
-    "events": []
+    "colour": "yes",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6020.webp",
   },
-        {
+  {
     "name": "Electric Cinema",
     "coords": [-1.0785844693813007, 53.95843522950068],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5742.webp",
-    "description": "",
-    "occupation": "1911",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B9E98C.mp4",
-                  "subtitle": "The first cinema built in York, now a bar!",
-    "tldr": "",
-                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6023.webp",
-    "events": []
+    "subtitle": "The first cinema built in York, now a bar!",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6023.webp",
   },
-        {
+  {
     "name": "The Milner York",
     "coords": [-1.091757496638528, 53.95866308006686],
     "image": "https://freddyor.github.io/british-map/videos/IMG_6700.webp",
-    "description": "",
-    "occupation": "1878",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_5443BE.mp4",
-                  "subtitle": "The grand hotel with a heroic name",
-    "tldr": "",
-                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6024.webp",
-    "events": [
-    ]
+    "subtitle": "The grand hotel with a heroic name",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6024.webp",
   },
-        {
+  {
     "name": "Lady Row",
     "coords": [-1.0800538837309381, 53.96089531337014],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5757.webp",
-    "description": "",
-    "occupation": "1316",
-            "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_FAFF0D.mp4",
- "subtitle": "The oldest row of housing in York",
-    "tldr": "",
-                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6025.webp",
-    "events": [
-    ]
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_FAFF0D.mp4",
+    "subtitle": "The oldest row of housing in York",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6025.webp",
   },
-        {
-              "name": "Sarah Booth",
+  {
+    "name": "Sarah Booth",
     "coords": [-1.0775199477702802, 53.97183820061223],
-    "occupation": " ",
-    "description": "",
     "image": "https://freddyor.github.io/british-map/videos/IMG_5241.webp",
-      "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_10809A.mp4",
-                  "subtitle": "The first woman to vote in York",
-    "tldr": "",
-          "colour": "yes",
-                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6026.webp",
-    "events": []
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_10809A.mp4",
+    "subtitle": "The first woman to vote in York",
+    "colour": "yes",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6026.webp",
   },
-        {
+  {
     name: "Red Tower",
     coords: [-1.0713779227295128, 53.95795987409401],
     image: "https://freddyor.github.io/british-map/videos/IMG_5720.webp",
-    description: "",
-    occupation: "1490",
-      "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_700C01.mp4",
-                  "subtitle": "The brick tower that caused a murder",
-    tldr: "",
-                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6027.webp",
-    events: [   ]
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_700C01.mp4",
+    "subtitle": "The brick tower that caused a murder",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6027.webp",
   },
-      {
+  {
     "name": "The Norman House",
     "coords": [-1.0832804552932895, 53.96153403928001],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5725.webp",
-    "description": "",
-    "occupation": "12th Century",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_ED8ABD.mp4",
-                "subtitle": "The oldest house in York",
-    "tldr": "",
-              "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6018.webp",
-    "events": [
-    ]
+    "subtitle": "The oldest house in York",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6018.webp",
   },
-     {
+  {
     name: "Garforth House",
     coords: [-1.0872525932033406, 53.95744218582411],
     image: "https://freddyor.github.io/british-map/videos/IMG_5751.webp",
-    description: "",
-    occupation: "1757",
- "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_65CE21.mp4",
-        "subtitle": "Stunning Georgian house on Micklegate",
-    tldr: "",
-              "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6017.webp",
-    events: []
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_65CE21.mp4",
+    "subtitle": "Stunning Georgian house on Micklegate",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6017.webp",
   },
-    {
+  {
     "name": "The Red House",
     "coords": [-1.0850877895635525, 53.96151482928061],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5726.webp",
-    "description": "",
-      "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_25D270.mp4",
-    "occupation": "1714",
-      "subtitle": "The smaller Red House in York",
-    "tldr": "",
-            "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6016.webp",
-    "events": [    ]
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_25D270.mp4",
+    "subtitle": "The smaller Red House in York",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6016.webp",
   },
-                {
+  {
     "name": "Eye of York",
     "coords": [-1.0789737325379596, 53.95538800264272],
     "image": "https://freddyor.github.io/british-map/videos/IMG_6697.webp",
-    "description": "",
-    "occupation": " ",
-"videoUrl": "https://freddyor.github.io/british-map/videos/Captions_79729E.mp4",
-                          "subtitle": "Once the centre of all politics in Yorkshire",
-    "tldr": "",
-                        "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6015.webp",
-    "events": [    ]
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_79729E.mp4",
+    "subtitle": "Once the centre of all politics in Yorkshire",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6015.webp",
   },
-         {
+  {
     "name": "Colliergiate Drill Hall",
     "coords": [-1.0795023251420366, 53.96036710551679],
     "image": "https://freddyor.github.io/british-map/videos/IMG_6698.webp",
-    "description": "",
-    "occupation": "1872",
-"videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4396D2.mp4",
-                   "subtitle": "A building fit for heroes",
-    "tldr": "",
-                 "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6014.webp",
-    "events": [    ]
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4396D2.mp4",
+    "subtitle": "A building fit for heroes",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6014.webp",
   },
-       {
+  {
     "name": "Jubbergate",
     "coords": [-1.08116092937947, 53.95928389428395],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5759.webp",
-    "description": "",
-    "occupation": " ",
-     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_7195D0.mp4",
-                 "subtitle": "The street name that tells the history of York",
-    "tldr": "",
-               "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6013.webp",
-    "events": [    ]
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_7195D0.mp4",
+    "subtitle": "The street name that tells the history of York",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6013.webp",
   },
-     {
+  {
     name: "Cumberland House",
     coords: [-1.0828489169782274, 53.956814504153286],
     image: "https://freddyor.github.io/british-map/videos/IMG_5746.webp",
-    description: "",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8BC5F8.mp4",
-    occupation: "1710",
     "subtitle": "An important house in English history",
-    tldr: " ",
-             "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6011.webp",
-    events: [
-    ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6011.webp",
   },
-    {
+  {
     "name": "Baile Hill",
     "coords": [-1.082972820397241323, 53.95394761457478],
     "image": "https://freddyor.github.io/british-map/videos/IMG_6699.webp",
-    "description": "",
-      "videoUrl": "https://freddyor.github.io/british-map/videos/copy_70DADB1F-4F3C-4E0C-9042-06EC7BC59F2E.mp4", 
-    "occupation": "1068",
-              "subtitle": "William the Conqueror's secret 2nd castle",
-    "tldr": " ",
-            "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6010.webp",
-    "events": [
-    ]
+    "videoUrl": "https://freddyor.github.io/british-map/videos/copy_70DADB1F-4F3C-4E0C-9042-06EC7BC59F2E.mp4", 
+    "subtitle": "William the Conqueror's secret 2nd castle",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6010.webp",
   },
-                        {
+  {
     "name": "Archbishop's Palace Remains",
     "coords": [-1.0829645954763294, 53.9632344396616],
     "image": "https://freddyor.github.io/british-map/videos/IMG_4876.webp",
-    "description": "",
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_5B52503E-1CA1-4E8C-AEA0-2DCA7A3CCEDD.mp4", 
-    "occupation": " ",
-    "tldr": " ",
-                                "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6009[1].webp",
-    "events": [ ]
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6009[1].webp",
   },
-            {
+  {
     "name": "Great Flood Markers",
     "coords": [-1.0869728885846095, 53.96042019659332],
     "image": "https://freddyor.github.io/british-map/videos/IMG_4866.webp",
-    "description": "",
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_1C4F32F7-2469-4054-957C-DFED999308EE.mp4", 
-    "occupation": " ",
-              "subtitle": "Markers from two of York's past floods",
-                    "colour": "yes",
-    "tldr": " ",
-                    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6008.webp",
-    "events": [ ]
+    "subtitle": "Markers from two of York's past floods",
+    "colour": "yes",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6008.webp",
   },
-      {
+  {
     "name": "Cross Keys Symbols",
     "coords": [-1.0839206184987948, 53.9620920783174],
     "image": "https://freddyor.github.io/british-map/videos/Screenshot 2025-06-08 at 00-09-09 13927402284_f1a3583bb0_b.jpg (JPEG Image 621 × 1024 pixels) — Scaled (94_).webp",
-    "description": "",
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_80CA9C38-D963-4632-AB3A-DFA00E94E35F.mp4", 
-    "occupation": " ",
-                "subtitle": "A symbol secretly dotted around the city",
-    "tldr": " ",
-        "colour": "yes",
-              "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6006.webp",
-    "events": [ ]
+    "subtitle": "A symbol secretly dotted around the city",
+    "colour": "yes",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6006.webp",
   },
 ];
