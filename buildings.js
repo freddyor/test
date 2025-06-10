@@ -23,7 +23,7 @@ export const buildings = [
       {
     name: "St Helen",
     coords: [ -1.0841023152820113, 53.96031218136504 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_6829.webp",
+    image: "https://freddyor.github.io/british-map/videos/IMG_6867.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B18180.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6867.webp",
   },
