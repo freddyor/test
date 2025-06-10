@@ -1,4 +1,39 @@
 export const buildings = [
+       {
+    name: "Lendal Roman Tower",
+    coords: [ -1.0861020958817744, 53.96077395277416 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6840.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8643D2.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6838.webp",
+  },
+       {
+    name: "Lendal Post Office",
+    coords: [ -1.0850513459804338, 53.960091508112086 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6851.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_5398B2.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6850.webp",
+  },
+       {
+    name: "Assembly Rooms",
+    coords: [ -1.084932782369076, 53.96109746417406 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6858.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_F8941A.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6857.webp",
+  },
+      {
+    name: "St Helen",
+    coords: [ -1.0841023152820113, 53.96031218136504 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6829.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B18180.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6828.webp",
+  },
+    {
+    name: "Stonegate Figurehead",
+    coords: [ -1.083572432863533, 53.96079560843404 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6829.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_9210BE.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6828.webp",
+  },
   {
     name: "St Sampson’s Square",
     coords: [ -1.0820857546658986, 53.95964878951261 ],
