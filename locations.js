@@ -2,7 +2,7 @@ export const locations = [
 {
   name: "Roman Bridge",
   coords: [-1.0859926114926972, 53.95941744880686],
-  image: "https://freddyor.github.io/british-map/videos/romanbridge.png",
+  image: "https://freddyor.github.io/british-map/videos/romanbridge.webp",
   description: "",
   occupation: "",
   tldr: "Stonework found in 1893 tells us this was the site of York’s earliest bridge, built by the Romans. It was a vital crossing for the legionary forces, from the gate in St Helen’s Square/ Stonegate to the fortress. The bridge fell out of use in the Middle Ages, but its remains were rediscovered in the late Victorian period.",
@@ -100,7 +100,7 @@ export const locations = [
 {
   name: "Castlegate House",
   coords: [-1.0805699292451987, 53.95674650725818],
-  image: "https://freddyor.github.io/british-map/videos/IMG_6051.jpeg",
+  image: "https://freddyor.github.io/british-map/videos/IMG_6051.webp",
   description: "",
   occupation: "1763",
   tldr: "The house is currently used as a Masonic temple.",
