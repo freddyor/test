@@ -22,7 +22,7 @@ export const buildings = [
   },
               {
     name: "Lendal",
-    coords: [ -1.0851154447849967, 53.96017810693338 ],
+    coords: [ -1.085854001818729, 53.96053679457012 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_6896.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_79D98.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6895.webp",
