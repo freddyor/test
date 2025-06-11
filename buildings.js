@@ -1,4 +1,32 @@
 export const buildings = [
+              {
+    name: "Terry's",
+    coords: [ -1.084559686391319, 53.96024138743017 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6891.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_2FD77E.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6888.webp",
+  },
+              {
+    name: "Savings Bank",
+    coords: [ -1.0844832434358547, 53.96038380785017 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6884.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_465CA0.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6883.webp",
+  },
+              {
+    name: "St Helen's Gate",
+    coords: [ -1.0845326235717097, 53.96004245332969 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6902.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_9B8A25.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6901.webp",
+  },
+              {
+    name: "Lendal",
+    coords: [ -1.0851154447849967, 53.96017810693338 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6896.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_79D98.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6895.webp",
+  },
        {
     name: "Lendal Roman Tower",
     coords: [ -1.0861020958817744, 53.96077395277416 ],
