@@ -32,14 +32,14 @@ export const buildings = [
     coords: [ -1.08896631398349, 53.96238904392632 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7068.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_21C1CC.mp4",
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7061.webp",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7062.webp",
   },
                 {
     name: "St Olaf",
     coords: [ -1.0892820783567942, 53.962252370578945 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7064.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_61F88E.mp4",
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7062.webp",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7061.webp",
   },
               {
     name: "Terry's",
