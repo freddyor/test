@@ -1,4 +1,46 @@
 export const buildings = [
+                  {
+    name: "Robson & Cooper",
+    coords: [ -1.0855668584690163, 53.96034174891967 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6891.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_416EED.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6888.webp",
+  },
+                  {
+    name: "Roots",
+    coords: [ -1.0905172459927943, 53.96178310625369 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6891.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_0C746E.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6888.webp",
+  },
+                  {
+    name: "St Leonard's Hospital",
+    coords: [ -1.0862136658651025, 53.96101759755631 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6891.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_3B1EF6.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6888.webp",
+  },
+                  {
+    name: "Swimming Baths",
+    coords: [ -1.0904360663232782, 53.96138831999759 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6891.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_2C215E.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6888.webp",
+  },
+                  {
+    name: "Siward",
+    coords: [ -1.08896631398349, 53.96238904392632 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6891.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_21C1CC.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6888.webp",
+  },
+                {
+    name: "St Olaf",
+    coords: [ -1.0892820783567942, 53.962252370578945 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_6891.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_61F88E.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6888.webp",
+  },
               {
     name: "Terry's",
     coords: [ -1.084559686391319, 53.96024138743017 ],
