@@ -57,7 +57,7 @@ export const buildings = [
   },
                     {
     name: "Museum Garden Peacocks",
-    coords: [ -1.0879050028137784, 53.960987900772025 ],
+    coords: [ -1.0886479507281241, 53.96144178609241 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7147.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_35CB59.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7140.webp",
