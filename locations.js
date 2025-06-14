@@ -205,18 +205,6 @@ export const locations = [
   events: []
 },
 {
-  name: "Multangular Tower",
-  coords: [-1.0869876618159724, 53.96134725163458],
-  image: "https://freddyor.github.io/british-map/videos/IMG_5728.webp",
-  description: "",
-  occupation: "71-74AD",
-  tldr: "The original defenses on this site were built by the Roman Ninth Legion.",
-  events: [
-    { date: "1640s", description: "The tower was still being used for deference during the English civil war, hence why there is a cannonball hole 🏰" },
-    { date: "ROMANS", description: "There are five Roman coffins sat in the tower." }
-  ]
-},
-{
   name: "De Grey Rooms",
   coords: [-1.0853403171638432, 53.96233937601278],
   image: "https://freddyor.github.io/british-map/videos/IMG_5722.webp",
@@ -276,18 +264,6 @@ export const locations = [
       date: "THEFT",
       description: "In 1979, five 15th-century paintings were stolen - they were not recovered until 2023 when a Dorchester auction house noticed it on the Loss register. Also, in 1999, staff were held at knifepoint by an armed robber."
     }
-  ]
-},
-{
-  name: "Roots",
-  coords: [-1.0905273634412826, 53.961781626628245],
-  image: "https://freddyor.github.io/british-map/videos/IMG_5732.webp",
-  description: "",
-  occupation: "1894",
-  tldr: "It was a pub all the way up until 2018, when chef Tommy Banks turned the building into Roots restaurant.",
-  events: [
-    { date: "FIRST", description: "It was the first restaurant in York to ever receive a Michelin Star ⭐" },
-    { date: "FIREPLACES", description: "The building still contains two timber fireplaces dating back to 1898 🪵" }
   ]
 },
 {
