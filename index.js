@@ -279,12 +279,7 @@ videoElement.load();
 
 function scaleMarkersBasedOnZoom() {
     const zoomLevel = map.getZoom();
-    // At zoom 15: size = 2.5em; at zoom 11: size ≈ 0.16em (very small)
-    const baseSize = 2.5; // em at zoom 15
-    const minSize = 0.13; // em, lower if you want even smaller
-    const scale = Math.pow(0.5, 15 - zoomLevel); // Shrinks by half for each zoom out
-    const markerSize = Math.max(minSize, baseSize * scale) + 'em';
-
+    const markerSize = (zoomLevel - 13) + 'em';
     document.querySelectorAll('.location-marker').forEach(marker => {
         marker.style.width = markerSize;
         marker.style.height = markerSize;
