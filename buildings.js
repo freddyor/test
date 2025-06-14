@@ -280,7 +280,6 @@ export const buildings = [
     "coords": [-1.0858983757252028, 53.96278755058766],
     "image": "https://freddyor.github.io/british-map/videos/IMG_6180.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_99AA7F.mp4",
-    "colour": "yes",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6176.webp",
   },
   {
@@ -295,7 +294,6 @@ export const buildings = [
     "coords": [-1.0782164820427336, 53.96339048321918],
     "image": "https://freddyor.github.io/british-map/videos/IMG_6181.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_EF707F.mp4",
-    "colour": "yes",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6179.webp",
   },
   {
@@ -324,7 +322,6 @@ export const buildings = [
     "coords": [-1.0869891645941883, 53.96018862807536],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5565.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_7978BD.mp4", 
-    "colour": "yes",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6001.webp",
   },
   {
@@ -377,7 +374,6 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_5366.webp", 
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_AC995F.mp4",
     subtitle: "The site of ancient tax collection",
-    "colour": "yes",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6048.webp",
   },
   {
@@ -386,7 +382,6 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_6050.webp", 
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8F5743.mp4",
     subtitle: "York's old figurine that disappeared",
-    "colour": "yes",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6041.webp",
   },
   {
@@ -539,7 +534,6 @@ export const buildings = [
     "image": "https://freddyor.github.io/british-map/videos/IMG_5714.webp",
     "subtitle": "Removed from the Minster for being too inappropriate", 
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_583941.mp4",
-    "colour": "yes",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6020.webp",
   },
   {
@@ -572,7 +566,6 @@ export const buildings = [
     "image": "https://freddyor.github.io/british-map/videos/IMG_5241.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_10809A.mp4",
     "subtitle": "The first woman to vote in York",
-    "colour": "yes",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6026.webp",
   },
   {
@@ -660,7 +653,6 @@ export const buildings = [
     "image": "https://freddyor.github.io/british-map/videos/IMG_4866.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_1C4F32F7-2469-4054-957C-DFED999308EE.mp4", 
     "subtitle": "Markers from two of York's past floods",
-    "colour": "yes",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6008.webp",
   },
   {
@@ -669,7 +661,6 @@ export const buildings = [
     "image": "https://freddyor.github.io/british-map/videos/Screenshot 2025-06-08 at 00-09-09 13927402284_f1a3583bb0_b.jpg (JPEG Image 621 × 1024 pixels) — Scaled (94_).webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_80CA9C38-D963-4632-AB3A-DFA00E94E35F.mp4", 
     "subtitle": "A symbol secretly dotted around the city",
-    "colour": "yes",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6006.webp",
   },
 ];
