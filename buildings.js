@@ -14,13 +14,6 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7145.webp",
   },
                       {
-    name: "York Pageant 1909",
-    coords: [ -1.0877401149437356, 53.961479496755544 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_7149.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_70ABEF.mp4",
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7144.webp",
-  },
-                      {
     name: "John Woolman",
     coords: [ -1.0901242376695015, 53.962243094835685 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7148.webp",
