@@ -623,7 +623,7 @@ dropdownContent.style.lineHeight = '1.25';
 dropdownContent.style.zIndex = '10000';
 dropdownContent.style.maxWidth = '300px';
 dropdownContent.style.textAlign = 'center';
-dropdownContent.style.maxHeight = 'calc(100vh - 90px)'; // 50px from top, 40px from bottom
+dropdownContent.style.maxHeight = 'calc(100vh - 200px)'; // 50px from top, 150px from bottom // 50px from top, 40px from bottom
 dropdownContent.style.overflowY = 'auto';
 
     dropdownContent.innerHTML = `
