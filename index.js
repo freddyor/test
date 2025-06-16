@@ -644,7 +644,7 @@ dropdownContent.style.overflowY = 'auto';
             <ul style="margin-bottom: 15px; text-align: left;">
       <li>the map server in the background costs me money based on usage</li>
       <li>I want to add old pictures of York locations to make the map even better for users - but York Archives charges a significant amount to use them commercially</li>
-      <li>lots of people actually asked to me to put a donation link. Considering this project has consumed A LOT of my time - it is nice to receive some love back! I think this project can be a huge benefit to our great city ❤️</li>
+      <li>lots of people actually asked to me to put a donation link. Considering this project has consumed A LOT of my time - it is nice to receive some love back ❤️</li>
     </ul>
         <button 
             class="support-button" 
