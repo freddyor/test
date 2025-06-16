@@ -604,7 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = document.createElement('button');
     button.id = 'custom-bmc-button';
     button.className = 'custom-button';
-    button.textContent = '❤️ Monthly donors will keep this site running ❤️';
+    button.textContent = '❤️ Support this project ❤️';
 
     // Create the dropdown content
     const dropdownContent = document.createElement('div');
@@ -628,7 +628,7 @@ dropdownContent.style.overflowY = 'auto';
 
     dropdownContent.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center;">
-    <img src="https://freddyor.github.io/british-map/videos/favicon.png" 
+    <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jpeg" 
          alt="Profile Photo" 
          style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;"/>
   </div>
