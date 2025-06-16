@@ -636,6 +636,11 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="project-info" style="margin-bottom: 15px;">
             Make sure to click “Make this monthly” after your name and comment (or don’t, if you’re only wanting to give a one-time donation). Thank you all so much!
         </div>
+            <ul style="margin-bottom: 15px; text-align: left;">
+      <li>text</li>
+      <li>text</li>
+      <li>text</li>
+    </ul>
         <button 
             class="support-button" 
             style="
