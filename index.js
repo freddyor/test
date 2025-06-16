@@ -628,7 +628,7 @@ dropdownContent.style.overflowY = 'auto';
 
     dropdownContent.innerHTML = `
         <div class="project-info" style="margin-bottom: 15px;">
-            This page needs donors.
+            <b>This page needs donors.</b>
         </div>
            <div class="project-info" style="margin-bottom: 15px;">
             My name is Freddy, I’m a 22 year old local to the city. I am building this project completely independently. Feel free to email me on freddy@britmap.com 📧
