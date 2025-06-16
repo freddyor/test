@@ -628,18 +628,18 @@ dropdownContent.style.overflowY = 'auto';
 
     dropdownContent.innerHTML = `
         <div class="project-info" style="margin-bottom: 15px;">
-            Every time the map is loaded, it costs me money. This project has also taken more hours than you could possibly imagine.
+            This page needs donors.
+        </div>
+           <div class="project-info" style="margin-bottom: 15px;">
+            My name is Freddy, I’m a 22 year old local to the city. I am building this project completely independently. Feel free to email me on freddy@britmap.com 📧
         </div>
         <div class="project-info" style="margin-bottom: 15px;">
-            I am independent and 22 years old, I want to keep the site free-for-use. Ultimately, the project will rely on generous monthly donors to keep it running for our beloved city ❤️
-        </div>
-        <div class="project-info" style="margin-bottom: 15px;">
-            Make sure to click “Make this monthly” after your name and comment (or don’t, if you’re only wanting to give a one-time donation). Thank you all so much!
+            In full transparency, here is why I will need donors:
         </div>
             <ul style="margin-bottom: 15px; text-align: left;">
-      <li>text</li>
-      <li>text</li>
-      <li>text</li>
+      <li>the map server in the background costs me money based on usage</li>
+      <li>I want to add old pictures of York locations to make the map even better for users - but York Archives charges a significant amount to use them commercially</li>
+      <li>lots of people actually asked to me to put a donation link. Considering this project has consumed A LOT of my time - it is nice to receive some love back! I think this project can be a huge benefit to our great city ❤️</li>
     </ul>
         <button 
             class="support-button" 
