@@ -608,23 +608,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Create the dropdown content
     const dropdownContent = document.createElement('div');
-    dropdownContent.className = 'dropdown-content';
-    dropdownContent.style.display = 'none'; // Initially hidden
-    dropdownContent.style.position = 'fixed';
-    dropdownContent.style.top = '50px'; // At the top of the page
-    dropdownContent.style.left = '50%';
-    dropdownContent.style.transform = 'translateX(-50%)';
-    dropdownContent.style.backgroundColor = 'white';
-    dropdownContent.style.padding = '20px';
-    dropdownContent.style.border = '1px solid #ccc';
-    dropdownContent.style.borderRadius = '8px';
-    dropdownContent.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
-    dropdownContent.style.fontSize = '14px';
-    dropdownContent.style.lineHeight = '1.25'; // Slightly reduce line spacing
-    dropdownContent.style.zIndex = '10000'; // Ensure it goes above everything else
-    dropdownContent.style.maxWidth = '300px'; // Reduce width
-    dropdownContent.style.textAlign = 'center'; // Center align all content
-    dropdownContent.style.overflowY = 'auto'; // Make it scrollable
+dropdownContent.style.display = 'none'; // Initially hidden
+dropdownContent.style.position = 'fixed';
+dropdownContent.style.top = '50px'; // At the top of the page
+dropdownContent.style.left = '50%';
+dropdownContent.style.transform = 'translateX(-50%)';
+dropdownContent.style.backgroundColor = 'white';
+dropdownContent.style.padding = '20px';
+dropdownContent.style.border = '1px solid #ccc';
+dropdownContent.style.borderRadius = '8px';
+dropdownContent.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
+dropdownContent.style.fontSize = '14px';
+dropdownContent.style.lineHeight = '1.25';
+dropdownContent.style.zIndex = '10000';
+dropdownContent.style.maxWidth = '300px';
+dropdownContent.style.textAlign = 'center';
+dropdownContent.style.maxHeight = 'calc(100vh - 90px)'; // 50px from top, 40px from bottom
+dropdownContent.style.overflowY = 'auto';
 
     dropdownContent.innerHTML = `
         <div class="project-info" style="margin-bottom: 15px;">
