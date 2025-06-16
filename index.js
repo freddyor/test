@@ -599,3 +599,118 @@ function createPopupContent(location, isFirebase = false) {
         </div>
     `;
 }
+document.addEventListener('DOMContentLoaded', () => {
+  // Create the button
+    const button = document.createElement('button');
+    button.id = 'custom-bmc-button';
+    button.className = 'custom-button';
+    button.textContent = '❤️ Monthly donors will keep this site running ❤️';
+
+    // Create the dropdown content
+    const dropdownContent = document.createElement('div');
+    dropdownContent.className = 'dropdown-content';
+    dropdownContent.style.display = 'none'; // Initially hidden
+    dropdownContent.style.position = 'fixed';
+    dropdownContent.style.top = '50px'; // At the top of the page
+    dropdownContent.style.left = '50%';
+    dropdownContent.style.transform = 'translateX(-50%)';
+    dropdownContent.style.backgroundColor = 'white';
+    dropdownContent.style.padding = '20px';
+    dropdownContent.style.border = '1px solid #ccc';
+    dropdownContent.style.borderRadius = '8px';
+    dropdownContent.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
+    dropdownContent.style.fontSize = '14px';
+    dropdownContent.style.lineHeight = '1.25'; // Slightly reduce line spacing
+    dropdownContent.style.zIndex = '10000'; // Ensure it goes above everything else
+    dropdownContent.style.maxWidth = '300px'; // Reduce width
+    dropdownContent.style.textAlign = 'center'; // Center align all content
+    dropdownContent.style.overflowY = 'auto'; // Make it scrollable
+
+    dropdownContent.innerHTML = `
+        <div class="project-info" style="margin-bottom: 15px;">
+            Every time the map is loaded, it costs me money. This project has also taken more hours than you could possibly imagine.
+        </div>
+        <div class="project-info" style="margin-bottom: 15px;">
+            I am independent and 22 years old, I want to keep the site free-for-use. Ultimately, the project will rely on generous monthly donors to keep it running for our beloved city ❤️
+        </div>
+        <div class="project-info" style="margin-bottom: 15px;">
+            Make sure to click “Make this monthly” after your name and comment (or don’t, if you’re only wanting to give a one-time donation). Thank you all so much!
+        </div>
+        <button 
+            class="support-button" 
+            style="
+                background-color: #9b4dca; 
+                color: white; 
+                padding: 10px 20px; 
+                font-size: 16px; 
+                font-weight: bold; 
+                border: none; 
+                border-radius: 8px; 
+                cursor: pointer; 
+                text-align: center;
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+                margin-bottom: 15px; /* Add spacing below the button */
+            "
+            onclick="window.open('https://www.buymeacoffee.com/britmap', '_blank')"
+        >
+            Support
+        </button>
+ <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 16px; font-weight: bold;">
+    <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
+    Our Donors ❤️
+    <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
+</div>
+<div id="donor-list" style="margin-top: 10px;"></div>
+
+    `;
+
+    // Wrap the button and dropdown in a container
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.className = 'dropdown';
+    dropdownContainer.style.position = 'fixed';
+    dropdownContainer.style.left = '50%';
+    dropdownContainer.style.top = '10px'; // Position at the top
+    dropdownContainer.style.transform = 'translateX(-50%)';
+    dropdownContainer.style.zIndex = '1001';
+    dropdownContainer.appendChild(button);
+    dropdownContainer.appendChild(dropdownContent);
+
+    // Add the dropdown container to the body
+    document.body.appendChild(dropdownContainer);
+
+    // Function to add donors
+    function addDonor(name, amount, subtext) {
+        const donorList = document.getElementById('donor-list');
+        const donorDiv = document.createElement('div');
+        donorDiv.className = 'donor';
+        donorDiv.innerHTML = `
+            <span class="donor-name" style="font-weight: bold;">${name}</span>
+            <span class="donor-amount" style="color: #9b4dca; margin-left: 10px; font-weight: bold;">£${amount}</span>
+            <div class="donor-subtext" style="font-size: 12px; color: #666; margin-top: 1px;">${subtext}</div>
+        `;
+        donorDiv.style.marginBottom = '12px'; // Maintain gap between donors
+        donorList.appendChild(donorDiv);
+    }
+
+    // Add example donors
+       addDonor('Anonymous', '15', ' ');
+    addDonor('Chip Pedro', '5', 'Will be very useful on our upcoming trip - really nice work!');
+    addDonor('buffsteve24', '5', 'Amazing work!');
+    addDonor('marksaw20', '5', 'Lovely map. Really interesting.');
+
+    // Button click event to toggle dropdown visibility
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (event) => {
+        if (!dropdownContainer.contains(event.target)) {
+            dropdownContent.style.display = 'none';
+        }
+    });
+
+    // Set the dropdown width to match the button width
+    dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`; // Match width with maxWidth
+});  
