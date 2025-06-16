@@ -627,6 +627,11 @@ dropdownContent.style.maxHeight = 'calc(100vh - 90px)'; // 50px from top, 40px f
 dropdownContent.style.overflowY = 'auto';
 
     dropdownContent.innerHTML = `
+      <div style="display: flex; flex-direction: column; align-items: center;">
+    <img src="https://freddyor.github.io/british-map/videos/favicon.png" 
+         alt="Profile Photo" 
+         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;"/>
+  </div>
         <div class="project-info" style="margin-bottom: 15px;">
             <b>This page needs donors.</b>
         </div>
