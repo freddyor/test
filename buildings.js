@@ -66,7 +66,7 @@ export const buildings = [
     name: "Robson & Cooper",
     coords: [ -1.0855668584690163, 53.96034174891967 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7069.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_416EED.mp4",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4F59BD.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7057.webp",
   },
                   {
@@ -80,7 +80,7 @@ export const buildings = [
     name: "St Leonard's Hospital",
     coords: [ -1.0862136658651025, 53.96101759755631 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7067.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_3B1EF6.mp4",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_62532F.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7060.webp",
   },
                   {
@@ -115,7 +115,7 @@ export const buildings = [
     name: "Savings Bank",
     coords: [ -1.0844832434358547, 53.96038380785017 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_6884.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_465CA0.mp4",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_Captions_E30974.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6883.webp",
   },
               {
@@ -143,14 +143,14 @@ export const buildings = [
     name: "Lendal Post Office",
     coords: [ -1.0850513459804338, 53.960091508112086 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_6851.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_5398B2.mp4",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_118722.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6850.webp",
   },
        {
     name: "Assembly Rooms",
     coords: [ -1.084932782369076, 53.96109746417406 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_6858.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_F8941A.mp4",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_ECEC61.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6857.webp",
   },
       {
@@ -396,7 +396,7 @@ export const buildings = [
     name: "York Dispensary",
     coords: [-1.0846377100592663, 53.961304511725615],
     image: "https://freddyor.github.io/british-map/videos/yorkdispensary.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_E34A23.mp4",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_AE44FA.mp4",
     subtitle: "One of York's greatest ever pre-NHS charities",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6045.webp",
   },
