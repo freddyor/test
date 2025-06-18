@@ -1,4 +1,46 @@
 export const buildings = [
+                        {
+    name: "Davy Tower",
+    coords: [-1.0815132036601174, 53.95512359621107 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_7146.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4935B6.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7145.webp",
+  },
+                        {
+    name: "Franciscian Friary",
+    coords: [-1.0819822729331858, 53.95557589731023 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_7146.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B20DFF.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7145.webp",
+  },
+                        {
+    name: "Grand Opera House",
+    coords: [-1.0818847970605332, 53.957251964054315 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_7146.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B20DFF.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7145.webp",
+  },
+                        {
+    name: "Friends Meeting Room",
+    coords: [-1.0816032750272275, 53.95688085586903 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_7146.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_063D0F.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7145.webp",
+  },
+                        {
+    name: "Kuda",
+    coords: [-1.081861824460453, 53.956834009794434 ],
+    image: "https://freddyor.github.io/british-map/videos/IMG_7146.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_E59E28.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7145.webp",
+  },
+                        {
+    name: "Holy Trinity Chapel",
+    coords: [-1.081425978939199, 53.9560371498353],
+    image: "https://freddyor.github.io/british-map/videos/IMG_7146.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_FD8611.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7145.webp",
+  },
                       {
     name: "William Etty",
     coords: [-1.0886445284095903, 53.96207305966128 ],
