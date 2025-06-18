@@ -24,7 +24,7 @@ export const buildings = [
     name: "St George's Catholic Church",
     coords: [-1.0753512049260356, 53.95517895228153 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7570.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_80002B",
+    "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/Captions_80002B",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7561.webp",
   },
                             {
@@ -38,14 +38,14 @@ export const buildings = [
     name: "Morell Bowes",
     coords: [ -1.0726970205697621, 53.95580358254114],
     image: "https://freddyor.github.io/british-map/videos/IMG_7569.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_317682",
+    "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/Captions_317682.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7562.webp",
   },
                             {
     name: "Anne Frank",
     coords: [-1.0805491809065144, 53.95512418944677 ],
     image: "https://freddyor.github.io/british-map/videos/anne.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4AC985",
+    "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/Captions_4AC985",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7566.webp",
   },
                             {
