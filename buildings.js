@@ -24,7 +24,7 @@ export const buildings = [
     name: "St George's Catholic Church",
     coords: [-1.0753512049260356, 53.95517895228153 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7570.webp",
-    "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/Captions_80002B",
+    "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/Captions_80002B.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7561.webp",
   },
                             {
@@ -45,7 +45,7 @@ export const buildings = [
     name: "Anne Frank",
     coords: [-1.0805491809065144, 53.95512418944677 ],
     image: "https://freddyor.github.io/british-map/videos/anne.webp",
-    "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/Captions_4AC985",
+    "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/Captions_4AC985.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7566.webp",
   },
                             {
@@ -56,7 +56,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7567.webp",
   },
                           {
-    name: "Hnery V Walmgate Door",
+    name: "Hnenry V Walmgate Door",
     coords: [-1.0709136984718879, 53.95524572154804 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7575.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D4FCCC.mp4",
