@@ -330,14 +330,18 @@ function getUrlParameter(name) {
     return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 };
 
-const defaultCenter = [-1.0835104081554843, 53.95838745239521]; // Default York coordinates
-
+// Get parameters from URL
 const lat = getUrlParameter('lat');
 const lng = getUrlParameter('lng');
 const zoom = getUrlParameter('zoom');
 
+// Default York coordinates and zoom
+const defaultCenter = [-1.0835104081554843, 53.95838745239521];
+const defaultZoom = 15;
+
+// Use URL parameters if available, otherwise use default values
 const initialCenter = lat && lng ? [parseFloat(lng), parseFloat(lat)] : defaultCenter;
-const initialZoom = zoom ? parseFloat(zoom) : 15; // Adjust defaultZoom as necessary
+const initialZoom = zoom ? parseFloat(zoom) : defaultZoom;
 
 // Create a bottom sheet container
 const bottomSheet = document.createElement('div');
