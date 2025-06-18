@@ -59,7 +59,7 @@ export const buildings = [
     name: "Hnery V Walmgate Door",
     coords: [-1.0709136984718879, 53.95524572154804 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7575.webp",
-    "videoUrl": "https://drive.google.com/file/d/1aAkXoMu-MDbPkkSqBpOvBRfHW84D1gua/view?usp=sharing",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D4FCCC.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7565.webp",
   },
                         {
