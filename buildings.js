@@ -683,7 +683,7 @@ export const buildings = [
   },
   {
     "name": "The Norman House",
-    "coords": [-1.0832804552932895, 53.96153403928001],
+    "coords": [-1.0830602815546038, 53.96135198282862],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5725.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_ED8ABD.mp4",
     "subtitle": "The oldest house in York",
