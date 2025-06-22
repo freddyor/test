@@ -72,7 +72,7 @@ export const buildings = [
                         {
     name: "Franciscian Friary",
     coords: [-1.0819822729331858, 53.95557589731023 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_7500.webp",
+    image: "https://freddyor.github.io/british-map/videos/IMG_7777.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B20DFF.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7493.webp",
   },
