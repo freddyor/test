@@ -37,7 +37,7 @@ export const buildings = [
                                 {
     name: "Queen's Path",
     coords: [-1.080936966920475, 53.96195680593757 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_7832.webp",
+    image: "https://freddyor.github.io/british-map/videos/queen.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_EB5562.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7832.webp",
   },
