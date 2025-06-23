@@ -196,13 +196,6 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7145.webp",
   },
                       {
-    name: "York Pageant 1909",
-    coords: [ -1.0877401149437356, 53.961479496755544 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_7149.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_70ABEF.mp4",
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7144.webp",
-  },
-                      {
     name: "John Woolman",
     coords: [ -1.0901242376695015, 53.962243094835685 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7148.webp",
@@ -237,13 +230,6 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_99590E.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7138.webp",
   },
-                    {
-    name: "Museum Garden Peacocks",
-    coords: [ -1.0886479507281241, 53.96144178609241 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_7147.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_35CB59.mp4",
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7140.webp",
-  },
                   {
     name: "Robson & Cooper",
     coords: [ -1.0855668584690163, 53.96034174891967 ],
@@ -264,13 +250,6 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7067.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_62532F.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7060.webp",
-  },
-                  {
-    name: "Swimming Baths",
-    coords: [ -1.0904360663232782, 53.96138831999759 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_7065.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_2C215E.mp4",
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7059.webp",
   },
                   {
     name: "Siward",
