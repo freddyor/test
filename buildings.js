@@ -44,9 +44,9 @@ export const buildings = [
                                 {
     name: "Dean Court",
     coords: [-1.0841101848384787, 53.96197230208156 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_78.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_.mp4",
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_78.webp",
+    image: "https://freddyor.github.io/british-map/videos/IMG_7829.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D36A4D.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7829.webp",
   },
                                 {
     name: "Margaret Clitherow",
