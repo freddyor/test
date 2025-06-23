@@ -23,7 +23,7 @@ export const buildings = [
                                 {
     name: "Margaret Clitherow",
     coords: [ -1.0843346978453228, 53.957361521330085],
-    image: "https://freddyor.github.io/british-map/videos/IMG_7828.webp",
+    image: "https://freddyor.github.io/british-map/videos/clitherow.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_BC70D7.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7828.webp",
   },
@@ -51,7 +51,7 @@ export const buildings = [
                                 {
     name: "Margaret Clitherow",
     coords: [-1.0846610732950785, 53.961937789224876 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_7828.webp",
+    image: "https://freddyor.github.io/british-map/videos/clitherow.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_BC70D7.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7828.webp",
   },
