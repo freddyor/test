@@ -661,14 +661,6 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6028.webp",
   },
   {
-    "name": "The Destructor",
-    "coords": [-1.0714592650102257, 53.96033310550022],
-    "image": "https://freddyor.github.io/british-map/videos/IMG_5721.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_31CDB1.mp4",
-    "subtitle": "That massive chimney you've seen",
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6022.webp",
-  },
-  {
     "name": "Memorial Gardens",
     "coords": [-1.0895344308173005, 53.95991546490111],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5729.webp",
