@@ -309,17 +309,10 @@ export const buildings = [
   },
               {
     name: "Lendal",
-    coords: [ -1.085854001818729, 53.96053679457012 ],
+    coords: [ -1.0862391568078296, 53.96067387847166 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_6896.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_79D98.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6895.webp",
-  },
-       {
-    name: "Lendal Roman Tower",
-    coords: [ -1.0861020958817744, 53.96077395277416 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_6840.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8643D2.mp4",
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6838.webp",
   },
        {
     name: "Lendal Post Office",
