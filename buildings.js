@@ -483,7 +483,7 @@ export const buildings = [
     "name": "Lendal Bridge",
     "coords": [-1.0873884839256371, 53.95992558014929],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5569.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_40E9B5.mp4", 
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_BA1BAB.mp4", 
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_5998.webp",
   },
   {
