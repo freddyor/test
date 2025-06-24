@@ -189,7 +189,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7567.webp",
   },
                           {
-    name: "Hnenry V Walmgate Door",
+    name: "Henry V Walmgate Door",
     coords: [-1.0709136984718879, 53.95524572154804 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7575.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D4FCCC.mp4",
@@ -217,8 +217,8 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7498.webp",
   },
                         {
-    name: "Friends Meeting Room",
-    coords: [-1.0816032750272275, 53.95688085586903 ],
+    name: "Holy Trinity Chapel",
+    coords: [-1.081425978939199, 53.9560371498353],
     image: "https://freddyor.github.io/british-map/videos/IMG_7503.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_063D0F.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7495.webp",
@@ -231,8 +231,8 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7496.webp",
   },
                         {
-    name: "Holy Trinity Chapel",
-    coords: [-1.081425978939199, 53.9560371498353],
+    name: "Friends Meeting Room",
+    coords: [-1.0816032750272275, 53.95688085586903 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7501.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_FD8611.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7497.webp",
