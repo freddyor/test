@@ -76,6 +76,13 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_BC70D7.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7828.webp",
   },
+                                  {
+    name: "Margaret Clitherow",
+    coords: [ -1.0800801346053281, 53.95930656640949],
+    image: "https://freddyor.github.io/british-map/videos/clitherow.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_BC70D7.mp4",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7828.webp",
+  },
                                 {
     name: "St Wilfrid's Church",
     coords: [ -1.084753491057645, 53.96169485313146],
