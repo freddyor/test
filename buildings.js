@@ -65,7 +65,7 @@ export const buildings = [
                                 {
     name: "Roman Column",
     coords: [ -1.0818316973771493, 53.961645339783665],
-    image: "https://freddyor.github.io/british-map/videos/IMG_7936.webp",
+    image: "https://freddyor.github.io/british-map/videos/IMG_7946.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D234BC.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7834.webp",
   },
@@ -114,7 +114,7 @@ export const buildings = [
                                 {
     name: "Great East Window",
     coords: [-1.0809246670445198, 53.96229654816186 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_7833.webp",
+    image: "https://freddyor.github.io/british-map/videos/IMG_7945.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_E120E0.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7833.webp",
   },
