@@ -703,7 +703,7 @@ export const buildings = [
   {
     "name": "York College for Girls",
     "coords": [-1.0812830509958493, 53.96098935759324],
-    "image": "https://freddyor.github.io/british-map/videos/IMG_5756.webp",
+    "image": "https://freddyor.github.io/british-map/videos/IMG_7948.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D4EF06.mp4",
     "subtitle": "This Italian restaurant gives clues to the building's past",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6029.webp",
