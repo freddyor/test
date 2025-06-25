@@ -251,19 +251,8 @@ function showVideo() {
     }
 }
 
-// Play video when at least 25% is buffered
-function onProgress() {
-    if (videoElement.duration && videoElement.buffered.length) {
-        const bufferedEnd = videoElement.buffered.end(videoElement.buffered.length - 1);
-        const percentBuffered = bufferedEnd / videoElement.duration;
-        if (percentBuffered >= 0.25 && !hasStarted) {
-            videoElement.play(); // Start playback as soon as 25% is buffered
-        }
-    }
-}
-
+// Immediately play video and show it, no need to wait for buffering
 videoElement.addEventListener('play', showVideo);
-videoElement.addEventListener('progress', onProgress);
 videoElement.addEventListener('click', () => {
     videoElement.controls = true;
 });
@@ -273,10 +262,9 @@ videoElement.addEventListener('error', () => {
     playBtn.style.display = 'block';
     alert('Video failed to load.');
 });
-videoElement.load();
-        };
-    });
-});
+
+// Start playing right away
+videoElement.play();
 
 function scaleMarkersBasedOnZoom() {
     const zoomLevel = map.getZoom();
