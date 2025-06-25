@@ -346,7 +346,7 @@ export const buildings = [
     name: "Lendal",
     coords: [ -1.0862391568078296, 53.96067387847166 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_6896.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_79D98.mp4",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B79D98.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6895.webp",
   },
        {
