@@ -19,7 +19,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxe
 
 var map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/mapbox/streets-v11',
+    style: 'mapbox://styles/freddomate/cm8q8wtwx00a801qzdayccnvz',
     center: [-1.0812025894431188, 53.958916884514004],
     zoom: 15,
     pitch: 45,
@@ -251,8 +251,19 @@ function showVideo() {
     }
 }
 
-// Immediately play video and show it, no need to wait for buffering
+// Play video when at least 25% is buffered
+function onProgress() {
+    if (videoElement.duration && videoElement.buffered.length) {
+        const bufferedEnd = videoElement.buffered.end(videoElement.buffered.length - 1);
+        const percentBuffered = bufferedEnd / videoElement.duration;
+        if (percentBuffered >= 0.25 && !hasStarted) {
+            videoElement.play(); // Start playback as soon as 25% is buffered
+        }
+    }
+}
+
 videoElement.addEventListener('play', showVideo);
+videoElement.addEventListener('progress', onProgress);
 videoElement.addEventListener('click', () => {
     videoElement.controls = true;
 });
@@ -262,9 +273,10 @@ videoElement.addEventListener('error', () => {
     playBtn.style.display = 'block';
     alert('Video failed to load.');
 });
-
-// Start playing right away
-videoElement.play();
+videoElement.load();
+        };
+    });
+});
 
 function scaleMarkersBasedOnZoom() {
     const zoomLevel = map.getZoom();
