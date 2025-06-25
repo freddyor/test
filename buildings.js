@@ -332,7 +332,7 @@ export const buildings = [
     name: "Savings Bank",
     coords: [ -1.0844832434358547, 53.96038380785017 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7868.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_Captions_E30974.mp4",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_E30974.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6883.webp",
   },
               {
