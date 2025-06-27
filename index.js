@@ -501,43 +501,49 @@ stylePopup.innerHTML = `
  `;
 
 document.head.appendChild(stylePopup);
-function createCustomMarker(imageUrl, color = '#9b4dca') {
-  // Marker container
+
+function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
-  markerDiv.style.position = 'relative';
-  markerDiv.style.display = 'inline-block';
+  markerDiv.className = 'custom-marker';
   markerDiv.style.width = '2em';
   markerDiv.style.height = '2em';
+  markerDiv.style.position = 'absolute';
+  markerDiv.style.borderRadius = '50%';
+  markerDiv.style.border = `0.15em solid ${color}`;
+  markerDiv.style.boxSizing = 'border-box';
+  markerDiv.style.overflow = 'visible'; // allow the bump to overflow
+  markerDiv.style.background = 'white';
+  markerDiv.style.display = 'flex';
+  markerDiv.style.alignItems = 'center';
+  markerDiv.style.justifyContent = 'center';
 
-  // Triangle bump (behind)
-  const bump = document.createElement('div');
-  bump.className = 'marker-bump';
-  bump.style.position = 'absolute';
-  bump.style.left = '50%';
-  bump.style.top = '100%';
-  bump.style.transform = 'translateX(-50%)';
-  bump.style.width = '2.5em';  // wider than the circle
-  bump.style.height = '0.6em'; // not too tall
-  bump.style.background = color;
-  bump.style.clipPath = 'polygon(0% 0%, 100% 0%, 50% 100%)'; // two lines to the tip
-  bump.style.zIndex = '1';
-
-  // Marker image (in front)
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
-  imageElement.style.width = '2em';
-  imageElement.style.height = '2em';
+  imageElement.style.width = '100%';
+  imageElement.style.height = '100%';
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
-  imageElement.style.position = 'relative';
-  imageElement.style.zIndex = '2';
-  imageElement.style.border = `0.15em solid ${color}`; // optional: marker border for clarity
 
-  // Append bump and image to marker
-  markerDiv.appendChild(bump);
+  // Create the "bump" at the bottom as a smooth upside-down triangle (teardrop)
+const bump = document.createElement('div');
+bump.className = 'marker-bump';
+bump.style.position = 'absolute';
+bump.style.left = '50%';
+bump.style.top = '98%';
+bump.style.transform = 'translateX(-50%)';
+bump.style.width = '0.8em';
+bump.style.height = '0.5em';
+bump.style.background = color; // Or 'white' for a hollow pyramid with border
+bump.style.clipPath = 'polygon(0% 0%, 100% 0%, 85% 60%, 70% 85%, 50% 100%, 30% 85%, 15% 60%)';
+bump.style.zIndex = '1';
+
   markerDiv.appendChild(imageElement);
+  markerDiv.appendChild(bump);
 
-  return markerDiv;
+  return {
+    element: markerDiv,
+    id: `marker-${Date.now()}-${Math.random()}`
+  };
 }
 
 // Toggle functionality for the bottom sheet
