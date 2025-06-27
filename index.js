@@ -499,33 +499,28 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   markerDiv.style.width = '3em';
   markerDiv.style.height = '3.5em';
   markerDiv.style.position = 'absolute';
+  markerDiv.style.display = 'flex';
+  markerDiv.style.flexDirection = 'column';
+  markerDiv.style.alignItems = 'center';
+  markerDiv.style.justifyContent = 'flex-start';
   markerDiv.style.borderRadius = '1.5em 1.5em 1.5em 1.5em / 1.5em 1.5em 2.5em 2.5em';
   markerDiv.style.border = `0.15em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
-  markerDiv.style.overflow = 'visible'; // allow the image to overflow if needed
+  markerDiv.style.overflow = 'hidden';
+  markerDiv.style.background = 'transparent';
 
-  // Create a sub-div for the circular image
-  const imageWrapper = document.createElement('div');
-  imageWrapper.style.width = '2.4em';
-  imageWrapper.style.height = '2.4em';
-  imageWrapper.style.position = 'absolute';
-  imageWrapper.style.top = '0.3em';
-  imageWrapper.style.left = '50%';
-  imageWrapper.style.transform = 'translateX(-50%)';
-  imageWrapper.style.background = 'white';
-  imageWrapper.style.borderRadius = '50%';
-  imageWrapper.style.overflow = 'hidden';
-  imageWrapper.style.border = `0.08em solid ${color}`;
-
+  // Circular image at the top of the pin
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
-  imageElement.style.width = '100%';
-  imageElement.style.height = '100%';
+  imageElement.style.width = '2.6em';
+  imageElement.style.height = '2.6em';
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
+  imageElement.style.marginTop = '0.2em';
+  imageElement.style.display = 'block';
+  imageElement.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
 
-  imageWrapper.appendChild(imageElement);
-  markerDiv.appendChild(imageWrapper);
+  markerDiv.appendChild(imageElement);
 
   return {
     element: markerDiv,
