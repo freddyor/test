@@ -499,7 +499,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   markerDiv.style.width = '2em';
   markerDiv.style.height = '3em';
   markerDiv.style.position = 'absolute';
-  markerDiv.style.borderRadius = '100% 100% 60% 60% / 80% 80% 40% 40%';
+  markerDiv.style.borderRadius = '100% 100% 20% 20% / 80% 80% 10% 10%';
   markerDiv.style.border = `0.15em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
   markerDiv.style.overflow = 'hidden';
