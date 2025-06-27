@@ -280,14 +280,16 @@ videoElement.load();
 
 function scaleMarkersBasedOnZoom() {
     const zoomLevel = map.getZoom();
-    // Adjust scaling as you like; this is a reasonable default
-    const scale = 0.8 + (zoomLevel - 13) * 0.18; // tweak as needed
-    document.querySelectorAll('.custom-marker-pin').forEach(marker => {
-        marker.style.transform = `scale(${scale})`;
-        marker.style.transformOrigin = 'bottom center';
+    const markerSize = (zoomLevel - 13) + 'em';
+    document.querySelectorAll('.location-marker').forEach(marker => {
+        marker.style.width = markerSize;
+        marker.style.height = markerSize;
+    });
+    document.querySelectorAll('.building-marker').forEach(marker => {
+        marker.style.width = markerSize;
+        marker.style.height = markerSize;
     });
 }
-
 
 scaleMarkersBasedOnZoom();
 
@@ -460,29 +462,6 @@ stylePopup.innerHTML = `
     white-space: nowrap;
     text-align: center;
   }
-  .custom-marker-pin {
-  width: 3em;
-  height: 4em;
-  pointer-events: auto;
-}
-.custom-marker-circle {
-  width: 100%;
-  height: 3em;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  display: block;
-  box-sizing: border-box;
-}
-.custom-marker-pointer {
-  width: 0;
-  height: 0;
-  margin: 0 auto;
-  border-left: 1em solid transparent;
-  border-right: 1em solid transparent;
-  border-top: 1em solid #9b4dca; /* default, overridden inline */
-}
   #button-group {
     position: fixed;
     top: 50px;
@@ -516,35 +495,29 @@ document.head.appendChild(stylePopup);
 
 function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
-  markerDiv.className = 'custom-marker-pin';
-
-  // Circle (head)
-  const circle = document.createElement('div');
-  circle.className = 'custom-marker-circle';
-  circle.style.border = `0.15em solid ${color}`;
+  markerDiv.className = 'custom-marker';
+  markerDiv.style.width = '3em';
+  markerDiv.style.height = '3em';
+  markerDiv.style.position = 'absolute';
+  markerDiv.style.borderRadius = '50%';
+  markerDiv.style.border = `0.15em solid ${color}`;
+  markerDiv.style.boxSizing = 'border-box';
+  markerDiv.style.overflow = 'hidden';
 
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
-  imageElement.alt = 'Marker image';
   imageElement.style.width = '100%';
   imageElement.style.height = '100%';
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
 
-  circle.appendChild(imageElement);
+  markerDiv.appendChild(imageElement);
 
-  // Pointer (tail)
-  const pointer = document.createElement('div');
-  pointer.className = 'custom-marker-pointer';
-  pointer.style.borderTopColor = color;
-
-  markerDiv.appendChild(circle);
-  markerDiv.appendChild(pointer);
-
-  return { element: markerDiv, id: `marker-${Date.now()}-${Math.random()}` };
+  return {
+    element: markerDiv,
+    id: `marker-${Date.now()}-${Math.random()}`
+  };
 }
-
-
 
 // Toggle functionality for the bottom sheet
 let isBottomSheetOpen = false;
