@@ -497,28 +497,19 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
   markerDiv.className = 'custom-marker';
   markerDiv.style.width = '3em';
-  markerDiv.style.height = '3.5em';
+  markerDiv.style.height = '3em';
   markerDiv.style.position = 'absolute';
-  markerDiv.style.display = 'flex';
-  markerDiv.style.flexDirection = 'column';
-  markerDiv.style.alignItems = 'center';
-  markerDiv.style.justifyContent = 'flex-start';
-  markerDiv.style.borderRadius = '1.5em 1.5em 1.5em 1.5em / 1.5em 1.5em 2.5em 2.5em';
+  markerDiv.style.borderRadius = '50%';
   markerDiv.style.border = `0.15em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
   markerDiv.style.overflow = 'hidden';
-  markerDiv.style.background = 'transparent';
 
-  // Circular image at the top of the pin
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
-  imageElement.style.width = '2.6em';
-  imageElement.style.height = '2.6em';
+  imageElement.style.width = '100%';
+  imageElement.style.height = '100%';
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
-  imageElement.style.marginTop = '0.2em';
-  imageElement.style.display = 'block';
-  imageElement.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
 
   markerDiv.appendChild(imageElement);
 
