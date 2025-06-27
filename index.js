@@ -282,12 +282,23 @@ function scaleMarkersBasedOnZoom() {
     const markerSize = (zoomLevel - 13); // Numeric part, e.g. 2 for zoom 15
     const markerWidth = markerSize + 'em';
     const markerHeight = markerSize + 'em';
-    const borderWidth = (markerSize * 0.075) + 'em'; // Adjust 0.075 for taste
+    const borderWidth = (markerSize * 0.075) + 'em';
 
     document.querySelectorAll('.location-marker, .building-marker').forEach(marker => {
         marker.style.width = markerWidth;
         marker.style.height = markerHeight;
         marker.style.borderWidth = borderWidth;
+
+        // Scale the bump if present
+        const bump = marker.querySelector('.marker-bump');
+        if (bump) {
+            // Bump size is a fraction of marker size, adjust as desired
+            const bumpSize = (markerSize * 0.35); // Adjust 0.35 for taste
+            bump.style.width = bumpSize + 'em';
+            bump.style.height = bumpSize + 'em';
+            bump.style.bottom = '-' + (bumpSize * 0.5) + 'em'; // How far the bump sticks out
+            bump.style.borderWidth = borderWidth;
+        }
     });
 }
 
@@ -497,9 +508,9 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
   markerDiv.className = 'custom-marker';
   markerDiv.style.width = '2em';
-  markerDiv.style.height = '6em';
+  markerDiv.style.height = '2em';
   markerDiv.style.position = 'absolute';
-  markerDiv.style.borderRadius = '100% 100% 100% 100% / 70% 70% 120% 120%';
+  markerDiv.style.borderRadius = '50%';
   markerDiv.style.border = `0.15em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
   markerDiv.style.overflow = 'hidden';
@@ -507,6 +518,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   markerDiv.style.display = 'flex';
   markerDiv.style.flexDirection = 'column';
   markerDiv.style.alignItems = 'center';
+  markerDiv.style.justifyContent = 'center';
 
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
@@ -515,15 +527,20 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
 
-  // Spacer
-  const spacer = document.createElement('div');
-  spacer.style.height = '0.5em'; // Adjust the gap size as needed
-  spacer.style.width = '100%';
-  spacer.style.background = 'transparent';
-  spacer.style.flexShrink = '0';
+  // Create the "bump" at the bottom
+  const bump = document.createElement('div');
+  bump.style.position = 'absolute';
+  bump.style.left = '50%';
+  bump.style.bottom = '-0.35em'; // adjust how far it sticks out
+  bump.style.transform = 'translateX(-50%)';
+  bump.style.width = '0.7em';    // adjust width of the bump
+  bump.style.height = '0.7em';   // adjust height of the bump
+  bump.style.background = 'white';
+  bump.style.border = `0.15em solid ${color}`;
+  bump.style.borderRadius = '50%';
 
   markerDiv.appendChild(imageElement);
-  markerDiv.appendChild(spacer);
+  markerDiv.appendChild(bump);
 
   return {
     element: markerDiv,
