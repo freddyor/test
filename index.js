@@ -290,17 +290,14 @@ function scaleMarkersBasedOnZoom() {
         marker.style.borderWidth = borderWidth;
 
         // Scale the bump if present
-        const bump = marker.querySelector('.marker-bump');
-        if (bump) {
-            const bumpWidth = (markerSize * 0.4) + 'em';
-            const bumpHeight = (markerSize * 0.55) + 'em';
-            bump.style.width = bumpWidth;
-            bump.style.height = bumpHeight;
-            bump.style.borderLeft = borderWidth + ' solid ' + marker.style.borderColor;
-            bump.style.borderRight = borderWidth + ' solid ' + marker.style.borderColor;
-            bump.style.borderBottom = borderWidth + ' solid ' + marker.style.borderColor;
-            bump.style.borderRadius = `0 0 ${bumpWidth} ${bumpWidth} / 0 0 ${bumpHeight} ${bumpHeight}`;
-        }
+const bump = marker.querySelector('.marker-bump');
+if (bump) {
+    const bumpWidth = (markerSize * 0.4) + 'em';
+    const bumpHeight = (markerSize * 0.25) + 'em';
+    bump.style.width = bumpWidth;
+    bump.style.height = bumpHeight;
+    // No border scaling needed for solid color
+}
     });
 }
 scaleMarkersBasedOnZoom();
@@ -528,20 +525,17 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   imageElement.style.borderRadius = '50%';
 
   // Create the "bump" at the bottom as a smooth upside-down triangle (teardrop)
-  const bump = document.createElement('div');
-  bump.className = 'marker-bump';
-  bump.style.position = 'absolute';
-  bump.style.left = '50%';
-  bump.style.top = '100%'; // right below the circle
-  bump.style.transform = 'translateX(-50%)';
-  bump.style.width = '0.8em';
-  bump.style.height = '1.1em';
-  bump.style.background = 'white';
-  bump.style.borderLeft = `0.15em solid ${color}`;
-  bump.style.borderRight = `0.15em solid ${color}`;
-  bump.style.borderBottom = `0.15em solid ${color}`;
-  bump.style.borderRadius = '0 0 0.8em 0.8em / 0 0 1.1em 1.1em';
-  bump.style.zIndex = '1';
+const bump = document.createElement('div');
+bump.className = 'marker-bump';
+bump.style.position = 'absolute';
+bump.style.left = '50%';
+bump.style.top = '100%';
+bump.style.transform = 'translateX(-50%)';
+bump.style.width = '0.8em';
+bump.style.height = '0.5em';
+bump.style.background = color; // Or 'white' for a hollow pyramid with border
+bump.style.clipPath = 'polygon(0 0, 100% 0, 50% 100%)'; // triangle/pyramid
+bump.style.zIndex = '1';
 
   markerDiv.appendChild(imageElement);
   markerDiv.appendChild(bump);
