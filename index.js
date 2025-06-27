@@ -503,6 +503,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   markerDiv.style.border = `0.15em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
   markerDiv.style.overflow = 'hidden';
+  markerDiv.style.background = 'white';
 
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
