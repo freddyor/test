@@ -280,16 +280,14 @@ videoElement.load();
 
 function scaleMarkersBasedOnZoom() {
     const zoomLevel = map.getZoom();
-    const markerSize = (zoomLevel - 13) + 'em';
-    document.querySelectorAll('.location-marker').forEach(marker => {
-        marker.style.width = markerSize;
-        marker.style.height = markerSize;
-    });
-    document.querySelectorAll('.building-marker').forEach(marker => {
-        marker.style.width = markerSize;
-        marker.style.height = markerSize;
+    // Adjust scaling as you like; this is a reasonable default
+    const scale = 0.8 + (zoomLevel - 13) * 0.18; // tweak as needed
+    document.querySelectorAll('.custom-marker-pin').forEach(marker => {
+        marker.style.transform = `scale(${scale})`;
+        marker.style.transformOrigin = 'bottom center';
     });
 }
+
 
 scaleMarkersBasedOnZoom();
 
@@ -462,6 +460,29 @@ stylePopup.innerHTML = `
     white-space: nowrap;
     text-align: center;
   }
+  .custom-marker-pin {
+  width: 3em;
+  height: 4em;
+  pointer-events: auto;
+}
+.custom-marker-circle {
+  width: 100%;
+  height: 3em;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  display: block;
+  box-sizing: border-box;
+}
+.custom-marker-pointer {
+  width: 0;
+  height: 0;
+  margin: 0 auto;
+  border-left: 1em solid transparent;
+  border-right: 1em solid transparent;
+  border-top: 1em solid #9b4dca; /* default, overridden inline */
+}
   #button-group {
     position: fixed;
     top: 50px;
@@ -496,20 +517,11 @@ document.head.appendChild(stylePopup);
 function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
   markerDiv.className = 'custom-marker-pin';
-  // DO NOT set position or flex on markerDiv
 
   // Circle (head)
   const circle = document.createElement('div');
-  circle.style.width = '3em';
-  circle.style.height = '3em';
-  circle.style.borderRadius = '50%';
+  circle.className = 'custom-marker-circle';
   circle.style.border = `0.15em solid ${color}`;
-  circle.style.overflow = 'hidden';
-  circle.style.background = '#fff';
-  circle.style.display = 'block';
-  circle.style.boxSizing = 'border-box';
-  circle.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
-  circle.style.margin = '0 auto';
 
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
@@ -523,22 +535,15 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
 
   // Pointer (tail)
   const pointer = document.createElement('div');
-  pointer.style.width = '0';
-  pointer.style.height = '0';
-  pointer.style.borderLeft = '1em solid transparent';
-  pointer.style.borderRight = '1em solid transparent';
-  pointer.style.borderTop = `1.2em solid ${color}`;
-  pointer.style.margin = '0 auto';
-  pointer.style.display = 'block';
+  pointer.className = 'custom-marker-pointer';
+  pointer.style.borderTopColor = color;
 
   markerDiv.appendChild(circle);
   markerDiv.appendChild(pointer);
 
-  return {
-    element: markerDiv,
-    id: `marker-${Date.now()}-${Math.random()}`
-  };
+  return { element: markerDiv, id: `marker-${Date.now()}-${Math.random()}` };
 }
+
 
 
 // Toggle functionality for the bottom sheet
