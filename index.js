@@ -531,10 +531,10 @@ bump.style.position = 'absolute';
 bump.style.left = '50%';
 bump.style.top = '98%';
 bump.style.transform = 'translateX(-50%)';
-bump.style.width = '0.8em';
+bump.style.width = '1.5em';
 bump.style.height = '0.5em';
 bump.style.background = color; // Or 'white' for a hollow pyramid with border
-bump.style.clipPath = 'polygon(0% 0%, 100% 0%, 85% 60%, 70% 85%, 50% 100%, 30% 85%, 15% 60%)';
+bump.style.clipPath = 'polygon(0% 0%, 100% 0%, 50% 100%)';
 bump.style.zIndex = '1';
 
   markerDiv.appendChild(imageElement);
