@@ -517,7 +517,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
 
   // Spacer
   const spacer = document.createElement('div');
-  spacer.style.height = '0.5em'; // Adjust the gap size as needed
+  spacer.style.height = '1.5em'; // Adjust the gap size as needed
   spacer.style.width = '100%';
   spacer.style.background = 'transparent';
   spacer.style.flexShrink = '0';
