@@ -496,10 +496,10 @@ document.head.appendChild(stylePopup);
 function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
   markerDiv.className = 'custom-marker';
-  markerDiv.style.width = '3em';
+  markerDiv.style.width = '2em';
   markerDiv.style.height = '3em';
   markerDiv.style.position = 'absolute';
-  markerDiv.style.borderRadius = '50%';
+  markerDiv.style.borderRadius = '50% 50% 50% 50% / 60% 60% 100% 100%';
   markerDiv.style.border = `0.15em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
   markerDiv.style.overflow = 'hidden';
