@@ -497,7 +497,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
   markerDiv.className = 'custom-marker';
   markerDiv.style.width = '2em';
-  markerDiv.style.height = '3em';
+  markerDiv.style.height = '4em';
   markerDiv.style.position = 'absolute';
   markerDiv.style.borderRadius = '100% 100% 60% 60% / 80% 80% 40% 40%';
   markerDiv.style.border = `0.15em solid ${color}`;
