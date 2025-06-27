@@ -277,17 +277,17 @@ videoElement.load();
         };
     });
 });
-
 function scaleMarkersBasedOnZoom() {
     const zoomLevel = map.getZoom();
-    const markerSize = (zoomLevel - 13) + 'em';
-    document.querySelectorAll('.location-marker').forEach(marker => {
-        marker.style.width = markerSize;
-        marker.style.height = markerSize;
-    });
-    document.querySelectorAll('.building-marker').forEach(marker => {
-        marker.style.width = markerSize;
-        marker.style.height = markerSize;
+    const markerSize = (zoomLevel - 13); // Numeric part, e.g. 2 for zoom 15
+    const markerWidth = markerSize + 'em';
+    const markerHeight = markerSize + 'em';
+    const borderWidth = (markerSize * 0.075) + 'em'; // Adjust 0.075 for taste
+
+    document.querySelectorAll('.location-marker, .building-marker').forEach(marker => {
+        marker.style.width = markerWidth;
+        marker.style.height = markerHeight;
+        marker.style.borderWidth = borderWidth;
     });
 }
 
