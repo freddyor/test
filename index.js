@@ -503,15 +503,30 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   markerDiv.style.border = `0.15em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
   markerDiv.style.overflow = 'hidden';
+  markerDiv.style.background = '#fff';
 
+  // Main image
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
   imageElement.style.width = '100%';
   imageElement.style.height = '100%';
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
-
   markerDiv.appendChild(imageElement);
+
+  // Teardrop tail
+  const tail = document.createElement('div');
+  tail.className = 'custom-marker-tail';
+  tail.style.position = 'absolute';
+  tail.style.left = '50%';
+  tail.style.bottom = '-0.8em';
+  tail.style.transform = 'translateX(-50%)';
+  tail.style.width = '1em';
+  tail.style.height = '1.2em';
+  tail.style.background = color;
+  tail.style.borderRadius = '0 0 1em 1em';
+  tail.style.zIndex = 1;
+  markerDiv.appendChild(tail);
 
   return {
     element: markerDiv,
