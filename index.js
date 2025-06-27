@@ -279,7 +279,7 @@ videoElement.load();
 });
 function scaleMarkersBasedOnZoom() {
     const zoomLevel = map.getZoom();
-    const markerSize = (zoomLevel - 13); // Numeric part, e.g. 2 for zoom 15
+    const markerSize = (zoomLevel - 13);
     const markerWidth = markerSize + 'em';
     const markerHeight = markerSize + 'em';
     const borderWidth = (markerSize * 0.075) + 'em';
@@ -292,16 +292,17 @@ function scaleMarkersBasedOnZoom() {
         // Scale the bump if present
         const bump = marker.querySelector('.marker-bump');
         if (bump) {
-            // Bump size is a fraction of marker size, adjust as desired
-            const bumpSize = (markerSize * 0.35); // Adjust 0.35 for taste
-            bump.style.width = bumpSize + 'em';
-            bump.style.height = bumpSize + 'em';
-            bump.style.bottom = '-' + (bumpSize * 0.5) + 'em'; // How far the bump sticks out
-            bump.style.borderWidth = borderWidth;
+            const bumpWidth = (markerSize * 0.4) + 'em';
+            const bumpHeight = (markerSize * 0.55) + 'em';
+            bump.style.width = bumpWidth;
+            bump.style.height = bumpHeight;
+            bump.style.borderLeft = borderWidth + ' solid ' + marker.style.borderColor;
+            bump.style.borderRight = borderWidth + ' solid ' + marker.style.borderColor;
+            bump.style.borderBottom = borderWidth + ' solid ' + marker.style.borderColor;
+            bump.style.borderRadius = `0 0 ${bumpWidth} ${bumpWidth} / 0 0 ${bumpHeight} ${bumpHeight}`;
         }
     });
 }
-
 scaleMarkersBasedOnZoom();
 
 // Map event listeners immediately
@@ -513,10 +514,9 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   markerDiv.style.borderRadius = '50%';
   markerDiv.style.border = `0.15em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
-  markerDiv.style.overflow = 'hidden';
+  markerDiv.style.overflow = 'visible'; // allow the bump to overflow
   markerDiv.style.background = 'white';
   markerDiv.style.display = 'flex';
-  markerDiv.style.flexDirection = 'column';
   markerDiv.style.alignItems = 'center';
   markerDiv.style.justifyContent = 'center';
 
@@ -527,17 +527,21 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
 
-  // Create the "bump" at the bottom
+  // Create the "bump" at the bottom as a smooth upside-down triangle (teardrop)
   const bump = document.createElement('div');
+  bump.className = 'marker-bump';
   bump.style.position = 'absolute';
   bump.style.left = '50%';
-  bump.style.bottom = '-0.35em'; // adjust how far it sticks out
+  bump.style.top = '100%'; // right below the circle
   bump.style.transform = 'translateX(-50%)';
-  bump.style.width = '0.7em';    // adjust width of the bump
-  bump.style.height = '0.7em';   // adjust height of the bump
+  bump.style.width = '0.8em';
+  bump.style.height = '1.1em';
   bump.style.background = 'white';
-  bump.style.border = `0.15em solid ${color}`;
-  bump.style.borderRadius = '50%';
+  bump.style.borderLeft = `0.15em solid ${color}`;
+  bump.style.borderRight = `0.15em solid ${color}`;
+  bump.style.borderBottom = `0.15em solid ${color}`;
+  bump.style.borderRadius = '0 0 0.8em 0.8em / 0 0 1.1em 1.1em';
+  bump.style.zIndex = '1';
 
   markerDiv.appendChild(imageElement);
   markerDiv.appendChild(bump);
