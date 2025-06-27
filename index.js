@@ -511,18 +511,19 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
   imageElement.style.width = '100%';
-  // Make the image height a bit less than 100% to create a gap at the bottom:
-  imageElement.style.height = '85%';
+  imageElement.style.height = '100%';
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
-  imageElement.style.marginTop = '0'; // Align to top
+
+  // Spacer
+  const spacer = document.createElement('div');
+  spacer.style.height = '0.5em'; // Adjust the gap size as needed
+  spacer.style.width = '100%';
+  spacer.style.background = 'transparent';
+  spacer.style.flexShrink = '0';
 
   markerDiv.appendChild(imageElement);
-
-  // Optionally, add a spacer div for more precise control:
-  // const spacer = document.createElement('div');
-  // spacer.style.height = '15%';
-  // markerDiv.appendChild(spacer);
+  markerDiv.appendChild(spacer);
 
   return {
     element: markerDiv,
