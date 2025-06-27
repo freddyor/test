@@ -497,21 +497,36 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
   markerDiv.className = 'custom-marker';
   markerDiv.style.width = '3em';
-  markerDiv.style.height = '3em';
+  markerDiv.style.height = '3.5em'; // Slightly taller for the pin point
   markerDiv.style.position = 'absolute';
-  markerDiv.style.borderRadius = '50%';
+  markerDiv.style.borderRadius = '1.5em 1.5em 1.5em 1.5em / 1.5em 1.5em 2.5em 2.5em'; // Top is round, bottom more pointed
   markerDiv.style.border = `0.15em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
   markerDiv.style.overflow = 'hidden';
+  markerDiv.style.background = 'white'; // Optional, for contrast
 
+  // Image inside the pin (crop to the round part)
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
   imageElement.style.width = '100%';
-  imageElement.style.height = '100%';
+  imageElement.style.height = '80%'; // Only cover the round part
   imageElement.style.objectFit = 'cover';
-  imageElement.style.borderRadius = '50%';
+  imageElement.style.borderRadius = '1.5em 1.5em 1.5em 1.5em / 1.5em 1.5em 2em 2em';
 
   markerDiv.appendChild(imageElement);
+
+  // Add a little circle at the tip for the pin point (optional but looks nice)
+  const pointDiv = document.createElement('div');
+  pointDiv.style.position = 'absolute';
+  pointDiv.style.left = '50%';
+  pointDiv.style.bottom = '0';
+  pointDiv.style.transform = 'translateX(-50%)';
+  pointDiv.style.width = '0.6em';
+  pointDiv.style.height = '0.6em';
+  pointDiv.style.background = color;
+  pointDiv.style.borderRadius = '50%';
+  pointDiv.style.boxShadow = '0 0 2px #0003';
+  markerDiv.appendChild(pointDiv);
 
   return {
     element: markerDiv,
