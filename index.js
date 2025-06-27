@@ -496,10 +496,7 @@ document.head.appendChild(stylePopup);
 function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
   markerDiv.className = 'custom-marker-pin';
-  markerDiv.style.position = 'relative';
-  markerDiv.style.display = 'flex';
-  markerDiv.style.flexDirection = 'column';
-  markerDiv.style.alignItems = 'center';
+  // DO NOT set position or flex on markerDiv
 
   // Circle (head)
   const circle = document.createElement('div');
@@ -509,11 +506,10 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   circle.style.border = `0.15em solid ${color}`;
   circle.style.overflow = 'hidden';
   circle.style.background = '#fff';
-  circle.style.display = 'flex';
-  circle.style.alignItems = 'center';
-  circle.style.justifyContent = 'center';
+  circle.style.display = 'block';
   circle.style.boxSizing = 'border-box';
   circle.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
+  circle.style.margin = '0 auto';
 
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
@@ -532,7 +528,8 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   pointer.style.borderLeft = '1em solid transparent';
   pointer.style.borderRight = '1em solid transparent';
   pointer.style.borderTop = `1.2em solid ${color}`;
-  pointer.style.marginTop = '-0.3em';
+  pointer.style.margin = '0 auto';
+  pointer.style.display = 'block';
 
   markerDiv.appendChild(circle);
   markerDiv.appendChild(pointer);
@@ -542,6 +539,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
     id: `marker-${Date.now()}-${Math.random()}`
   };
 }
+
 
 // Toggle functionality for the bottom sheet
 let isBottomSheetOpen = false;
