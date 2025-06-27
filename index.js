@@ -492,57 +492,50 @@ stylePopup.innerHTML = `
  `;
 
 document.head.appendChild(stylePopup);
+
 function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
-  markerDiv.className = 'custom-marker';
-  markerDiv.style.width = '3em';
-  markerDiv.style.height = '3em';
-  markerDiv.style.position = 'absolute';
-  markerDiv.style.borderRadius = '50%';
-  markerDiv.style.border = `0.15em solid ${color}`;
-  markerDiv.style.boxSizing = 'border-box';
-  markerDiv.style.overflow = 'hidden';
-  markerDiv.style.background = '#fff';
+  markerDiv.className = 'custom-marker-pin';
+  markerDiv.style.position = 'relative';
+  markerDiv.style.display = 'flex';
+  markerDiv.style.flexDirection = 'column';
+  markerDiv.style.alignItems = 'center';
 
-  // Main image
+  // Circle (head)
+  const circle = document.createElement('div');
+  circle.style.width = '3em';
+  circle.style.height = '3em';
+  circle.style.borderRadius = '50%';
+  circle.style.border = `0.15em solid ${color}`;
+  circle.style.overflow = 'hidden';
+  circle.style.background = '#fff';
+  circle.style.display = 'flex';
+  circle.style.alignItems = 'center';
+  circle.style.justifyContent = 'center';
+  circle.style.boxSizing = 'border-box';
+  circle.style.boxShadow = '0 2px 6px rgba(0,0,0,0.15)';
+
   const imageElement = document.createElement('img');
   imageElement.src = imageUrl;
+  imageElement.alt = 'Marker image';
   imageElement.style.width = '100%';
   imageElement.style.height = '100%';
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
-  markerDiv.appendChild(imageElement);
 
-  // Pyramid tail with rounded tip
-  const tail = document.createElement('div');
-  tail.className = 'custom-marker-tail';
-  // Tail is under the marker, absolutely positioned
-  tail.style.position = 'absolute';
-  tail.style.left = '50%';
-  tail.style.top = '100%';
-  tail.style.transform = 'translateX(-50%)';
-  tail.style.width = '1.1em';
-  tail.style.height = '1.5em';
-  tail.style.background = color;
-  tail.style.borderRadius = '0 0 1em 1em';
-  tail.style.clipPath = 'polygon(50% 100%, 0 0, 100% 0)'; // Pyramid shape
-  tail.style.boxShadow = '0 2px 4px rgba(0,0,0,0.10)';
-  tail.style.zIndex = 1;
-  markerDiv.appendChild(tail);
+  circle.appendChild(imageElement);
 
-  // Rounded tip at bottom of tail
-  const tip = document.createElement('div');
-  tip.className = 'custom-marker-tip';
-  tip.style.position = 'absolute';
-  tip.style.left = '50%';
-  tip.style.top = 'calc(100% + 1.2em)';
-  tip.style.transform = 'translateX(-50%)';
-  tip.style.width = '0.5em';
-  tip.style.height = '0.5em';
-  tip.style.background = color;
-  tip.style.borderRadius = '50%';
-  tip.style.zIndex = 2;
-  markerDiv.appendChild(tip);
+  // Pointer (tail)
+  const pointer = document.createElement('div');
+  pointer.style.width = '0';
+  pointer.style.height = '0';
+  pointer.style.borderLeft = '1em solid transparent';
+  pointer.style.borderRight = '1em solid transparent';
+  pointer.style.borderTop = `1.2em solid ${color}`;
+  pointer.style.marginTop = '-0.3em';
+
+  markerDiv.appendChild(circle);
+  markerDiv.appendChild(pointer);
 
   return {
     element: markerDiv,
