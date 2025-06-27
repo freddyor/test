@@ -499,7 +499,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   markerDiv.style.width = '2em';
   markerDiv.style.height = '3em';
   markerDiv.style.position = 'absolute';
-  markerDiv.style.borderRadius = '100% 100% 100% 100% / 90% 90% 100% 100%';
+  markerDiv.style.borderRadius = '100% 100% 90% 90% / 90% 90% 100% 100%';
   markerDiv.style.border = `0.15em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
   markerDiv.style.overflow = 'hidden';
@@ -517,7 +517,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
 
   // Spacer
   const spacer = document.createElement('div');
-  spacer.style.height = '2.5em'; // Adjust the gap size as needed
+  spacer.style.height = '5em'; // Adjust the gap size as needed
   spacer.style.width = '100%';
   spacer.style.background = 'transparent';
   spacer.style.flexShrink = '0';
