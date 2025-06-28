@@ -534,7 +534,7 @@ bump.style.transform = 'translateX(-50%)';
 bump.style.width = '5em';
 bump.style.height = '0.5em';
 bump.style.background = color; // Or 'white' for a hollow pyramid with border
-bump.style.clipPath = 'polygon(0% 0%, 100% 0%, 55% 96%, 52% 100%, 48% 100%, 45% 96%)';
+bump.style.clipPath = 'polygon(0% 0%, 100% 0%, 55% 96%, 56% 100%, 44% 100%, 45% 96%)';
 bump.style.zIndex = '1';
 
   markerDiv.appendChild(imageElement);
