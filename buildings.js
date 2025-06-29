@@ -22,7 +22,7 @@ export const buildings = [
   },
                                         {
    'name': 'Swinegate',
-     'coords': [-1.0814774792230568, 53.96019497930185],
+     'coords': [ -1.0821573, 53.9606041],
     image: "https://freddyor.github.io/british-map/videos/IMG_8117.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_580AEC.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8116.webp",
