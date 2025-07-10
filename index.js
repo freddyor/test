@@ -696,6 +696,25 @@ dropdownContent.style.overflowY = 'auto';
         >
             Support
         </button>
+                <button 
+            class="support-button" 
+            style="
+                background-color: #9b4dca; 
+                color: white; 
+                padding: 10px 20px; 
+                font-size: 16px; 
+                font-weight: bold; 
+                border: none; 
+                border-radius: 8px; 
+                cursor: pointer; 
+                text-align: center;
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+                margin-bottom: 15px; /* Add spacing below the button */
+            "
+            onclick="window.open('https://www.buymeacoffee.com/britmap/membership', '_blank')"
+        >
+            Support £5 Monthly 
+        </button>
  <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 16px; font-weight: bold;">
     <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
     Our Donors ❤️
