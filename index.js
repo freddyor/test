@@ -667,7 +667,7 @@ dropdownContent.style.overflowY = 'auto';
             <b>This page needs donors.</b>
         </div>
            <div class="project-info" style="margin-bottom: 15px;">
-            My name is Freddy, I’m a 22 year old local to the city. I am building this project completely independently. Feel free to email me on freddy@britmap.com 📧
+            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. Feel free to email me on freddy@britmap.com 📧
         </div>
         <div class="project-info" style="margin-bottom: 15px;">
             In full transparency, here is why I will need donors:
@@ -713,7 +713,7 @@ dropdownContent.style.overflowY = 'auto';
             "
             onclick="window.open('https://www.buymeacoffee.com/britmap/membership', '_blank')"
         >
-            Support £5 Monthly 
+            Support £5 Monthly and receive updates and discussions
         </button>
  <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 16px; font-weight: bold;">
     <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
@@ -754,6 +754,7 @@ dropdownContent.style.overflowY = 'auto';
 
     // Add example donors
        addDonor('Anonymous', '15', ' ');
+  addDonor('Matt Hall', '5', 'Fantastic stuff! Looking forward to finding out more about this fascinating city.');
     addDonor('Chip Pedro', '5', 'Will be very useful on our upcoming trip - really nice work!');
     addDonor('buffsteve24', '5', 'Amazing work!');
     addDonor('marksaw20', '5', 'Lovely map. Really interesting.');
