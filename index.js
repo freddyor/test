@@ -635,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = document.createElement('button');
     button.id = 'custom-bmc-button';
     button.className = 'custom-button';
-    button.textContent = '❤️ Support this project ❤️';
+    button.textContent = '❤️ This site costs - please support it ❤️';
 
     // Create the dropdown content
     const dropdownContent = document.createElement('div');
@@ -664,19 +664,14 @@ dropdownContent.style.overflowY = 'auto';
          style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;"/>
   </div>
         <div class="project-info" style="margin-bottom: 15px;">
-            <b>This page needs donors.</b>
+            <b>If this site was free for you to use, it means someone else paid forward.</b>
         </div>
            <div class="project-info" style="margin-bottom: 15px;">
-            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. Feel free to email me on freddy@britmap.com 📧
+            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no other city has before.
         </div>
         <div class="project-info" style="margin-bottom: 15px;">
-            In full transparency, here is why I will need donors:
+             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic images from York Archives to use) ❤️
         </div>
-            <ul style="margin-bottom: 15px; text-align: left;">
-      <li>the map server in the background costs me money based on usage</li>
-      <li>I want to add old pictures of York locations to make the map even better for users - but York Archives charges a significant amount to use them commercially</li>
-      <li>lots of people actually asked to me to put a donation link. Considering this project has consumed A LOT of my time - it is nice to receive some love back ❤️</li>
-    </ul>
         <button 
             class="support-button" 
             style="
@@ -696,6 +691,10 @@ dropdownContent.style.overflowY = 'auto';
         >
             Support
         </button>
+                </div>
+           <div class="project-info" style="margin-bottom: 15px;">
+            You can become a £5 Monthly Donor. You will receive update emails and be able to share and discuss York information with other locals!
+        </div>
                 <button 
             class="support-button" 
             style="
@@ -713,7 +712,7 @@ dropdownContent.style.overflowY = 'auto';
             "
             onclick="window.open('https://www.buymeacoffee.com/britmap/membership', '_blank')"
         >
-            Support £5 Monthly and receive updates and discussions
+            Support Monthly
         </button>
  <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 16px; font-weight: bold;">
     <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
