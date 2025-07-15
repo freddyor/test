@@ -1,39 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Free historic map for tourists visiting York, UK 🇬🇧. Short video breakdowns of each building and unseen curiosity in the city. Independent made.">
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#192b4a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#192b4a" media="(prefers-color-scheme: dark)">
     <title>YorkMapped</title>
 
-    <!-- Favicon -->
+    <!-- Optional: Remove if not necessary -->
     <link rel="icon" href="https://freddyor.github.io/british-map/videos/favicon.png" type="image/png" sizes="32x32">
 
-    <!-- Apple MapKit JS -->
-    <meta name="apple-maps-api-key" content="eyJraWQiOiJYQlZRM044OFJLIiwidHlwIjoiSldUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiI0Njg1VVpKUDc3IiwiaWF0IjoxNzUyNTkxMDk4LCJleHAiOjE3NTMyNTM5OTl9.ySbCqW56_WIt7IgDbaqnZMBZQPvj6UkbE1BnHz7uj0jge8XWz4xSFMp19mpZNyHofu5YXZT0xOlLgz3U3T0KiA" />
-    <script src="https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js"></script>
+    <!-- Mapbox GL JS CSS (replace MapLibre) -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet" />
 
-    <!-- Google Fonts: Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
-    <!-- CSS -->
     <style>
-        html, body {
+        body, html {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
             font-family: 'Poppins', sans-serif;
-            background-color: #E9E8E0;
+            display: flex;
+            flex-direction: column;
         }
 
         #map {
+            flex: 1;
             width: 100%;
-            height: 100%;
+            margin: 0; /* Ensure no margin */
+            padding: 0; /* Ensure no padding */
         }
-
         #loading-screen {
             position: fixed;
             top: 0;
@@ -70,16 +67,15 @@
     </style>
 </head>
 <body>
-  <!-- Fullscreen Loading Overlay -->
-  <div id="loading-screen">
-      <img src="https://freddyor.github.io/british-map/videos/favicon.png" alt="Loading icon" id="loading-icon" />
-      <div class="spinner"></div>
-  </div>
+    <div id="loading-screen">
+        <img src="https://freddyor.github.io/british-map/videos/favicon.png" alt="Loading icon" id="loading-icon">
+        <div class="spinner"></div>
+    </div>
+    <div id="map"></div>
 
-  <!-- Map Container -->
-  <div id="map"></div>
-
-  <!-- Main App -->
-  <script type="module" src="index.js"></script>
+    <!-- Mapbox GL JS (replace MapLibre) -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+    <!-- Your custom script -->
+    <script type="module" src="index.js"></script>
 </body>
 </html>
