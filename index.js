@@ -1,29 +1,14 @@
-// index.js
-
 import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
-// === APPLE MAPKIT JS INIT ===
-
-// Replace with your real token
+// === Set up Apple MapKit JS ===
 mapkit.init({
   authorizationCallback: function(done) {
     done('eyJraWQiOiJYQlZRM044OFJLIiwidHlwIjoiSldUIiwiYWxnIjoiRVMyNTYifQ.eyJpc3MiOiI0Njg1VVpKUDc3IiwiaWF0IjoxNzUyNTkxMDk4LCJleHAiOjE3NTMyNTM5OTl9.ySbCqW56_WIt7IgDbaqnZMBZQPvj6UkbE1BnHz7uj0jge8XWz4xSFMp19mpZNyHofu5YXZT0xOlLgz3U3T0KiA');
   }
 });
 
-// === MAP INITIALISE ===
-
 const YORK_CENTER = { lat: 53.958916884514004, lng: -1.0812025894431188 };
-const YORK_BOUNDS = {
-  north: 54.010,
-  south: 53.930,
-  east: -1.010,
-  west: -1.170
-};
-
-const DEFAULT_ZOOM = 15; // MapKit JS zoom is similar to Mapbox
-
 const map = new mapkit.Map("map", {
   center: new mapkit.Coordinate(YORK_CENTER.lat, YORK_CENTER.lng),
   region: new mapkit.CoordinateRegion(
@@ -40,61 +25,85 @@ const map = new mapkit.Map("map", {
   isPitchEnabled: true
 });
 
-// === LOADING SCREEN ===
+// === Markers Layer ===
+const markerLayer = document.createElement('div');
+markerLayer.style.position = 'absolute';
+markerLayer.style.top = 0;
+markerLayer.style.left = 0;
+markerLayer.style.width = '100%';
+markerLayer.style.height = '100%';
+markerLayer.style.pointerEvents = 'none'; // Allow map interaction below
+markerLayer.style.zIndex = 10;
+document.getElementById('map').appendChild(markerLayer);
 
-const loadingScreen = document.getElementById('loading-screen');
-if (loadingScreen) loadingScreen.style.display = "block";
-const loadingScreenStart = Date.now();
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    if (loadingScreen) loadingScreen.style.display = 'none';
-  }, Math.max(0, 5000 - (Date.now() - loadingScreenStart)));
-});
+// === Helper: Create custom HTML marker (round + bump) ===
+function createCustomMarker(imageUrl, color = '#9b4dca') {
+  const markerDiv = document.createElement('div');
+  markerDiv.className = 'custom-marker';
+  markerDiv.style.width = '2.4em';
+  markerDiv.style.height = '2.4em';
+  markerDiv.style.borderRadius = '50%';
+  markerDiv.style.border = `0.12em solid ${color}`;
+  markerDiv.style.background = 'white';
+  markerDiv.style.position = 'absolute';
+  markerDiv.style.boxSizing = 'border-box';
+  markerDiv.style.overflow = 'visible';
+  markerDiv.style.display = 'flex';
+  markerDiv.style.alignItems = 'center';
+  markerDiv.style.justifyContent = 'center';
+  markerDiv.style.boxShadow = '0 2px 8px rgba(50,40,80,0.08)';
+  markerDiv.style.transition = 'box-shadow 0.2s';
 
-// === USER LOCATION MARKER (MapKit default controls) ===
+  const img = document.createElement('img');
+  img.src = imageUrl;
+  img.alt = '';
+  img.style.width = '92%';
+  img.style.height = '92%';
+  img.style.borderRadius = '50%';
+  img.style.objectFit = 'cover';
+  markerDiv.appendChild(img);
 
-map.showsUserLocation = true;
-map.showsUserLocationControl = true;
+  // Bump
+  const bump = document.createElement('div');
+  bump.className = 'marker-bump';
+  bump.style.position = 'absolute';
+  bump.style.left = '50%';
+  bump.style.top = '98%';
+  bump.style.transform = 'translateX(-50%)';
+  bump.style.width = '1.2em';
+  bump.style.height = '0.32em';
+  bump.style.background = color;
+  bump.style.clipPath = 'polygon(0% 0%, 100% 0%, 55% 100%, 45% 100%)';
+  bump.style.zIndex = '1';
+  markerDiv.appendChild(bump);
 
-// ======================
-// Helper: URL PARAMS
-// ======================
-function getUrlParameter(name) {
-  name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-  var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-  var results = regex.exec(location.search);
-  return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-}
-const urlLat = getUrlParameter('lat');
-const urlLng = getUrlParameter('lng');
-const urlZoom = getUrlParameter('zoom');
-if(urlLat && urlLng && urlZoom) {
-  map.center = new mapkit.Coordinate(parseFloat(urlLat), parseFloat(urlLng));
-  map.zoom = parseFloat(urlZoom);
-}
-
-// =======================
-// Custom MARKER logic using Apple MapKit annotations
-// =======================
-
-// -- BUILDINGS --
-// BUILDINGS: use ImageAnnotation so each marker shows the building.image from your data
-
-buildings.forEach(building => {
-  const [lng, lat] = building.coords;
-  const coord = new mapkit.Coordinate(lat, lng);
-
-  // Use the building "image" as the custom pin (PNG/JPG/WEBP URL)
-  const annotation = new mapkit.ImageAnnotation(coord, {
-    title: building.name || '',
-    subtitle: building.description || '',
-    // MapKit JS wants an object: {1: url, 2: url@2x, ...} - you can use just 1: building.image
-    url: { 1: building.image }, // THIS IS WHAT FETCHES THE IMAGE
-    // anchorOffset: new DOMPoint(0, -16), // optional: to adjust pin anchor if you want
+  markerDiv.style.pointerEvents = 'auto';
+  
+  markerDiv.addEventListener('mouseenter', () => {
+    markerDiv.style.boxShadow = '0 8px 24px rgba(30,30,80,0.16)';
+  });
+  markerDiv.addEventListener('mouseleave', () => {
+    markerDiv.style.boxShadow = '0 2px 8px rgba(50,40,80,0.08)';
   });
 
-  annotation.addEventListener('select', () => {
-    // Show your info/video in the bottom sheet
+  return markerDiv;
+}
+
+// === Store DOM/custom marker references ===
+const buildingMarkers = [];
+const locationMarkers = [];
+
+// === Create Building Markers (circular, scalable) ===
+buildings.forEach(building => {
+  const [lng, lat] = building.coords;
+  const color = building.colour === 'yes' ? '#FF69B4' : '#192b4a';
+  const marker = createCustomMarker(building.image, color);
+
+  marker.dataset.lat = lat;
+  marker.dataset.lng = lng;
+  marker.classList.add('building-marker');
+
+  marker.addEventListener('click', () => {
     const videoHTML = building.videoUrl
       ? `<video src="${building.videoUrl}" poster="${building.posterUrl || ''}" controls autoplay
           style="width:100%; max-width:380px; border-radius:10px; margin-top:10px;"></video>` : '';
@@ -107,39 +116,81 @@ buildings.forEach(building => {
     `);
   });
 
-  map.addAnnotation(annotation);
+  markerLayer.appendChild(marker);
+  buildingMarkers.push(marker);
 });
 
-
-// -- LOCATIONS --
+// === Create Location Markers (with logic and circle) ===
 locations.forEach(location => {
   const [lng, lat] = location.coords;
-  const coord = new mapkit.Coordinate(lat, lng);
+  const marker = createCustomMarker(location.image, '#87CEFA');
+  marker.dataset.lat = lat;
+  marker.dataset.lng = lng;
+  marker.classList.add('location-marker');
 
-  const annotation = new mapkit.MarkerAnnotation(coord, {
-    title: location.name || '',
-    subtitle: location.description || '',
-    glyphText: "📍",
-    color: '#0077b6',
-  });
-
-  annotation.addEventListener('select', () => {
+  marker.addEventListener('click', () => {
     toggleBottomSheet(`
       <div style="text-align:center;">
         <h2>${location.name}</h2>
         <div style="color:#666;font-size:15px;margin-bottom:7px;">${location.description || ''}</div>
-        ${location.image ? `<img src="${location.image}" 
-          style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin:12px auto;display:block;">` : ''}
+        ${location.image ? `<img src="${location.image}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin:12px auto;display:block;">` : ''}
       </div>
     `);
   });
 
-  map.addAnnotation(annotation);
+  markerLayer.appendChild(marker);
+  locationMarkers.push(marker);
 });
+// === Dynamically update marker positions & scaling ===
 
-// ==========================
-// Bottom Sheet Logic (Custom)
-// ==========================
+function updateMarkerPositionsAndSizes() {
+  const mapRect = document.getElementById('map').getBoundingClientRect();
+  const zoom = map.cameraDistance ? 17 - Math.log2(map.cameraDistance / 240) : 15; // crude zoom est
+
+  // Function to convert coordinate to pixel relative to the map container
+  function toPixel(lat, lng) {
+    const coord = new mapkit.Coordinate(lat, lng);
+    const point = map.convertCoordinateToPoint(coord);
+    // Subtract the mapkitJS canvas offset if present
+    return {
+      x: point.x,
+      y: point.y
+    };
+  }
+
+  // Scale size based on zoom (match your old logic: grows with zoom, min=1, max reasonable)
+  let markerSize = Math.max(1, Math.min(2 + (zoom - 13), 3.5)); // scale from 1em...3.5em ("em" in CSS)
+
+  buildingMarkers.concat(locationMarkers).forEach(marker => {
+    const lat = parseFloat(marker.dataset.lat);
+    const lng = parseFloat(marker.dataset.lng);
+    const {x, y} = toPixel(lat, lng);
+
+    // Center marker
+    marker.style.left = `calc(${x}px - ${markerSize/2}em)`;
+    marker.style.top = `calc(${y}px - ${markerSize/2}em)`;
+    marker.style.width = `${markerSize}em`;
+    marker.style.height = `${markerSize}em`;
+
+    // Scale bump
+    const bump = marker.querySelector('.marker-bump');
+    if (bump) {
+      bump.style.width = `${markerSize*0.7}em`;
+      bump.style.height = `${markerSize*0.18}em`;
+    }
+  });
+}
+
+// Update on region or zoom changes
+map.addEventListener('region-change-end', updateMarkerPositionsAndSizes);
+map.addEventListener('zoom-end', updateMarkerPositionsAndSizes);
+map.addEventListener('scroll-end', updateMarkerPositionsAndSizes);
+window.addEventListener('resize', updateMarkerPositionsAndSizes);
+map.addEventListener('load', updateMarkerPositionsAndSizes);
+setTimeout(updateMarkerPositionsAndSizes, 400); // Fallback for mapkit slow init
+
+// === Bottom Sheet Modal logic (unchanged from before) ===
+
 const bottomSheet = document.createElement('div');
 bottomSheet.id = 'bottom-sheet';
 Object.assign(bottomSheet.style, {
@@ -174,7 +225,7 @@ function toggleBottomSheet(contentHTML) {
     closeBottomSheet();
   } else {
     // Add close btn
-    bottomSheet.innerHTML = 
+    bottomSheet.innerHTML =
     `<button id="close-bottom-sheet" style="
       position:absolute;top:8px;right:10px;font-size:22px;
       background:none;border:none;cursor:pointer;z-index:2;">×</button>
@@ -185,145 +236,20 @@ function toggleBottomSheet(contentHTML) {
   }
 }
 
-// ========================
-// Buy Me a Coffee/Donor Overlay
-// ========================
-document.addEventListener('DOMContentLoaded', () => {
-  const button = document.createElement('button');
-  button.id = 'custom-bmc-button';
-  button.className = 'custom-button';
-  button.textContent = '❤️ This site costs - please support it ❤️';
-
-  // Dropdown
-  const dropdownContent = document.createElement('div');
-  dropdownContent.style.display = 'none';
-  dropdownContent.style.position = 'fixed';
-  dropdownContent.style.top = '50px';
-  dropdownContent.style.left = '50%';
-  dropdownContent.style.transform = 'translateX(-50%)';
-  dropdownContent.style.backgroundColor = '#f9f9f9';
-  dropdownContent.style.padding = '20px';
-  dropdownContent.style.border = '1px solid #ccc';
-  dropdownContent.style.borderRadius = '8px';
-  dropdownContent.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
-  dropdownContent.style.fontSize = '14px';
-  dropdownContent.style.lineHeight = '1.25';
-  dropdownContent.style.zIndex = '10000';
-  dropdownContent.style.maxWidth = '300px';
-  dropdownContent.style.textAlign = 'center';
-  dropdownContent.style.maxHeight = 'calc(100vh - 200px)';
-  dropdownContent.style.overflowY = 'auto';
-
-  dropdownContent.innerHTML = `
-    <div style="display: flex; flex-direction: column; align-items: center;">
-      <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jpeg"
-           alt="Profile Photo"
-           style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;"/>
-    </div>
-    <div class="project-info" style="margin-bottom: 15px;">
-      <b>If this site was free for you to use, it means someone else paid forward.</b>
-    </div>
-    <div class="project-info" style="margin-bottom: 15px;">
-      My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no other city has before.
-    </div>
-    <div class="project-info" style="margin-bottom: 15px;">
-      I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic images from York Archives to use) ❤️
-    </div>
-    <button
-      class="support-button"
-      style="background-color: #9b4dca; color: white; padding: 10px 20px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; text-align: center; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); margin-bottom: 15px;"
-      onclick="window.open('https://www.buymeacoffee.com/britmap', '_blank')">Support
-    </button>
-    <div class="project-info" style="margin-bottom: 15px;">
-      You can become a £5 Monthly Donor. You will receive update emails and be able to share and discuss York information with other locals!
-    </div>
-    <button
-      class="support-button"
-      style="background-color: #9b4dca; color: white; padding: 10px 20px; font-size: 16px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; text-align: center; box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3); margin-bottom: 15px;"
-      onclick="window.open('https://www.buymeacoffee.com/britmap/membership', '_blank')">Support Monthly
-    </button>
-    <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 16px; font-weight: bold;">
-      <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
-      Our Donors ❤️
-      <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
-    </div>
-    <div id="donor-list" style="margin-top: 10px;"></div>
-  `;
-  // Donors list
-  function addDonor(name, amount, subtext) {
-    const donorList = document.getElementById('donor-list');
-    const donorDiv = document.createElement('div');
-    donorDiv.className = 'donor';
-    donorDiv.innerHTML = `
-      <span class="donor-name" style="font-weight: bold;">${name}</span>
-      <span class="donor-amount" style="color: #9b4dca; margin-left: 10px; font-weight: bold;">£${amount}</span>
-      <div class="donor-subtext" style="font-size: 12px; color: #666; margin-top: 1px;">${subtext}</div>
-    `;
-    donorDiv.style.marginBottom = '12px';
-    donorList.appendChild(donorDiv);
-  }
-  addDonor('Anonymous', '15', ' ');
-  addDonor('Matt Hall', '5', 'Fantastic stuff! Looking forward to finding out more about this fascinating city.');
-  addDonor('Chip Pedro', '5', 'Will be very useful on our upcoming trip - really nice work!');
-  addDonor('buffsteve24', '5', 'Amazing work!');
-  addDonor('marksaw20', '5', 'Lovely map. Really interesting.');
-
-  // Button & Dropdown Container
-  const dropdownContainer = document.createElement('div');
-  dropdownContainer.className = 'dropdown';
-  dropdownContainer.style.position = 'fixed';
-  dropdownContainer.style.left = '50%';
-  dropdownContainer.style.top = '10px';
-  dropdownContainer.style.transform = 'translateX(-50%)';
-  dropdownContainer.style.zIndex = '1001';
-  dropdownContainer.appendChild(button);
-  dropdownContainer.appendChild(dropdownContent);
-  document.body.appendChild(dropdownContainer);
-
-  button.addEventListener('click', (e) => {
-    e.preventDefault();
-    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-  });
-  document.addEventListener('click', (event) => {
-    if (!dropdownContainer.contains(event.target)) {
-      dropdownContent.style.display = 'none';
-    }
-  });
-  dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
-});
-
-// ========================
-// FONTS AND STYLE
-// ========================
-const link = document.createElement('link');
-link.rel = "stylesheet";
-link.href = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap";
-document.head.appendChild(link);
-
-const styleElem = document.createElement('style');
-styleElem.innerHTML = `
-  .custom-button {
-    background-color: #e9e8e0;
-    color: black;
-    border: 2px solid #f0f0f0;
-    padding: 3px 8px;
-    font-size: 12px;
-    font-weight: bold;
-    border-radius: 8px;
+// === Font and marker CSS to support the look
+const markerStyle = document.createElement('style');
+markerStyle.innerHTML = `
+  .custom-marker {
     cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-    white-space: nowrap;
-    text-align: center;
-    font-family: 'Poppins',sans-serif;
+    transition: width 0.15s, height 0.15s;
+    will-change: width, height, left, top;
   }
-  #bottom-sheet img, #bottom-sheet video {
-    display:block;
-    margin:14px auto 0;
-    max-width:98%;
-    border-radius:10px;
-    background:#fff;
-  }
+  .custom-marker img { pointer-events:none; }
+  .marker-bump { transition: width 0.13s, height 0.13s; }
 `;
-document.head.appendChild(styleElem);
+document.head.appendChild(markerStyle);
+
+// === After the map is ready, run initial update in case (hotfix for delayed mapkit)
+setTimeout(updateMarkerPositionsAndSizes, 1500);
+
+
