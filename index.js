@@ -82,7 +82,7 @@ locations.forEach(location => {
     marker.getElement().addEventListener('click', () => {
         map.getCanvas().style.cursor = 'pointer';
         const contentHTML = createPopupContent(location); // Use the existing function to create the content
-        toggleBottomSheet(contentHTML, location.coords);
+        toggleBottomSheet(contentHTML);
     });
 });
 
@@ -456,25 +456,20 @@ stylePopup.innerHTML = `
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
-  .custom-button, .find-out-more-btn {
-    background-color: #9b4dca;
-    color: #fff;
-    border: none;
-    padding: 12px 24px;
-    font-size: 16px;
-    font-weight: 600;
+  .custom-button {
+    background-color: #e9e8e0;
+    color: black;
+    border: 2px solid #f0f0f0;
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: bold;
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
-    margin: 8px 0;
-    transition: background 0.2s;
-    white-space: nowrap;
-    text-align: center;
     text-decoration: none;
     display: inline-block;
-  }
-  .custom-button:hover, .find-out-more-btn:hover {
-    background-color: #7b39a5;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    white-space: nowrap;
+    text-align: center;
   }
   #button-group {
     position: fixed;
@@ -554,66 +549,7 @@ bump.style.zIndex = '1';
 // Toggle functionality for the bottom sheet
 let isBottomSheetOpen = false;
 
-// --- Directions Feature ---
-let currentRouteGeoJSON = null;
-function getDirectionsTo(destinationCoords) {
-    if (!navigator.geolocation) {
-        alert('Geolocation is not supported by your browser');
-        return;
-    }
-    navigator.geolocation.getCurrentPosition(function(position) {
-        const userCoords = [position.coords.longitude, position.coords.latitude];
-        const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${userCoords[0]},${userCoords[1]};${destinationCoords[0]},${destinationCoords[1]}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
-        fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                if (data.routes && data.routes.length > 0) {
-                    const route = data.routes[0].geometry;
-                    // Remove old route if exists
-                    if (map.getSource('route')) {
-                        map.getSource('route').setData({
-                            type: 'Feature',
-                            geometry: route
-                        });
-                    } else {
-                        map.addLayer({
-                            id: 'route',
-                            type: 'line',
-                            source: {
-                                type: 'geojson',
-                                data: {
-                                    type: 'Feature',
-                                    geometry: route
-                                }
-                            },
-                            layout: {
-                                'line-join': 'round',
-                                'line-cap': 'round'
-                            },
-                            paint: {
-                                'line-color': '#3887be',
-                                'line-width': 5,
-                                'line-opacity': 0.75
-                            }
-                        });
-                    }
-                    // Optionally fit bounds to route
-                    const coords = route.coordinates;
-                    const bounds = coords.reduce(function(bounds, coord) {
-                        return bounds.extend(coord);
-                    }, new mapboxgl.LngLatBounds(coords[0], coords[0]));
-                    map.fitBounds(bounds, { padding: 80, maxZoom: 17 });
-                } else {
-                    alert('No route found');
-                }
-            })
-            .catch(() => alert('Error fetching directions'));
-    }, function() {
-        alert('Could not get your location');
-    });
-}
-
-function toggleBottomSheet(contentHTML, markerCoords = null) {
+function toggleBottomSheet(contentHTML) {
     if (isBottomSheetOpen) {
         bottomSheet.style.bottom = '-100%'; // Hide
     } else {
@@ -646,16 +582,6 @@ function toggleBottomSheet(contentHTML, markerCoords = null) {
             }
             toggleBottomSheet(); // Close the popup
         });
-
-        // Add event listener for directions button (if present)
-        setTimeout(() => {
-            const directionsBtn = document.querySelector('.get-directions-btn');
-            if (directionsBtn && markerCoords) {
-                directionsBtn.onclick = function() {
-                    getDirectionsTo(markerCoords);
-                }
-            }
-        }, 0);
     }
     isBottomSheetOpen = !isBottomSheetOpen;
 }
@@ -701,9 +627,6 @@ function createPopupContent(location, isFirebase = false) {
                     </video>
                 </div>
             ` : ''}
-            <button class="custom-button find-out-more-btn get-directions-btn" style="margin-top:16px;">
-                Get Directions
-            </button>
         </div>
     `;
 }
@@ -850,4 +773,4 @@ dropdownContent.style.overflowY = 'auto';
 
     // Set the dropdown width to match the button width
     dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`; // Match width with maxWidth
-});
+});  
