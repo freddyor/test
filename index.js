@@ -108,243 +108,240 @@ function addBuildingMarkers(buildingsToShow) {
       .setLngLat(building.coords)
       .addTo(map);
 
-marker.getElement().addEventListener('click', () => {
-  map.getCanvas().style.cursor = 'pointer';
-  const videoUrl = building.videoUrl;
-  const posterUrl = building.posterUrl;
+    marker.getElement().addEventListener('click', () => {
+      map.getCanvas().style.cursor = 'pointer';
+      const videoUrl = building.videoUrl;
+      const posterUrl = building.posterUrl;
 
-  if (!videoUrl) {
-    console.error('Video URL not available for this building.');
-    return;
-  }
-
-  // Remove any existing overlays
-  document.querySelectorAll('.video-modal-overlay').forEach(el => el.remove());
-
-  // Modal overlay
-  const overlay = document.createElement('div');
-  overlay.className = 'video-modal-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.top = 0;
-  overlay.style.left = 0;
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.background = 'rgba(0,0,0,0.75)';
-  overlay.style.display = 'flex';
-  overlay.style.alignItems = 'center';
-  overlay.style.justifyContent = 'center';
-  overlay.style.zIndex = 100000;
-
-  // Poster and video container
-  const posterContainer = document.createElement('div');
-  posterContainer.style.position = 'relative';
-  posterContainer.style.marginTop = '-60px';
-
-  // Poster image
-  const posterImg = document.createElement('img');
-  posterImg.src = posterUrl || '';
-  posterImg.alt = 'Video cover';
-  posterImg.style.maxWidth = '79.2vw';
-  posterImg.style.maxHeight = '72vh';
-  posterImg.style.borderRadius = '14px';
-  posterImg.style.display = 'block';
-  posterImg.style.margin = '0 auto';
-  posterImg.addEventListener('load', () => {
-    posterImg.style.border = '1.5px solid #E9E8E0';
-  });
-
-  // Play button
-  const playBtn = document.createElement('button');
-  playBtn.innerHTML = '▶';
-  playBtn.style.position = 'absolute';
-  playBtn.style.top = '50%';
-  playBtn.style.left = '50%';
-  playBtn.style.transform = 'translate(-50%, -50%)';
-  playBtn.style.background = 'rgba(0,0,0,0.6)';
-  playBtn.style.border = 'none';
-  playBtn.style.borderRadius = '50%';
-  playBtn.style.width = '48px';
-  playBtn.style.height = '48px';
-  playBtn.style.color = '#fff';
-  playBtn.style.fontSize = '1.7rem';
-  playBtn.style.cursor = 'pointer';
-  playBtn.style.display = 'flex';
-  playBtn.style.alignItems = 'center';
-  playBtn.style.justifyContent = 'center';
-  playBtn.style.zIndex = 2;
-
-  // Spinner
-  const spinner = document.createElement('div');
-  spinner.style.position = 'absolute';
-  spinner.style.top = '50%';
-  spinner.style.left = '50%';
-  spinner.style.transform = 'translate(-50%, -50%)';
-  spinner.style.width = '36px';
-  spinner.style.height = '36px';
-  spinner.style.border = '4px solid #eee';
-  spinner.style.borderTop = '4px solid #9b4dca';
-  spinner.style.borderRadius = '50%';
-  spinner.style.animation = 'spin 1s linear infinite';
-  spinner.style.display = 'none';
-  spinner.style.zIndex = 3;
-  const spinnerStyle = document.createElement('style');
-  spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
-  document.head.appendChild(spinnerStyle);
-
-  // Close button
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = '❌';
-  closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '-6px';
-  closeBtn.style.right = '-6px';
-  closeBtn.style.width = '18px';
-  closeBtn.style.height = '18px';
-  closeBtn.style.background = '#000';
-  closeBtn.style.color = '#fff';
-  closeBtn.style.border = '1.5px solid #E9E8E0';
-  closeBtn.style.borderRadius = '50%';
-  closeBtn.style.cursor = 'pointer';
-  closeBtn.style.fontSize = '0.6rem';
-  closeBtn.style.zIndex = '100001';
-  closeBtn.style.display = 'flex';
-  closeBtn.style.alignItems = 'center';
-  closeBtn.style.justifyContent = 'center';
-
-  // Find out more button (always at the bottom)
-  let moreBtn = null;
-if (building.link) {
-  let moreBtn = document.createElement('a');
-  moreBtn.textContent = 'find out more...';
-  moreBtn.href = building.link;
-  moreBtn.target = '_blank';
-  moreBtn.style.position = 'absolute';
-  moreBtn.style.left = '50%';
-  moreBtn.style.transform = 'translateX(-50%)';
-  moreBtn.style.bottom = '-11px';
-  moreBtn.style.height = '22px';
-  moreBtn.style.lineHeight = '22px';
-  moreBtn.style.width = '70%';
-  moreBtn.style.background = '#fff';
-  moreBtn.style.color = '#111';
-  moreBtn.style.border = 'none';
-  moreBtn.style.borderRadius = '8px';
-  moreBtn.style.fontWeight = 'bold';
-  moreBtn.style.fontSize = '1.05rem';
-  moreBtn.style.textAlign = 'center';
-  moreBtn.style.textDecoration = 'none';
-  moreBtn.style.cursor = 'pointer';
-  moreBtn.style.zIndex = '10';
-  // Much stronger shadow, but still soft-edged:
-  moreBtn.style.boxShadow = '0 8px 32px 0 rgba(0,0,0,0.37), 0 2px 8px 0 rgba(0,0,0,0.19)';
-  posterContainer.appendChild(moreBtn);
-}
-
-  // Video element (created later)
-  let videoElement = null;
-
-  function removeOverlayAndPauseVideo() {
-    if (videoElement) {
-      videoElement.pause();
-      videoElement.currentTime = 0;
-    }
-    overlay.remove();
-  }
-
-  closeBtn.onclick = () => removeOverlayAndPauseVideo();
-
-  let startY;
-  overlay.addEventListener('touchstart', e => {
-    if (e.touches.length === 1) startY = e.touches[0].clientY;
-  });
-  overlay.addEventListener('touchmove', e => {
-    if (startY !== undefined && e.touches.length === 1) {
-      const dy = e.touches[0].clientY - startY;
-      if (dy > 50) {
-        removeOverlayAndPauseVideo();
-        startY = undefined;
+      if (!videoUrl) {
+        console.error('Video URL not available for this building.');
+        return;
       }
-    }
-  });
-  overlay.addEventListener('touchend', () => { startY = undefined; });
 
-  playBtn.style.display = 'none';
-  closeBtn.style.display = 'none';
-  posterImg.onload = function () {
-    playBtn.style.display = 'flex';
-    closeBtn.style.display = 'flex';
-  };
+      // Remove any existing overlays
+      document.querySelectorAll('.video-modal-overlay').forEach(el => el.remove());
 
-  // Append elements in this order: media, play, spinner, close, then find out more button
-  posterContainer.appendChild(posterImg);
-  posterContainer.appendChild(playBtn);
-  posterContainer.appendChild(spinner);
-  posterContainer.appendChild(closeBtn);
-  if (moreBtn) posterContainer.appendChild(moreBtn);
+      // Modal overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'video-modal-overlay';
+      overlay.style.position = 'fixed';
+      overlay.style.top = 0;
+      overlay.style.left = 0;
+      overlay.style.width = '100vw';
+      overlay.style.height = '100vh';
+      overlay.style.background = 'rgba(0,0,0,0.75)';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.zIndex = 100000;
 
-  overlay.appendChild(posterContainer);
-  document.body.appendChild(overlay);
+      // Poster and video container
+      const posterContainer = document.createElement('div');
+      posterContainer.style.position = 'relative';
+      posterContainer.style.marginTop = '-60px';
 
-  overlay.addEventListener('mousedown', function (e) {
-    if (e.target === overlay) removeOverlayAndPauseVideo();
-  });
+      // Poster image
+      const posterImg = document.createElement('img');
+      posterImg.src = posterUrl || '';
+      posterImg.alt = 'Video cover';
+      posterImg.style.maxWidth = '79.2vw';
+      posterImg.style.maxHeight = '72vh';
+      posterImg.style.borderRadius = '14px';
+      posterImg.style.display = 'block';
+      posterImg.style.margin = '0 auto';
+      posterImg.addEventListener('load', () => {
+        posterImg.style.border = '1.5px solid #E9E8E0';
+      });
 
-  playBtn.onclick = () => {
-    playBtn.style.display = 'none';
-    spinner.style.display = 'block';
-    videoElement = document.createElement('video');
-    videoElement.src = videoUrl;
-    if (posterUrl) videoElement.poster = posterUrl;
-    // Use same styles as posterImg
-    videoElement.style.maxWidth = '79.2vw';
-    videoElement.style.maxHeight = '72vh';
-    videoElement.style.borderRadius = '14px';
-    videoElement.style.display = 'block';
-    videoElement.style.margin = '0 auto';
-    videoElement.style.border = '2px solid #E9E8E0';
-    videoElement.controls = false;
-    videoElement.preload = 'auto';
-    videoElement.autoplay = true;
-    videoElement.setAttribute('playsinline', '');
-    videoElement.setAttribute('webkit-playsinline', '');
-    videoElement.playsInline = true;
-    showFirstVideoWaitMessage(videoElement);
-    let hasStarted = false;
+      // Play button
+      const playBtn = document.createElement('button');
+      playBtn.innerHTML = '▶';
+      playBtn.style.position = 'absolute';
+      playBtn.style.top = '50%';
+      playBtn.style.left = '50%';
+      playBtn.style.transform = 'translate(-50%, -50%)';
+      playBtn.style.background = 'rgba(0,0,0,0.6)';
+      playBtn.style.border = 'none';
+      playBtn.style.borderRadius = '50%';
+      playBtn.style.width = '48px';
+      playBtn.style.height = '48px';
+      playBtn.style.color = '#fff';
+      playBtn.style.fontSize = '1.7rem';
+      playBtn.style.cursor = 'pointer';
+      playBtn.style.display = 'flex';
+      playBtn.style.alignItems = 'center';
+      playBtn.style.justifyContent = 'center';
+      playBtn.style.zIndex = 2;
 
-    function showVideo() {
-      if (!hasStarted) {
-        hasStarted = true;
-        posterContainer.replaceChild(videoElement, posterImg);
-        spinner.style.display = 'none';
-        // The "find out more..." button stays in place because it's always appended last
-      }
-    }
-
-    function onProgress() {
-      if (videoElement.duration && videoElement.buffered.length) {
-        const bufferedEnd = videoElement.buffered.end(videoElement.buffered.length - 1);
-        const percentBuffered = bufferedEnd / videoElement.duration;
-        if (percentBuffered >= 0.25 && !hasStarted) {
-          videoElement.play();
-        }
-      }
-    }
-
-    videoElement.addEventListener('play', showVideo);
-    videoElement.addEventListener('progress', onProgress);
-    videoElement.addEventListener('click', () => {
-      videoElement.controls = true;
-    });
-    videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
-    videoElement.addEventListener('error', () => {
+      // Spinner
+      const spinner = document.createElement('div');
+      spinner.style.position = 'absolute';
+      spinner.style.top = '50%';
+      spinner.style.left = '50%';
+      spinner.style.transform = 'translate(-50%, -50%)';
+      spinner.style.width = '36px';
+      spinner.style.height = '36px';
+      spinner.style.border = '4px solid #eee';
+      spinner.style.borderTop = '4px solid #9b4dca';
+      spinner.style.borderRadius = '50%';
+      spinner.style.animation = 'spin 1s linear infinite';
       spinner.style.display = 'none';
-      playBtn.style.display = 'block';
-      alert('Video failed to load.');
+      spinner.style.zIndex = 3;
+      const spinnerStyle = document.createElement('style');
+      spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
+      document.head.appendChild(spinnerStyle);
+
+      // Close button
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = '❌';
+      closeBtn.style.position = 'absolute';
+      closeBtn.style.top = '-6px';
+      closeBtn.style.right = '-6px';
+      closeBtn.style.width = '18px';
+      closeBtn.style.height = '18px';
+      closeBtn.style.background = '#000';
+      closeBtn.style.color = '#fff';
+      closeBtn.style.border = '1.5px solid #E9E8E0';
+      closeBtn.style.borderRadius = '50%';
+      closeBtn.style.cursor = 'pointer';
+      closeBtn.style.fontSize = '0.6rem';
+      closeBtn.style.zIndex = '100001';
+      closeBtn.style.display = 'flex';
+      closeBtn.style.alignItems = 'center';
+      closeBtn.style.justifyContent = 'center';
+
+      // Find out more button (always at the bottom)
+      if (building.link) {
+        let moreBtn = document.createElement('a');
+        moreBtn.textContent = 'find out more...';
+        moreBtn.href = building.link;
+        moreBtn.target = '_blank';
+        moreBtn.style.position = 'absolute';
+        moreBtn.style.left = '50%';
+        moreBtn.style.transform = 'translateX(-50%)';
+        moreBtn.style.bottom = '-11px';
+        moreBtn.style.height = '22px';
+        moreBtn.style.lineHeight = '22px';
+        moreBtn.style.width = '70%';
+        moreBtn.style.background = '#fff';
+        moreBtn.style.color = '#111';
+        moreBtn.style.border = 'none';
+        moreBtn.style.borderRadius = '8px';
+        moreBtn.style.fontWeight = 'bold';
+        moreBtn.style.fontSize = '1.05rem';
+        moreBtn.style.textAlign = 'center';
+        moreBtn.style.textDecoration = 'none';
+        moreBtn.style.cursor = 'pointer';
+        moreBtn.style.zIndex = '10';
+        moreBtn.style.boxShadow = '0 8px 32px 0 rgba(0,0,0,0.37), 0 2px 8px 0 rgba(0,0,0,0.19)';
+        posterContainer.appendChild(moreBtn);
+      }
+
+      // Video element (created later)
+      let videoElement = null;
+
+      function removeOverlayAndPauseVideo() {
+        if (videoElement) {
+          videoElement.pause();
+          videoElement.currentTime = 0;
+        }
+        overlay.remove();
+      }
+
+      closeBtn.onclick = () => removeOverlayAndPauseVideo();
+
+      let startY;
+      overlay.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) startY = e.touches[0].clientY;
+      });
+      overlay.addEventListener('touchmove', e => {
+        if (startY !== undefined && e.touches.length === 1) {
+          const dy = e.touches[0].clientY - startY;
+          if (dy > 50) {
+            removeOverlayAndPauseVideo();
+            startY = undefined;
+          }
+        }
+      });
+      overlay.addEventListener('touchend', () => { startY = undefined; });
+
+      playBtn.style.display = 'none';
+      closeBtn.style.display = 'none';
+      posterImg.onload = function () {
+        playBtn.style.display = 'flex';
+        closeBtn.style.display = 'flex';
+      };
+
+      // Append elements in this order: media, play, spinner, close, then find out more button
+      posterContainer.appendChild(posterImg);
+      posterContainer.appendChild(playBtn);
+      posterContainer.appendChild(spinner);
+      posterContainer.appendChild(closeBtn);
+
+      overlay.appendChild(posterContainer);
+      document.body.appendChild(overlay);
+
+      overlay.addEventListener('mousedown', function (e) {
+        if (e.target === overlay) removeOverlayAndPauseVideo();
+      });
+
+      playBtn.onclick = () => {
+        playBtn.style.display = 'none';
+        spinner.style.display = 'block';
+        videoElement = document.createElement('video');
+        videoElement.src = videoUrl;
+        if (posterUrl) videoElement.poster = posterUrl;
+        videoElement.style.maxWidth = '79.2vw';
+        videoElement.style.maxHeight = '72vh';
+        videoElement.style.borderRadius = '14px';
+        videoElement.style.display = 'block';
+        videoElement.style.margin = '0 auto';
+        videoElement.style.border = '2px solid #E9E8E0';
+        videoElement.controls = false;
+        videoElement.preload = 'auto';
+        videoElement.autoplay = true;
+        videoElement.setAttribute('playsinline', '');
+        videoElement.setAttribute('webkit-playsinline', '');
+        videoElement.playsInline = true;
+        showFirstVideoWaitMessage(videoElement);
+        let hasStarted = false;
+
+        function showVideo() {
+          if (!hasStarted) {
+            hasStarted = true;
+            posterContainer.replaceChild(videoElement, posterImg);
+            spinner.style.display = 'none';
+          }
+        }
+
+        function onProgress() {
+          if (videoElement.duration && videoElement.buffered.length) {
+            const bufferedEnd = videoElement.buffered.end(videoElement.buffered.length - 1);
+            const percentBuffered = bufferedEnd / videoElement.duration;
+            if (percentBuffered >= 0.25 && !hasStarted) {
+              videoElement.play();
+            }
+          }
+        }
+
+        videoElement.addEventListener('play', showVideo);
+        videoElement.addEventListener('progress', onProgress);
+        videoElement.addEventListener('click', () => {
+          videoElement.controls = true;
+        });
+        videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
+        videoElement.addEventListener('error', () => {
+          spinner.style.display = 'none';
+          playBtn.style.display = 'block';
+          alert('Video failed to load.');
+        });
+        videoElement.load();
+      };
     });
-    videoElement.load();
-  };
-});
     allBuildingMarkers.push({ marker, category: building.category });
   });
+  // Fix: scale the new markers to the current zoom level
+  scaleMarkersBasedOnZoom();
 }
 
 function filterBuildingMarkersByModeAndCategory(mode, category) {
