@@ -4,10 +4,8 @@ import { locations } from './locations.js';
 // Manually define which emojis and their labels you want to show as filters
 const emojiFilters = [
   { label: "Italian", emoji: "🇮🇹" },
-  { label: "Drinks", emoji: "🍺" },
-  { label: "British", emoji: "🇬🇧" },
-  // Add more as needed, e.g.:
-  // { label: "Coffee", emoji: "☕" },
+  { label: "Mexican", emoji: "🇲🇽" },
+  { label: "Thai", emoji: "🇹🇭" },
 ];
 
 const loadingScreenStart = Date.now();
