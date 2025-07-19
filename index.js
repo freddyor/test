@@ -137,9 +137,9 @@ function addBuildingMarkers(buildingsToShow) {
     nameLabel.style.pointerEvents = 'none';
     nameLabel.style.whiteSpace = 'nowrap';
     nameLabel.style.color = '#a259ff';
-    nameLabel.style.textShadow =
-      '-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,' + // strong black outline
-      '0px 2px 0 #000, 2px 0px 0 #000, 0px -2px 0 #000, -2px 0px 0 #000';
+nameLabel.style.textShadow =
+  '-1.2px -1.2px 0 #000, 1.2px -1.2px 0 #000, -1.2px 1.2px 0 #000, 1.2px 1.2px 0 #000,' +
+  '0px 1.2px 0 #000, 1.2px 0px 0 #000, 0px -1.2px 0 #000, -1.2px 0px 0 #000';
     nameLabel.style.display = 'none'; // Hidden by default, toggled by updateBuildingMarkerLabels()
 
     markerElement.appendChild(nameLabel);
