@@ -6,7 +6,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/295ec0f287cf4b449c693ffde55fc0e1.mp4", 
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8589.webp",
             "mode": "normal",
-            "link": "",
+            "link": "https://york.independentlife.co.uk/areas/york/the-grand-hotel-york",
                              },
                            {
     "name": "Speakcheesy",
@@ -15,10 +15,10 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/a6312f2749a74d4c9069701495969760.mp4", 
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8595.webp",
             "mode": "normal",
-            "link": "",
+            "link": "https://york.independentlife.co.uk/areas/york/speakcheesey",
                              },
                            {
-    "name": "Vs Kitchen",
+    "name": "V's Artisan Kitchen",
     "coords": [-1.0831468449810797, 53.96484218184187],
     "image": "https://freddyor.github.io/british-map/videos/IMG_8593.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/c0b7d7adf0ba41be9f47a22e7137d06a.mp4", 
@@ -27,7 +27,7 @@ export const buildings = [
             "link": "",
                              },
                        {
-    "name": "Cut and Craft",
+    "name": "Cut & Craft",
     "coords": [-1.0820521690493439, 53.9600058393026],
     "image": "https://freddyor.github.io/british-map/videos/IMG_8242.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/04bd7b94d85549fea39d83c3e59408bd.mp4", 
@@ -72,7 +72,7 @@ export const buildings = [
             "link": "https://york.independentlife.co.uk/areas/york/bruberrie-cafe-and-bar",
                         },
                        {
-    "name": "La Bottega new street",
+    "name": "La Bottega Milanese 🇮🇹",
     "coords": [-1.0835009348911735, 53.95965154689335],
     "image": "https://freddyor.github.io/british-map/videos/IMG_8230.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/16336bf3ffad4bdbb8975b89ae07c867.mp4", 
@@ -81,7 +81,7 @@ export const buildings = [
             "link": "https://york.independentlife.co.uk/areas/york/la-bottega-milanese",
                         },
                        {
-    "name": "Batanga",
+    "name": "Batanga 🇲🇽",
     "coords": [-1.077890886028605, 53.95821648836246],
     "image": "https://freddyor.github.io/british-map/videos/IMG_8227.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/89eac495a8894d99a8f438252638ec73.mp4", 
@@ -90,7 +90,7 @@ export const buildings = [
             "link": "https://york.independentlife.co.uk/areas/york/batanga",
                         },
                        {
-    "name": "Tasca Frango",
+    "name": "Tasca Frango 🇵🇹",
     "coords": [-1.079745548529018, 53.959978394813234],
     "image": "https://freddyor.github.io/british-map/videos/IMG_8226.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/f7e84b83ea5f4478a441f52175d34092.mp4", 
@@ -117,7 +117,7 @@ export const buildings = [
             "link": "",
                         },
                  {
-    "name": "Biga",
+    "name": "Biga 🇮🇹",
     "coords": [-1.0746453246314238, 53.95648716603779],
     "image": "https://freddyor.github.io/british-map/videos/IMG_82211.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/d4c66b7b2b4d4ba281f9109215c213e4.mp4", 
@@ -126,7 +126,7 @@ export const buildings = [
             "link": "",
                         },
            {
-    "name": "Lucia",
+    "name": "Lucia 🇮🇹",
     "coords": [-1.081804221222766, 53.96075817847289],
     "image": "https://freddyor.github.io/british-map/videos/IMG_8218.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/eb5907837c9741e6932d873845becf63.mp4", 
@@ -144,7 +144,7 @@ export const buildings = [
             "link": "https://york.independentlife.co.uk/areas/york/le-specialty",
   },
         {
-    "name": "Savvy Baker",
+    "name": "Savvy Baker 🧁",
     "coords": [-1.0817899850050583, 53.96044987933306],
     "image": "https://freddyor.github.io/british-map/videos/IMG_81591.webp",
     "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/bc5f9f60b85c408ebd68bc875c1653b5.mp4", 
@@ -153,7 +153,7 @@ export const buildings = [
               "link": "https://york.independentlife.co.uk/areas/york/the-savvy-baker",
   },
         {
-    "name": "Hole in the wand",
+    "name": "The Hole in Wand ⛳",
     "coords": [-1.0801084713585758, 53.957527525011535],
     "image": "https://freddyor.github.io/british-map/videos/IMG_81581.webp",
     "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/d0c0514972804de2b8c4cb0c8ab78c5b.mp4", 
@@ -162,7 +162,7 @@ export const buildings = [
               "link": "https://york.independentlife.co.uk/areas/york/the-hole-in-wand",
   },
         {
-    "name": "Cafe next door",
+    "name": "The Cafe Next Door",
     "coords": [-1.0714762307613124, 53.93526206687627],
     "image": "https://freddyor.github.io/british-map/videos/IMG_81571.webp",
     "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/4e8ed0ec84464b50b9f605300ae12135.mp4", 
@@ -181,7 +181,7 @@ export const buildings = [
               "link": "",
   },
         {
-    "name": "La bottega",
+    "name": "La bottega 🇮🇹",
     "coords": [-1.0792686235476736, 53.96204575252662],
     "image": "https://freddyor.github.io/british-map/videos/IMG_81551.webp",
     "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/8d9d8651e2aa4494b66797e3e3319402.mp4", 
@@ -199,7 +199,7 @@ export const buildings = [
               "link": "",
   },
         {
-    "name": "Yo-yo wings",
+    "name": "Yo Yo Wings",
     "coords": [-1.0824160150695383, 53.96066839328574],
     "image": "https://freddyor.github.io/british-map/videos/IMG_81531.webp",
     "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/c5b234124b8c406fa7750e709ff5cf2a.mp4", 
@@ -208,7 +208,7 @@ export const buildings = [
               "link": "https://york.independentlife.co.uk/areas/york/yo-yo-wings",
   },
           {
-    "name": "Kawa House",
+    "name": "Kawa House 🇵🇱",
     "coords": [-1.0740487735478794, 53.94634170201295],
     "image": "https://freddyor.github.io/british-map/videos/IMG_81521.webp",
     "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/27e80e3c59854a4482830ea340f6bb43.mp4", 
@@ -217,7 +217,7 @@ export const buildings = [
                 "link": "https://york.independentlife.co.uk/areas/york/kawa-house",
   },
           {
-    "name": "Rosa's Thai",
+    "name": "Rosa's Thai 🇹🇭",
     "coords": [-1.0846462816307776, 53.959868194637345],
     "image": "https://freddyor.github.io/british-map/videos/IMG_81511.webp",
     "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/2a1e0fa5a49d4c90997220ae4c01bf7f.mp4", 
@@ -235,7 +235,7 @@ export const buildings = [
                 "link": "",
   },
           {
-    "name": "The potions cauldron",
+    "name": "The Potions Cauldron",
     "coords": [-1.0801219805054278, 53.95952005819726],
     "image": "https://freddyor.github.io/british-map/videos/IMG_81611.webp",
     "videoUrl": "https://yorkmapped.s3.eu-north-1.amazonaws.com/82fd00803a654424acfdda4a9ff1a20d.mp4", 
