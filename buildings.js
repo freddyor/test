@@ -1,4 +1,31 @@
 export const buildings = [
+                           {
+    "name": "The Grand",
+    "coords": [-1.0889567643083704, 53.95854246261419],
+    "image": "https://freddyor.github.io/british-map/videos/IMG_8590.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/295ec0f287cf4b449c693ffde55fc0e1.mp4", 
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8589.webp",
+            "mode": "normal",
+            "link": "",
+                             },
+                           {
+    "name": "Speakcheesy",
+    "coords": [-1.078489626734333, 53.95813051578817],
+    "image": "https://freddyor.github.io/british-map/videos/IMG_8596.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/a6312f2749a74d4c9069701495969760.mp4", 
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8595.webp",
+            "mode": "normal",
+            "link": "",
+                             },
+                           {
+    "name": "Vs Kitchen",
+    "coords": [-1.0831468449810797, 53.96484218184187],
+    "image": "https://freddyor.github.io/british-map/videos/IMG_8593.webp",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/c0b7d7adf0ba41be9f47a22e7137d06a.mp4", 
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8592.webp",
+            "mode": "normal",
+            "link": "",
+                             },
                        {
     "name": "Cut and Craft",
     "coords": [-1.0820521690493439, 53.9600058393026],
