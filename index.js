@@ -94,6 +94,24 @@ let allBuildingMarkers = [];
 let currentMode = 'normal';
 let currentCategory = 'All';
 
+// ----------- START: Add building names above images in "explore" mode when zoomed in -----------
+const ZOOM_NAME_THRESHOLD = 16;
+
+function updateBuildingMarkerLabels() {
+  allBuildingMarkers.forEach(({ marker, building, labelEl }) => {
+    if (
+      currentMode === 'normal' && // explore mode
+      map.getZoom() >= ZOOM_NAME_THRESHOLD
+    ) {
+      labelEl.style.display = 'block';
+    } else {
+      labelEl.style.display = 'none';
+    }
+  });
+}
+map.on('zoom', updateBuildingMarkerLabels);
+// ----------- END: Add building names above images -----------
+
 function addBuildingMarkers(buildingsToShow) {
   allBuildingMarkers.forEach(obj => obj.marker.remove());
   allBuildingMarkers = [];
@@ -103,6 +121,29 @@ function addBuildingMarkers(buildingsToShow) {
     markerElement.className += ' building-marker';
 
     if (building.colour === "yes") markerElement.style.zIndex = '3';
+
+    // ----------- ADD LABEL: -----------
+    // Create name label element
+    const nameLabel = document.createElement('div');
+    nameLabel.className = 'building-name-label';
+    nameLabel.innerText = building.name;
+    nameLabel.style.position = 'absolute';
+    nameLabel.style.left = '50%';
+    nameLabel.style.top = '-1.5em';
+    nameLabel.style.transform = 'translateX(-50%)';
+    nameLabel.style.fontFamily = "'Poppins', sans-serif";
+    nameLabel.style.fontWeight = 'bold';
+    nameLabel.style.fontSize = '1.1em';
+    nameLabel.style.pointerEvents = 'none';
+    nameLabel.style.whiteSpace = 'nowrap';
+    nameLabel.style.color = '#a259ff';
+    nameLabel.style.textShadow =
+      '-2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,' + // strong black outline
+      '0px 2px 0 #000, 2px 0px 0 #000, 0px -2px 0 #000, -2px 0px 0 #000';
+    nameLabel.style.display = 'none'; // Hidden by default, toggled by updateBuildingMarkerLabels()
+
+    markerElement.appendChild(nameLabel);
+    // ----------- END LABEL -----------
 
     const marker = new mapboxgl.Marker({ element: markerElement })
       .setLngLat(building.coords)
@@ -211,6 +252,7 @@ function addBuildingMarkers(buildingsToShow) {
       closeBtn.style.justifyContent = 'center';
 
       // Find out more button (always at the bottom)
+      let moreBtn = null;
       if (building.link) {
         let moreBtn = document.createElement('a');
         moreBtn.textContent = 'find out more...';
@@ -233,6 +275,7 @@ function addBuildingMarkers(buildingsToShow) {
         moreBtn.style.textDecoration = 'none';
         moreBtn.style.cursor = 'pointer';
         moreBtn.style.zIndex = '10';
+        // Much stronger shadow, but still soft-edged:
         moreBtn.style.boxShadow = '0 8px 32px 0 rgba(0,0,0,0.37), 0 2px 8px 0 rgba(0,0,0,0.19)';
         posterContainer.appendChild(moreBtn);
       }
@@ -277,6 +320,7 @@ function addBuildingMarkers(buildingsToShow) {
       posterContainer.appendChild(playBtn);
       posterContainer.appendChild(spinner);
       posterContainer.appendChild(closeBtn);
+      if (moreBtn) posterContainer.appendChild(moreBtn);
 
       overlay.appendChild(posterContainer);
       document.body.appendChild(overlay);
@@ -291,6 +335,7 @@ function addBuildingMarkers(buildingsToShow) {
         videoElement = document.createElement('video');
         videoElement.src = videoUrl;
         if (posterUrl) videoElement.poster = posterUrl;
+        // Use same styles as posterImg
         videoElement.style.maxWidth = '79.2vw';
         videoElement.style.maxHeight = '72vh';
         videoElement.style.borderRadius = '14px';
@@ -311,6 +356,7 @@ function addBuildingMarkers(buildingsToShow) {
             hasStarted = true;
             posterContainer.replaceChild(videoElement, posterImg);
             spinner.style.display = 'none';
+            // The "find out more..." button stays in place because it's always appended last
           }
         }
 
@@ -338,10 +384,11 @@ function addBuildingMarkers(buildingsToShow) {
         videoElement.load();
       };
     });
-    allBuildingMarkers.push({ marker, category: building.category });
+
+    // Add marker, building, and the label element to allBuildingMarkers for later toggling
+    allBuildingMarkers.push({ marker, category: building.category, building, labelEl: nameLabel });
   });
-  // Fix: scale the new markers to the current zoom level
-  scaleMarkersBasedOnZoom();
+  updateBuildingMarkerLabels(); // Make sure to update visibility after markers are added
 }
 
 function filterBuildingMarkersByModeAndCategory(mode, category) {
@@ -361,6 +408,7 @@ function filterBuildingMarkers(category) {
   currentCategory = category;
   filterBuildingMarkersByModeAndCategory(currentMode, currentCategory);
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const topBar = document.createElement('div');
