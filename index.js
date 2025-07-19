@@ -659,7 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
   flagDropdown.style.left = '50%';
   flagDropdown.style.transform = 'translateX(-50%)';
   flagDropdown.style.zIndex = 1001;
-  flagDropdown.style.width = '160px'; // wider
+  flagDropdown.style.width = '150px'; // wider
   flagDropdown.style.maxWidth = '95vw';
   flagDropdown.style.fontFamily = "'Poppins', sans-serif";
   flagDropdown.style.display = (currentMode === "normal" ? "block" : "none");
@@ -669,7 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fancyBtn.textContent = 'What do you fancy?';
   fancyBtn.style.width = '100%';
   fancyBtn.style.fontSize = '13px';
-  fancyBtn.style.padding = '10px 0';
+  fancyBtn.style.padding = '5px 0';
   fancyBtn.style.background = '#e0b0ff';
   fancyBtn.style.color = '#000';
   fancyBtn.style.border = '1.5px solid #ccc';
@@ -691,7 +691,7 @@ document.addEventListener('DOMContentLoaded', () => {
   optionsWrapper.style.padding = '8px 0 8px 0';
   optionsWrapper.style.display = 'none';
   optionsWrapper.style.flexDirection = 'column';
-  optionsWrapper.style.gap = '7px';
+  optionsWrapper.style.gap = '4px';
 
   // Option button generator
   function makeOptionBtn(innerHtml, emoji) {
@@ -705,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.style.color = '#000';
     btn.style.border = 'none';
     btn.style.borderRadius = '7px';
-    btn.style.padding = '8px 2px';
+    btn.style.padding = '8px 6px';
     btn.style.display = 'flex';
     btn.style.alignItems = 'center';
     btn.style.justifyContent = 'flex-start';
