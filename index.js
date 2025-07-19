@@ -4,9 +4,11 @@ import { locations } from './locations.js';
 // Manually define which emojis and their labels you want to show as filters
 const emojiFilters = [
   { label: "Italian", emoji: "🇮🇹" },
-  { label: "Drinks", emoji: "🍺" },
-  { label: "British", emoji: "🇬🇧" },
-  // Add more as needed
+  { label: "Mexican", emoji: "🇲🇽" },
+  { label: "Bakery", emoji: "🧁" },
+  { label: "Thai", emoji: "🇹🇭" },
+  { label: "Steak", emoji: "🥩" },
+  { label: "Crazy Golf", emoji: "⛳" },
 ];
 
 const loadingScreenStart = Date.now();
@@ -448,14 +450,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Labels
   const normalLabel = document.createElement('span');
   normalLabel.textContent = 'Explore';
-  normalLabel.style.fontSize = '12px';
+  normalLabel.style.fontSize = '13px';
   normalLabel.style.fontWeight = 'bold';
   normalLabel.style.cursor = 'pointer';
   normalLabel.style.transition = 'color 0.18s, font-weight 0.18s';
 
   const historyLabel = document.createElement('span');
   historyLabel.textContent = 'History';
-  historyLabel.style.fontSize = '12px';
+  historyLabel.style.fontSize = '13px';
   historyLabel.style.fontWeight = 'normal';
   historyLabel.style.cursor = 'pointer';
   historyLabel.style.transition = 'color 0.18s, font-weight 0.18s';
@@ -543,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const supportLink = document.createElement('span');
   supportLink.textContent = '❤️ Support this project ❤️';
   supportLink.style.fontWeight = 'bold';
-  supportLink.style.fontSize = '12px';
+  supportLink.style.fontSize = '13px';
   supportLink.style.color = '#000000';
   supportLink.style.cursor = 'pointer';
   supportLink.style.marginLeft = '10px';
@@ -657,7 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
   flagDropdown.style.left = '50%';
   flagDropdown.style.transform = 'translateX(-50%)';
   flagDropdown.style.zIndex = 1001;
-  flagDropdown.style.width = '200px'; // wider
+  flagDropdown.style.width = '160px'; // wider
   flagDropdown.style.maxWidth = '95vw';
   flagDropdown.style.fontFamily = "'Poppins', sans-serif";
   flagDropdown.style.display = (currentMode === "normal" ? "block" : "none");
@@ -666,7 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const fancyBtn = document.createElement('button');
   fancyBtn.textContent = 'What do you fancy?';
   fancyBtn.style.width = '100%';
-  fancyBtn.style.fontSize = '12px';
+  fancyBtn.style.fontSize = '13px';
   fancyBtn.style.padding = '10px 0';
   fancyBtn.style.background = '#e0b0ff';
   fancyBtn.style.color = '#000';
@@ -696,7 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.createElement('button');
     btn.innerHTML = innerHtml;
     btn.className = 'custom-button';
-    btn.style.fontSize = '16px';
+    btn.style.fontSize = '13px';
     btn.style.width = '90%';
     btn.style.margin = '0 auto 7px auto';
     btn.style.background = '#e9e8e0';
