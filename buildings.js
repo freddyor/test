@@ -27,7 +27,7 @@ export const buildings = [
             "link": "",
                              },
                        {
-    "name": "Cut & Craft",
+    "name": "Cut & Craft 🥩",
     "coords": [-1.0820521690493439, 53.9600058393026],
     "image": "https://freddyor.github.io/british-map/videos/IMG_8242.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/04bd7b94d85549fea39d83c3e59408bd.mp4", 
