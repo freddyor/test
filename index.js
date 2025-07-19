@@ -1,7 +1,15 @@
 import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
-// Track when the loading screen is first shown
+// Manually define which emojis and their labels you want to show as filters
+const emojiFilters = [
+  { label: "Italian", emoji: "🇮🇹" },
+  { label: "Drinks", emoji: "🍺" },
+  { label: "British", emoji: "🇬🇧" },
+  // Add more as needed, e.g.:
+  // { label: "Coffee", emoji: "☕" },
+];
+
 const loadingScreenStart = Date.now();
 
 // --- First Video Popup additions START ---
@@ -13,7 +21,6 @@ const yorkBounds = [
   [-1.010, 54.010]
 ];
 
-// Set Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
 var map = new mapboxgl.Map({
@@ -85,8 +92,6 @@ locations.forEach(location => {
   });
 });
 
-// =================== BUILDING MARKER FILTER DROPDOWN AND MODE TOGGLE ===================
-
 const categories = Array.from(new Set(buildings.map(b => b.category))).sort();
 categories.unshift('All');
 
@@ -95,13 +100,12 @@ let currentMode = 'normal';
 let currentCategory = 'All';
 let currentFlagFilter = null; // for emoji flag filter
 
-// ----------- START: Add building names above images in "explore" mode when zoomed in -----------
 const ZOOM_NAME_THRESHOLD = 16;
 
 function updateBuildingMarkerLabels() {
   allBuildingMarkers.forEach(({ marker, building, labelEl }) => {
     if (
-      currentMode === 'normal' && // explore mode
+      currentMode === 'normal' &&
       map.getZoom() >= ZOOM_NAME_THRESHOLD
     ) {
       labelEl.style.display = 'block';
@@ -111,7 +115,6 @@ function updateBuildingMarkerLabels() {
   });
 }
 map.on('zoom', updateBuildingMarkerLabels);
-// ----------- END: Add building names above images -----------
 
 function addBuildingMarkers(buildingsToShow) {
   allBuildingMarkers.forEach(obj => obj.marker.remove());
@@ -123,8 +126,7 @@ function addBuildingMarkers(buildingsToShow) {
 
     if (building.colour === "yes") markerElement.style.zIndex = '3';
 
-    // ----------- ADD LABEL: -----------
-    // Create name label element
+    // Name label
     const nameLabel = document.createElement('div');
     nameLabel.className = 'building-name-label';
     nameLabel.innerText = building.name;
@@ -141,10 +143,9 @@ function addBuildingMarkers(buildingsToShow) {
     nameLabel.style.textShadow =
       '-1.2px -1.2px 0 #000, 1.2px -1.2px 0 #000, -1.2px 1.2px 0 #000, 1.2px 1.2px 0 #000,' +
       '0px 1.2px 0 #000, 1.2px 0px 0 #000, 0px -1.2px 0 #000, -1.2px 0px 0 #000';
-    nameLabel.style.display = 'none'; // Hidden by default, toggled by updateBuildingMarkerLabels()
+    nameLabel.style.display = 'none';
 
     markerElement.appendChild(nameLabel);
-    // ----------- END LABEL -----------
 
     const marker = new mapboxgl.Marker({ element: markerElement })
       .setLngLat(building.coords)
@@ -160,10 +161,8 @@ function addBuildingMarkers(buildingsToShow) {
         return;
       }
 
-      // Remove any existing overlays
       document.querySelectorAll('.video-modal-overlay').forEach(el => el.remove());
 
-      // Modal overlay
       const overlay = document.createElement('div');
       overlay.className = 'video-modal-overlay';
       overlay.style.position = 'fixed';
@@ -177,12 +176,10 @@ function addBuildingMarkers(buildingsToShow) {
       overlay.style.justifyContent = 'center';
       overlay.style.zIndex = 100000;
 
-      // Poster and video container
       const posterContainer = document.createElement('div');
       posterContainer.style.position = 'relative';
       posterContainer.style.marginTop = '-60px';
 
-      // Poster image
       const posterImg = document.createElement('img');
       posterImg.src = posterUrl || '';
       posterImg.alt = 'Video cover';
@@ -195,7 +192,6 @@ function addBuildingMarkers(buildingsToShow) {
         posterImg.style.border = '1.5px solid #E9E8E0';
       });
 
-      // Play button
       const playBtn = document.createElement('button');
       playBtn.innerHTML = '▶';
       playBtn.style.position = 'absolute';
@@ -215,7 +211,6 @@ function addBuildingMarkers(buildingsToShow) {
       playBtn.style.justifyContent = 'center';
       playBtn.style.zIndex = 2;
 
-      // Spinner
       const spinner = document.createElement('div');
       spinner.style.position = 'absolute';
       spinner.style.top = '50%';
@@ -233,7 +228,6 @@ function addBuildingMarkers(buildingsToShow) {
       spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
       document.head.appendChild(spinnerStyle);
 
-      // Close button
       const closeBtn = document.createElement('button');
       closeBtn.textContent = '❌';
       closeBtn.style.position = 'absolute';
@@ -252,7 +246,6 @@ function addBuildingMarkers(buildingsToShow) {
       closeBtn.style.alignItems = 'center';
       closeBtn.style.justifyContent = 'center';
 
-      // Find out more button (always at the bottom)
       let moreBtn = null;
       if (building.link) {
         let moreBtn = document.createElement('a');
@@ -276,12 +269,10 @@ function addBuildingMarkers(buildingsToShow) {
         moreBtn.style.textDecoration = 'none';
         moreBtn.style.cursor = 'pointer';
         moreBtn.style.zIndex = '10';
-        // Much stronger shadow, but still soft-edged:
         moreBtn.style.boxShadow = '0 8px 32px 0 rgba(0,0,0,0.37), 0 2px 8px 0 rgba(0,0,0,0.19)';
         posterContainer.appendChild(moreBtn);
       }
 
-      // Video element (created later)
       let videoElement = null;
 
       function removeOverlayAndPauseVideo() {
@@ -316,7 +307,6 @@ function addBuildingMarkers(buildingsToShow) {
         closeBtn.style.display = 'flex';
       };
 
-      // Append elements in this order: media, play, spinner, close, then find out more button
       posterContainer.appendChild(posterImg);
       posterContainer.appendChild(playBtn);
       posterContainer.appendChild(spinner);
@@ -336,7 +326,6 @@ function addBuildingMarkers(buildingsToShow) {
         videoElement = document.createElement('video');
         videoElement.src = videoUrl;
         if (posterUrl) videoElement.poster = posterUrl;
-        // Use same styles as posterImg
         videoElement.style.maxWidth = '79.2vw';
         videoElement.style.maxHeight = '72vh';
         videoElement.style.borderRadius = '14px';
@@ -357,7 +346,6 @@ function addBuildingMarkers(buildingsToShow) {
             hasStarted = true;
             posterContainer.replaceChild(videoElement, posterImg);
             spinner.style.display = 'none';
-            // The "find out more..." button stays in place because it's always appended last
           }
         }
 
@@ -386,27 +374,12 @@ function addBuildingMarkers(buildingsToShow) {
       };
     });
 
-    // Add marker, building, and the label element to allBuildingMarkers for later toggling
     allBuildingMarkers.push({ marker, category: building.category, building, labelEl: nameLabel });
   });
-  updateBuildingMarkerLabels(); // Make sure to update visibility after markers are added
-  scaleMarkersBasedOnZoom();    // <-- ADD THIS LINE
+  updateBuildingMarkerLabels();
+  scaleMarkersBasedOnZoom();
 }
 
-// ==================== EMOJI FLAG FILTER LOGIC ====================
-// Returns array of unique emoji flags used in building names
-function getFlagEmojis(buildings) {
-  // Regex matches most flag emojis (regional indicators, and a few others)
-  const flagRegex = /([\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF])/g;
-  const flags = new Set();
-  buildings.forEach(b => {
-    const matches = (b.name.match(flagRegex) || []);
-    matches.forEach(f => flags.add(f));
-  });
-  return Array.from(flags);
-}
-
-// Main filtering function using mode, category, and emoji flag
 function filterBuildingMarkersByModeCategoryFlag(mode, category, flag) {
   let filtered;
   if (mode === "normal") {
@@ -516,15 +489,13 @@ document.addEventListener('DOMContentLoaded', () => {
     isHistory = history;
     currentMode = isHistory ? 'history' : 'normal';
     currentCategory = 'All';
-    currentFlagFilter = null; // reset flag filter when mode changes
+    currentFlagFilter = null;
     updateToggleVisual();
     filterBuildingMarkersByModeCategoryFlag(currentMode, currentCategory, currentFlagFilter);
-    // Show/hide emoji flag dropdown
     if (flagDropdown) flagDropdown.style.display = (currentMode === "normal" ? "block" : "none");
     if (flagDropdown) updateFlagDropdownVisual();
   }
 
-  // Place this right after setMode:
   const path = window.location.pathname;
   if (path.endsWith('/history')) {
     setMode(true);
@@ -542,7 +513,6 @@ document.addEventListener('DOMContentLoaded', () => {
   toggleWrapper.appendChild(toggleContainer);
   toggleWrapper.appendChild(historyLabel);
 
-  // Divider between controls
   const divider = document.createElement('div');
   divider.style.height = '28px';
   divider.style.width = '1.5px';
@@ -550,7 +520,6 @@ document.addEventListener('DOMContentLoaded', () => {
   divider.style.margin = '0 18px';
   divider.style.borderRadius = '3px';
 
-  // Support link (plain clickable text)
   const supportLink = document.createElement('span');
   supportLink.textContent = '❤️ Support this project ❤️';
   supportLink.style.fontWeight = 'bold';
@@ -559,7 +528,6 @@ document.addEventListener('DOMContentLoaded', () => {
   supportLink.style.cursor = 'pointer';
   supportLink.style.marginLeft = '10px';
 
-  // Dropdown logic
   const dropdownContent = document.createElement('div');
   dropdownContent.style.display = 'none';
   dropdownContent.style.position = 'fixed';
@@ -574,7 +542,7 @@ document.addEventListener('DOMContentLoaded', () => {
   dropdownContent.style.fontSize = '13px';
   dropdownContent.style.lineHeight = '1.25';
   dropdownContent.style.zIndex = '10000';
-  dropdownContent.style.width = '80vw';     // Popup now takes 80% of the viewport width
+  dropdownContent.style.width = '80vw';
   dropdownContent.style.maxWidth = '96vw'; 
   dropdownContent.style.textAlign = 'center';
   dropdownContent.style.maxHeight = 'calc(100vh - 200px)';
@@ -661,10 +629,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.appendChild(topBar);
   document.body.appendChild(dropdownContent);
 
-  // ================== FLAG FILTER DROPDOWN BELOW TOP BAR ==================
+  // ================== MANUAL EMOJI FILTER DROPDOWN ==================
   flagDropdown = document.createElement('div');
   flagDropdown.style.position = 'fixed';
-  flagDropdown.style.top = '44px'; // Just below your top bar (height 38px + margin)
+  flagDropdown.style.top = '44px';
   flagDropdown.style.left = '50%';
   flagDropdown.style.transform = 'translateX(-50%)';
   flagDropdown.style.zIndex = 1001;
@@ -677,13 +645,12 @@ document.addEventListener('DOMContentLoaded', () => {
   flagDropdown.style.display = (currentMode === "normal" ? "block" : "none");
   flagDropdown.style.transition = 'opacity 0.2s';
 
-  // Build flag emoji options
   const flagTitle = document.createElement('span');
   flagTitle.textContent = 'Show buildings with: ';
   flagTitle.style.marginRight = '0.5em';
   flagDropdown.appendChild(flagTitle);
 
-  const flagEmojis = getFlagEmojis(buildings);
+  // "All" button
   const allBtn = document.createElement('button');
   allBtn.textContent = '🌐 All';
   allBtn.className = 'custom-button';
@@ -692,15 +659,15 @@ document.addEventListener('DOMContentLoaded', () => {
     filterBuildingMarkersByModeCategoryFlag(currentMode, currentCategory, currentFlagFilter);
     updateFlagDropdownVisual();
   };
-
   flagDropdown.appendChild(allBtn);
 
-  flagEmojis.forEach(flag => {
+  // Your manual emoji filters with text
+  emojiFilters.forEach(({ label, emoji }) => {
     const btn = document.createElement('button');
-    btn.textContent = flag;
+    btn.innerHTML = `<span style="margin-right: 0.35em;">${emoji}</span> ${label}`;
     btn.className = 'custom-button';
     btn.onclick = () => {
-      currentFlagFilter = flag;
+      currentFlagFilter = emoji;
       filterBuildingMarkersByModeCategoryFlag(currentMode, currentCategory, currentFlagFilter);
       updateFlagDropdownVisual();
     };
@@ -709,12 +676,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.body.appendChild(flagDropdown);
 
-  // Helper to highlight selected filter
   function updateFlagDropdownVisual() {
     Array.from(flagDropdown.querySelectorAll('.custom-button')).forEach(btn => {
+      // Extract the emoji from the button (first child span)
+      const span = btn.querySelector('span');
+      const emoji = span ? span.textContent.trim() : '';
       if (
-        (btn.textContent === (currentFlagFilter || '🌐 All')) ||
-        (currentFlagFilter === null && btn.textContent === '🌐 All')
+        (currentFlagFilter === null && btn.textContent.includes('All')) ||
+        (emoji && emoji === currentFlagFilter)
       ) {
         btn.style.background = '#e0b0ff';
         btn.style.color = '#000';
@@ -726,7 +695,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   updateFlagDropdownVisual();
 
-  // Set initial visual feedback for mode
   setMode(false);
 });
 
