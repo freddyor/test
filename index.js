@@ -389,6 +389,7 @@ nameLabel.style.textShadow =
     allBuildingMarkers.push({ marker, category: building.category, building, labelEl: nameLabel });
   });
   updateBuildingMarkerLabels(); // Make sure to update visibility after markers are added
+  scaleMarkersBasedOnZoom();    // <-- ADD THIS LINE
 }
 
 function filterBuildingMarkersByModeAndCategory(mode, category) {
