@@ -657,7 +657,7 @@ document.addEventListener('DOMContentLoaded', () => {
   flagDropdown.style.left = '50%';
   flagDropdown.style.transform = 'translateX(-50%)';
   flagDropdown.style.zIndex = 1001;
-  flagDropdown.style.width = '360px'; // wider
+  flagDropdown.style.width = '200px'; // wider
   flagDropdown.style.maxWidth = '95vw';
   flagDropdown.style.fontFamily = "'Poppins', sans-serif";
   flagDropdown.style.display = (currentMode === "normal" ? "block" : "none");
@@ -666,7 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const fancyBtn = document.createElement('button');
   fancyBtn.textContent = 'What do you fancy?';
   fancyBtn.style.width = '100%';
-  fancyBtn.style.fontSize = '16px';
+  fancyBtn.style.fontSize = '12px';
   fancyBtn.style.padding = '10px 0';
   fancyBtn.style.background = '#e0b0ff';
   fancyBtn.style.color = '#000';
