@@ -93,6 +93,7 @@ categories.unshift('All');
 let allBuildingMarkers = [];
 let currentMode = 'normal';
 let currentCategory = 'All';
+let currentFlagFilter = null; // for emoji flag filter
 
 // ----------- START: Add building names above images in "explore" mode when zoomed in -----------
 const ZOOM_NAME_THRESHOLD = 16;
@@ -137,9 +138,9 @@ function addBuildingMarkers(buildingsToShow) {
     nameLabel.style.pointerEvents = 'none';
     nameLabel.style.whiteSpace = 'nowrap';
     nameLabel.style.color = '#a259ff';
-nameLabel.style.textShadow =
-  '-1.2px -1.2px 0 #000, 1.2px -1.2px 0 #000, -1.2px 1.2px 0 #000, 1.2px 1.2px 0 #000,' +
-  '0px 1.2px 0 #000, 1.2px 0px 0 #000, 0px -1.2px 0 #000, -1.2px 0px 0 #000';
+    nameLabel.style.textShadow =
+      '-1.2px -1.2px 0 #000, 1.2px -1.2px 0 #000, -1.2px 1.2px 0 #000, 1.2px 1.2px 0 #000,' +
+      '0px 1.2px 0 #000, 1.2px 0px 0 #000, 0px -1.2px 0 #000, -1.2px 0px 0 #000';
     nameLabel.style.display = 'none'; // Hidden by default, toggled by updateBuildingMarkerLabels()
 
     markerElement.appendChild(nameLabel);
@@ -392,7 +393,21 @@ nameLabel.style.textShadow =
   scaleMarkersBasedOnZoom();    // <-- ADD THIS LINE
 }
 
-function filterBuildingMarkersByModeAndCategory(mode, category) {
+// ==================== EMOJI FLAG FILTER LOGIC ====================
+// Returns array of unique emoji flags used in building names
+function getFlagEmojis(buildings) {
+  // Regex matches most flag emojis (regional indicators, and a few others)
+  const flagRegex = /([\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF])/g;
+  const flags = new Set();
+  buildings.forEach(b => {
+    const matches = (b.name.match(flagRegex) || []);
+    matches.forEach(f => flags.add(f));
+  });
+  return Array.from(flags);
+}
+
+// Main filtering function using mode, category, and emoji flag
+function filterBuildingMarkersByModeCategoryFlag(mode, category, flag) {
   let filtered;
   if (mode === "normal") {
     filtered = buildings.filter(b => b.mode === "normal");
@@ -402,14 +417,19 @@ function filterBuildingMarkersByModeAndCategory(mode, category) {
   if (category !== 'All') {
     filtered = filtered.filter(b => b.category === category);
   }
+  if (flag) {
+    filtered = filtered.filter(b => b.name.includes(flag));
+  }
   addBuildingMarkers(filtered);
 }
 
 function filterBuildingMarkers(category) {
   currentCategory = category;
-  filterBuildingMarkersByModeAndCategory(currentMode, currentCategory);
+  filterBuildingMarkersByModeCategoryFlag(currentMode, currentCategory, currentFlagFilter);
 }
 
+// =================== TOP BAR AND DROPDOWNS ===================
+let flagDropdown = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   const topBar = document.createElement('div');
@@ -492,23 +512,27 @@ document.addEventListener('DOMContentLoaded', () => {
       historyLabel.style.fontWeight = 'normal';
     }
   }
-function setMode(history) {
-  isHistory = history;
-  currentMode = isHistory ? 'history' : 'normal';
-  currentCategory = 'All';
-  updateToggleVisual();
-  filterBuildingMarkersByModeAndCategory(currentMode, currentCategory);
-}
+  function setMode(history) {
+    isHistory = history;
+    currentMode = isHistory ? 'history' : 'normal';
+    currentCategory = 'All';
+    currentFlagFilter = null; // reset flag filter when mode changes
+    updateToggleVisual();
+    filterBuildingMarkersByModeCategoryFlag(currentMode, currentCategory, currentFlagFilter);
+    // Show/hide emoji flag dropdown
+    if (flagDropdown) flagDropdown.style.display = (currentMode === "normal" ? "block" : "none");
+    if (flagDropdown) updateFlagDropdownVisual();
+  }
 
-// Place this right after setMode:
-const path = window.location.pathname;
-if (path.endsWith('/history')) {
-  setMode(true);
-} else if (path.endsWith('/normal')) {
-  setMode(false);
-} else {
-  setMode(false);
-}
+  // Place this right after setMode:
+  const path = window.location.pathname;
+  if (path.endsWith('/history')) {
+    setMode(true);
+  } else if (path.endsWith('/normal')) {
+    setMode(false);
+  } else {
+    setMode(false);
+  }
 
   normalLabel.onclick = () => setMode(false);
   historyLabel.onclick = () => setMode(true);
@@ -551,7 +575,7 @@ if (path.endsWith('/history')) {
   dropdownContent.style.lineHeight = '1.25';
   dropdownContent.style.zIndex = '10000';
   dropdownContent.style.width = '80vw';     // Popup now takes 80% of the viewport width
-dropdownContent.style.maxWidth = '96vw'; 
+  dropdownContent.style.maxWidth = '96vw'; 
   dropdownContent.style.textAlign = 'center';
   dropdownContent.style.maxHeight = 'calc(100vh - 200px)';
   dropdownContent.style.overflowY = 'auto';
@@ -636,6 +660,71 @@ dropdownContent.style.maxWidth = '96vw';
   topBar.appendChild(supportLink);
   document.body.appendChild(topBar);
   document.body.appendChild(dropdownContent);
+
+  // ================== FLAG FILTER DROPDOWN BELOW TOP BAR ==================
+  flagDropdown = document.createElement('div');
+  flagDropdown.style.position = 'fixed';
+  flagDropdown.style.top = '44px'; // Just below your top bar (height 38px + margin)
+  flagDropdown.style.left = '50%';
+  flagDropdown.style.transform = 'translateX(-50%)';
+  flagDropdown.style.zIndex = 1001;
+  flagDropdown.style.background = '#fff';
+  flagDropdown.style.border = '1px solid #ccc';
+  flagDropdown.style.borderRadius = '8px';
+  flagDropdown.style.padding = '7px 13px';
+  flagDropdown.style.boxShadow = '0 2px 8px rgba(0,0,0,0.13)';
+  flagDropdown.style.fontFamily = "'Poppins', sans-serif";
+  flagDropdown.style.display = (currentMode === "normal" ? "block" : "none");
+  flagDropdown.style.transition = 'opacity 0.2s';
+
+  // Build flag emoji options
+  const flagTitle = document.createElement('span');
+  flagTitle.textContent = 'Show buildings with: ';
+  flagTitle.style.marginRight = '0.5em';
+  flagDropdown.appendChild(flagTitle);
+
+  const flagEmojis = getFlagEmojis(buildings);
+  const allBtn = document.createElement('button');
+  allBtn.textContent = '🌐 All';
+  allBtn.className = 'custom-button';
+  allBtn.onclick = () => {
+    currentFlagFilter = null;
+    filterBuildingMarkersByModeCategoryFlag(currentMode, currentCategory, currentFlagFilter);
+    updateFlagDropdownVisual();
+  };
+
+  flagDropdown.appendChild(allBtn);
+
+  flagEmojis.forEach(flag => {
+    const btn = document.createElement('button');
+    btn.textContent = flag;
+    btn.className = 'custom-button';
+    btn.onclick = () => {
+      currentFlagFilter = flag;
+      filterBuildingMarkersByModeCategoryFlag(currentMode, currentCategory, currentFlagFilter);
+      updateFlagDropdownVisual();
+    };
+    flagDropdown.appendChild(btn);
+  });
+
+  document.body.appendChild(flagDropdown);
+
+  // Helper to highlight selected filter
+  function updateFlagDropdownVisual() {
+    Array.from(flagDropdown.querySelectorAll('.custom-button')).forEach(btn => {
+      if (
+        (btn.textContent === (currentFlagFilter || '🌐 All')) ||
+        (currentFlagFilter === null && btn.textContent === '🌐 All')
+      ) {
+        btn.style.background = '#e0b0ff';
+        btn.style.color = '#000';
+      } else {
+        btn.style.background = '#e9e8e0';
+        btn.style.color = 'black';
+      }
+    });
+  }
+  updateFlagDropdownVisual();
 
   // Set initial visual feedback for mode
   setMode(false);
@@ -810,9 +899,11 @@ stylePopup.innerHTML = `
     white-space: nowrap;
     text-align: center;
     height: 28.5px;
-    min-width: 128px;
+    min-width: 64px;
     align-items: center;
     justify-content: center;
+    margin-right: 6px;
+    margin-bottom: 2px;
   }
   #button-group {
     position: relative;
