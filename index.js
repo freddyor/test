@@ -4,8 +4,9 @@ import { locations } from './locations.js';
 // Manually define which emojis and their labels you want to show as filters
 const emojiFilters = [
   { label: "Italian", emoji: "🇮🇹" },
-  { label: "Mexican", emoji: "🇲🇽" },
-  { label: "Thai", emoji: "🇹🇭" },
+  { label: "Drinks", emoji: "🍺" },
+  { label: "British", emoji: "🇬🇧" },
+  // Add more as needed
 ];
 
 const loadingScreenStart = Date.now();
@@ -19,6 +20,7 @@ const yorkBounds = [
   [-1.010, 54.010]
 ];
 
+// Set Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
 var map = new mapboxgl.Map({
@@ -90,6 +92,8 @@ locations.forEach(location => {
   });
 });
 
+// =================== BUILDING MARKER FILTER DROPDOWN AND MODE TOGGLE ===================
+
 const categories = Array.from(new Set(buildings.map(b => b.category))).sort();
 categories.unshift('All');
 
@@ -103,7 +107,7 @@ const ZOOM_NAME_THRESHOLD = 16;
 function updateBuildingMarkerLabels() {
   allBuildingMarkers.forEach(({ marker, building, labelEl }) => {
     if (
-      currentMode === 'normal' &&
+      currentMode === 'normal' && // explore mode
       map.getZoom() >= ZOOM_NAME_THRESHOLD
     ) {
       labelEl.style.display = 'block';
@@ -124,7 +128,8 @@ function addBuildingMarkers(buildingsToShow) {
 
     if (building.colour === "yes") markerElement.style.zIndex = '3';
 
-    // Name label
+    // ----------- ADD LABEL: -----------
+    // Create name label element
     const nameLabel = document.createElement('div');
     nameLabel.className = 'building-name-label';
     nameLabel.innerText = building.name;
@@ -141,9 +146,10 @@ function addBuildingMarkers(buildingsToShow) {
     nameLabel.style.textShadow =
       '-1.2px -1.2px 0 #000, 1.2px -1.2px 0 #000, -1.2px 1.2px 0 #000, 1.2px 1.2px 0 #000,' +
       '0px 1.2px 0 #000, 1.2px 0px 0 #000, 0px -1.2px 0 #000, -1.2px 0px 0 #000';
-    nameLabel.style.display = 'none';
+    nameLabel.style.display = 'none'; // Hidden by default, toggled by updateBuildingMarkerLabels()
 
     markerElement.appendChild(nameLabel);
+    // ----------- END LABEL -----------
 
     const marker = new mapboxgl.Marker({ element: markerElement })
       .setLngLat(building.coords)
@@ -159,8 +165,10 @@ function addBuildingMarkers(buildingsToShow) {
         return;
       }
 
+      // Remove any existing overlays
       document.querySelectorAll('.video-modal-overlay').forEach(el => el.remove());
 
+      // Modal overlay
       const overlay = document.createElement('div');
       overlay.className = 'video-modal-overlay';
       overlay.style.position = 'fixed';
@@ -174,10 +182,12 @@ function addBuildingMarkers(buildingsToShow) {
       overlay.style.justifyContent = 'center';
       overlay.style.zIndex = 100000;
 
+      // Poster and video container
       const posterContainer = document.createElement('div');
       posterContainer.style.position = 'relative';
       posterContainer.style.marginTop = '-60px';
 
+      // Poster image
       const posterImg = document.createElement('img');
       posterImg.src = posterUrl || '';
       posterImg.alt = 'Video cover';
@@ -190,6 +200,7 @@ function addBuildingMarkers(buildingsToShow) {
         posterImg.style.border = '1.5px solid #E9E8E0';
       });
 
+      // Play button
       const playBtn = document.createElement('button');
       playBtn.innerHTML = '▶';
       playBtn.style.position = 'absolute';
@@ -209,6 +220,7 @@ function addBuildingMarkers(buildingsToShow) {
       playBtn.style.justifyContent = 'center';
       playBtn.style.zIndex = 2;
 
+      // Spinner
       const spinner = document.createElement('div');
       spinner.style.position = 'absolute';
       spinner.style.top = '50%';
@@ -226,6 +238,7 @@ function addBuildingMarkers(buildingsToShow) {
       spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
       document.head.appendChild(spinnerStyle);
 
+      // Close button
       const closeBtn = document.createElement('button');
       closeBtn.textContent = '❌';
       closeBtn.style.position = 'absolute';
@@ -244,6 +257,7 @@ function addBuildingMarkers(buildingsToShow) {
       closeBtn.style.alignItems = 'center';
       closeBtn.style.justifyContent = 'center';
 
+      // Find out more button (always at the bottom)
       let moreBtn = null;
       if (building.link) {
         let moreBtn = document.createElement('a');
@@ -267,10 +281,12 @@ function addBuildingMarkers(buildingsToShow) {
         moreBtn.style.textDecoration = 'none';
         moreBtn.style.cursor = 'pointer';
         moreBtn.style.zIndex = '10';
+        // Much stronger shadow, but still soft-edged:
         moreBtn.style.boxShadow = '0 8px 32px 0 rgba(0,0,0,0.37), 0 2px 8px 0 rgba(0,0,0,0.19)';
         posterContainer.appendChild(moreBtn);
       }
 
+      // Video element (created later)
       let videoElement = null;
 
       function removeOverlayAndPauseVideo() {
@@ -305,6 +321,7 @@ function addBuildingMarkers(buildingsToShow) {
         closeBtn.style.display = 'flex';
       };
 
+      // Append elements in this order: media, play, spinner, close, then find out more button
       posterContainer.appendChild(posterImg);
       posterContainer.appendChild(playBtn);
       posterContainer.appendChild(spinner);
@@ -324,6 +341,7 @@ function addBuildingMarkers(buildingsToShow) {
         videoElement = document.createElement('video');
         videoElement.src = videoUrl;
         if (posterUrl) videoElement.poster = posterUrl;
+        // Use same styles as posterImg
         videoElement.style.maxWidth = '79.2vw';
         videoElement.style.maxHeight = '72vh';
         videoElement.style.borderRadius = '14px';
@@ -344,6 +362,7 @@ function addBuildingMarkers(buildingsToShow) {
             hasStarted = true;
             posterContainer.replaceChild(videoElement, posterImg);
             spinner.style.display = 'none';
+            // The "find out more..." button stays in place because it's always appended last
           }
         }
 
@@ -372,10 +391,11 @@ function addBuildingMarkers(buildingsToShow) {
       };
     });
 
+    // Add marker, building, and the label element to allBuildingMarkers for later toggling
     allBuildingMarkers.push({ marker, category: building.category, building, labelEl: nameLabel });
   });
-  updateBuildingMarkerLabels();
-  scaleMarkersBasedOnZoom();
+  updateBuildingMarkerLabels(); // Make sure to update visibility after markers are added
+  scaleMarkersBasedOnZoom();    // <-- ADD THIS LINE
 }
 
 function filterBuildingMarkersByModeCategoryFlag(mode, category, flag) {
@@ -399,10 +419,10 @@ function filterBuildingMarkers(category) {
   filterBuildingMarkersByModeCategoryFlag(currentMode, currentCategory, currentFlagFilter);
 }
 
-// =================== TOP BAR AND DROPDOWNS ===================
 let flagDropdown = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+  // ... your topBar and other UI code stays the same ...
   const topBar = document.createElement('div');
   topBar.id = 'top-bar';
   topBar.style.position = 'fixed';
@@ -511,6 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
   toggleWrapper.appendChild(toggleContainer);
   toggleWrapper.appendChild(historyLabel);
 
+  // Divider between controls
   const divider = document.createElement('div');
   divider.style.height = '28px';
   divider.style.width = '1.5px';
@@ -518,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
   divider.style.margin = '0 18px';
   divider.style.borderRadius = '3px';
 
+  // Support link (plain clickable text)
   const supportLink = document.createElement('span');
   supportLink.textContent = '❤️ Support this project ❤️';
   supportLink.style.fontWeight = 'bold';
@@ -526,6 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
   supportLink.style.cursor = 'pointer';
   supportLink.style.marginLeft = '10px';
 
+  // Dropdown logic
   const dropdownContent = document.createElement('div');
   dropdownContent.style.display = 'none';
   dropdownContent.style.position = 'fixed';
@@ -540,7 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
   dropdownContent.style.fontSize = '13px';
   dropdownContent.style.lineHeight = '1.25';
   dropdownContent.style.zIndex = '10000';
-  dropdownContent.style.width = '80vw';
+  dropdownContent.style.width = '80vw';     // Popup now takes 80% of the viewport width
   dropdownContent.style.maxWidth = '96vw'; 
   dropdownContent.style.textAlign = 'center';
   dropdownContent.style.maxHeight = 'calc(100vh - 200px)';
@@ -627,58 +650,128 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.appendChild(topBar);
   document.body.appendChild(dropdownContent);
 
-  // ================== MANUAL EMOJI FILTER DROPDOWN ==================
+  // ================== COLLAPSIBLE "WHAT DO YOU FANCY?" DROPDOWN ==================
   flagDropdown = document.createElement('div');
   flagDropdown.style.position = 'fixed';
   flagDropdown.style.top = '44px';
   flagDropdown.style.left = '50%';
   flagDropdown.style.transform = 'translateX(-50%)';
   flagDropdown.style.zIndex = 1001;
-  flagDropdown.style.background = '#fff';
-  flagDropdown.style.border = '1px solid #ccc';
-  flagDropdown.style.borderRadius = '8px';
-  flagDropdown.style.padding = '7px 13px';
-  flagDropdown.style.boxShadow = '0 2px 8px rgba(0,0,0,0.13)';
+  flagDropdown.style.width = '360px'; // wider
+  flagDropdown.style.maxWidth = '95vw';
   flagDropdown.style.fontFamily = "'Poppins', sans-serif";
   flagDropdown.style.display = (currentMode === "normal" ? "block" : "none");
-  flagDropdown.style.transition = 'opacity 0.2s';
 
-  const flagTitle = document.createElement('span');
-  flagTitle.textContent = 'Show buildings with: ';
-  flagTitle.style.marginRight = '0.5em';
-  flagDropdown.appendChild(flagTitle);
+  // Main button
+  const fancyBtn = document.createElement('button');
+  fancyBtn.textContent = 'What do you fancy?';
+  fancyBtn.style.width = '100%';
+  fancyBtn.style.fontSize = '16px';
+  fancyBtn.style.padding = '10px 0';
+  fancyBtn.style.background = '#e0b0ff';
+  fancyBtn.style.color = '#000';
+  fancyBtn.style.border = '1.5px solid #ccc';
+  fancyBtn.style.borderRadius = '11px';
+  fancyBtn.style.fontWeight = 'bold';
+  fancyBtn.style.cursor = 'pointer';
+  fancyBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.13)';
+  fancyBtn.style.marginBottom = '4px';
+  fancyBtn.style.transition = 'background 0.15s, color 0.15s';
+  fancyBtn.style.outline = 'none';
 
-  // "All" button
-  const allBtn = document.createElement('button');
-  allBtn.textContent = '🌐 All';
-  allBtn.className = 'custom-button';
-  allBtn.onclick = () => {
-    currentFlagFilter = null;
-    filterBuildingMarkersByModeCategoryFlag(currentMode, currentCategory, currentFlagFilter);
-    updateFlagDropdownVisual();
-  };
-  flagDropdown.appendChild(allBtn);
+  // The dropdown menu
+  const optionsWrapper = document.createElement('div');
+  optionsWrapper.style.width = '100%';
+  optionsWrapper.style.background = '#fff';
+  optionsWrapper.style.border = '1.5px solid #ccc';
+  optionsWrapper.style.borderRadius = '11px';
+  optionsWrapper.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+  optionsWrapper.style.padding = '8px 0 8px 0';
+  optionsWrapper.style.display = 'none';
+  optionsWrapper.style.flexDirection = 'column';
+  optionsWrapper.style.gap = '7px';
 
-  // Your manual emoji filters with text
-  emojiFilters.forEach(({ label, emoji }) => {
+  // Option button generator
+  function makeOptionBtn(innerHtml, emoji) {
     const btn = document.createElement('button');
-    btn.innerHTML = `<span style="margin-right: 0.35em;">${emoji}</span> ${label}`;
+    btn.innerHTML = innerHtml;
     btn.className = 'custom-button';
+    btn.style.fontSize = '16px';
+    btn.style.width = '90%';
+    btn.style.margin = '0 auto 7px auto';
+    btn.style.background = '#e9e8e0';
+    btn.style.color = '#000';
+    btn.style.border = 'none';
+    btn.style.borderRadius = '7px';
+    btn.style.padding = '8px 2px';
+    btn.style.display = 'flex';
+    btn.style.alignItems = 'center';
+    btn.style.justifyContent = 'flex-start';
+    btn.style.transition = 'background 0.15s, color 0.15s';
+    btn.style.cursor = 'pointer';
+    btn.style.fontWeight = 'bold';
     btn.onclick = () => {
       currentFlagFilter = emoji;
       filterBuildingMarkersByModeCategoryFlag(currentMode, currentCategory, currentFlagFilter);
       updateFlagDropdownVisual();
+      optionsWrapper.style.display = 'none';
+      fancyBtn.style.background = '#e0b0ff';
+      fancyBtn.style.color = '#000';
+      fancyBtn.blur();
     };
-    flagDropdown.appendChild(btn);
+    return btn;
+  }
+
+  // "All" option
+  const allBtn = makeOptionBtn('🌐 All', null);
+  allBtn.onclick = () => {
+    currentFlagFilter = null;
+    filterBuildingMarkersByModeCategoryFlag(currentMode, currentCategory, currentFlagFilter);
+    updateFlagDropdownVisual();
+    optionsWrapper.style.display = 'none';
+    fancyBtn.style.background = '#e0b0ff';
+    fancyBtn.style.color = '#000';
+    fancyBtn.blur();
+  };
+  optionsWrapper.appendChild(allBtn);
+
+  // Your manual emoji filters with text
+  emojiFilters.forEach(({ label, emoji }) => {
+    const btn = makeOptionBtn(`<span style="margin-right: 0.55em;">${emoji}</span> ${label}`, emoji);
+    optionsWrapper.appendChild(btn);
   });
 
-  document.body.appendChild(flagDropdown);
+  // Toggle dropdown open/collapse
+  fancyBtn.onclick = () => {
+    if (optionsWrapper.style.display === 'none') {
+      optionsWrapper.style.display = 'flex';
+      fancyBtn.style.background = '#d3a8ed';
+      fancyBtn.style.color = '#000';
+    } else {
+      optionsWrapper.style.display = 'none';
+      fancyBtn.style.background = '#e0b0ff';
+      fancyBtn.style.color = '#000';
+    }
+  };
 
+  // Optional: close if click outside
+  document.addEventListener('mousedown', (e) => {
+    if (
+      flagDropdown.style.display === 'block' &&
+      !flagDropdown.contains(e.target)
+    ) {
+      optionsWrapper.style.display = 'none';
+      fancyBtn.style.background = '#e0b0ff';
+      fancyBtn.style.color = '#000';
+    }
+  });
+
+  // Visual highlight for selected filter
   function updateFlagDropdownVisual() {
-    Array.from(flagDropdown.querySelectorAll('.custom-button')).forEach(btn => {
+    Array.from(optionsWrapper.querySelectorAll('.custom-button')).forEach(btn => {
       // Extract the emoji from the button (first child span)
       const span = btn.querySelector('span');
-      const emoji = span ? span.textContent.trim() : '';
+      const emoji = span ? span.textContent.trim() : null;
       if (
         (currentFlagFilter === null && btn.textContent.includes('All')) ||
         (emoji && emoji === currentFlagFilter)
@@ -687,12 +780,17 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.style.color = '#000';
       } else {
         btn.style.background = '#e9e8e0';
-        btn.style.color = 'black';
+        btn.style.color = '#000';
       }
     });
   }
   updateFlagDropdownVisual();
 
+  flagDropdown.appendChild(fancyBtn);
+  flagDropdown.appendChild(optionsWrapper);
+  document.body.appendChild(flagDropdown);
+
+  // Set initial visual feedback for mode
   setMode(false);
 });
 
