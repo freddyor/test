@@ -5,6 +5,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_8122.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_7F1E51.mp4",          
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8111.webp",
+    "social media": "yes",
   },
                                         {
    'name': 'Stonegate Pretty',
@@ -12,6 +13,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_8124.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_CB1E07.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8110.webp",
+                                          "social media": "yes",
   },
                                         {
    'name': 'Henry Percy',
@@ -19,6 +21,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_8118.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_05D5C0.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8109.webp",
+                                          "social media": "yes",
   },
                                         {
    'name': 'Swinegate',
@@ -26,6 +29,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_8117.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_580AEC.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8116.webp",
+                                          "social media": "yes",
   },
                                         {
    'name': 'Grape Lane',
@@ -33,6 +37,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_8119.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_7F4AC9.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8115.webp",
+                                          "social media": "yes",
   },
                                         {
    'name': 'Swinegate Church',
