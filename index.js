@@ -745,41 +745,19 @@ document.addEventListener('DOMContentLoaded', () => {
     dropdownContainer.style.top = '10px';
     dropdownContainer.style.transform = 'translateX(-50%)';
     dropdownContainer.style.zIndex = '1001';
+    dropdownContainer.style.display = 'flex';
+    dropdownContainer.style.flexDirection = 'column';
+    dropdownContainer.style.alignItems = 'center';
     dropdownContainer.appendChild(button);
-    dropdownContainer.appendChild(dropdownContent);
-
-    document.body.appendChild(dropdownContainer);
-
-    // Function to add donors
-    function addDonor(name, amount, subtext) {
-        const donorList = document.getElementById('donor-list');
-        const donorDiv = document.createElement('div');
-        donorDiv.className = 'donor';
-        donorDiv.innerHTML = `
-            <span class="donor-name" style="font-weight: bold;">${name}</span>
-            <span class="donor-amount" style="color: #9b4dca; margin-left: 10px; font-weight: bold;">£${amount}</span>
-            <div class="donor-subtext" style="font-size: 12px; color: #666; margin-top: 1px;">${subtext}</div>
-        `;
-        donorDiv.style.marginBottom = '12px';
-        donorList.appendChild(donorDiv);
-    }
-    addDonor('Anonymous', '15', ' ');
-    addDonor('Matt Hall', '5', 'Fantastic stuff! Looking forward to finding out more about this fascinating city.');
-    addDonor('Chip Pedro', '5', 'Will be very useful on our upcoming trip - really nice work!');
-    addDonor('buffsteve24', '5', 'Amazing work!');
-    addDonor('marksaw20', '5', 'Lovely map. Really interesting.');
-
-    button.addEventListener('click', (e) => {
-        e.preventDefault();
-        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-    });
 
     // === MARKER LIST BUTTON & POPUP ===
     // Create the marker list button
     const markerListButton = document.createElement('button');
-    markerListButton.textContent = '📍 Show All Locations';
+    markerListButton.textContent = '🔍 Search Locations';
     markerListButton.className = 'custom-button';
     markerListButton.style.marginTop = '10px';
+    markerListButton.style.marginLeft = 'auto';
+    markerListButton.style.marginRight = 'auto';
     markerListButton.style.display = 'block';
 
     // Marker list popup
@@ -844,11 +822,11 @@ document.addEventListener('DOMContentLoaded', () => {
       updateModeButtons();
       popupContentDiv.innerHTML = '';
       if (popupMode === 'list') {
-        popupContentDiv.innerHTML = '<b>All Locations & Buildings</b><br><br>';
+        // Alphabetical order
         const allMarkers = [
           ...locations.map(l => ({ name: l.name, coords: l.coords })),
           ...buildings.map(b => ({ name: b.name, coords: b.coords }))
-        ];
+        ].sort((a, b) => a.name.localeCompare(b.name));
         allMarkers.forEach(({ name, coords }) => {
           const item = document.createElement('button');
           item.textContent = name;
@@ -865,7 +843,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       } else {
         // Social media mode
-        popupContentDiv.innerHTML = '<b>From Social Media</b><br><br>';
         const socialBuildings = buildings.filter(b => b["social media"] === "yes");
         if (!socialBuildings.length) {
           popupContentDiv.innerHTML += '<div style="color:#777; margin-bottom:10px;">No social media markers yet.</div>';
@@ -919,9 +896,35 @@ document.addEventListener('DOMContentLoaded', () => {
     markerListPopup.appendChild(popupModeContainer);
     markerListPopup.appendChild(popupContentDiv);
 
-    // Insert markerListButton below support button
+    // Center the button below the support button
     dropdownContainer.appendChild(markerListButton);
+    dropdownContainer.appendChild(dropdownContent); // keep donors popup functional
+    document.body.appendChild(dropdownContainer);
     document.body.appendChild(markerListPopup);
+
+    // Function to add donors
+    function addDonor(name, amount, subtext) {
+        const donorList = document.getElementById('donor-list');
+        const donorDiv = document.createElement('div');
+        donorDiv.className = 'donor';
+        donorDiv.innerHTML = `
+            <span class="donor-name" style="font-weight: bold;">${name}</span>
+            <span class="donor-amount" style="color: #9b4dca; margin-left: 10px; font-weight: bold;">£${amount}</span>
+            <div class="donor-subtext" style="font-size: 12px; color: #666; margin-top: 1px;">${subtext}</div>
+        `;
+        donorDiv.style.marginBottom = '12px';
+        donorList.appendChild(donorDiv);
+    }
+    addDonor('Anonymous', '15', ' ');
+    addDonor('Matt Hall', '5', 'Fantastic stuff! Looking forward to finding out more about this fascinating city.');
+    addDonor('Chip Pedro', '5', 'Will be very useful on our upcoming trip - really nice work!');
+    addDonor('buffsteve24', '5', 'Amazing work!');
+    addDonor('marksaw20', '5', 'Lovely map. Really interesting.');
+
+    button.addEventListener('click', (e) => {
+        e.preventDefault();
+        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+    });
 
     // Close popups when clicking outside
     document.addEventListener('click', (event) => {
