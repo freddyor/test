@@ -498,6 +498,41 @@ stylePopup.innerHTML = `
   #bottom-sheet p {
     margin-bottom: 10px;
   }
+  /* Social media image grid */
+  .marker-list-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .marker-list-grid-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .marker-list-grid-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    margin-bottom: 3px;
+    border: 1.5px solid #E9E8E0;
+  }
+  .marker-list-grid-label {
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    color: #9b4dca;
+    max-width: 70px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
  `;
 
 document.head.appendChild(stylePopup);
@@ -630,8 +665,11 @@ function createPopupContent(location, isFirebase = false) {
         </div>
     `;
 }
+
+// ========== Support Button + Marker List Button & Popup =============
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Create the button
+    // === SUPPORT BUTTON ===
     const button = document.createElement('button');
     button.id = 'custom-bmc-button';
     button.className = 'custom-button';
@@ -639,23 +677,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Create the dropdown content
     const dropdownContent = document.createElement('div');
-dropdownContent.style.display = 'none'; // Initially hidden
-dropdownContent.style.position = 'fixed';
-dropdownContent.style.top = '50px'; // At the top of the page
-dropdownContent.style.left = '50%';
-dropdownContent.style.transform = 'translateX(-50%)';
-dropdownContent.style.backgroundColor = '#f9f9f9';
-dropdownContent.style.padding = '20px';
-dropdownContent.style.border = '1px solid #ccc';
-dropdownContent.style.borderRadius = '8px';
-dropdownContent.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
-dropdownContent.style.fontSize = '14px';
-dropdownContent.style.lineHeight = '1.25';
-dropdownContent.style.zIndex = '10000';
-dropdownContent.style.maxWidth = '300px';
-dropdownContent.style.textAlign = 'center';
-dropdownContent.style.maxHeight = 'calc(100vh - 200px)'; // 50px from top, 150px from bottom // 50px from top, 40px from bottom
-dropdownContent.style.overflowY = 'auto';
+    dropdownContent.style.display = 'none';
+    dropdownContent.style.position = 'fixed';
+    dropdownContent.style.top = '50px';
+    dropdownContent.style.left = '50%';
+    dropdownContent.style.transform = 'translateX(-50%)';
+    dropdownContent.style.backgroundColor = '#f9f9f9';
+    dropdownContent.style.padding = '20px';
+    dropdownContent.style.border = '1px solid #ccc';
+    dropdownContent.style.borderRadius = '8px';
+    dropdownContent.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
+    dropdownContent.style.fontSize = '14px';
+    dropdownContent.style.lineHeight = '1.25';
+    dropdownContent.style.zIndex = '10000';
+    dropdownContent.style.maxWidth = '300px';
+    dropdownContent.style.textAlign = 'center';
+    dropdownContent.style.maxHeight = 'calc(100vh - 200px)';
+    dropdownContent.style.overflowY = 'auto';
 
     dropdownContent.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center;">
@@ -685,7 +723,7 @@ dropdownContent.style.overflowY = 'auto';
                 cursor: pointer; 
                 text-align: center;
                 box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-                margin-bottom: 15px; /* Add spacing below the button */
+                margin-bottom: 15px;
             "
             onclick="window.open('https://www.buymeacoffee.com/britmap', '_blank')"
         >
@@ -697,7 +735,6 @@ dropdownContent.style.overflowY = 'auto';
     <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
 </div>
 <div id="donor-list" style="margin-top: 10px;"></div>
-
     `;
 
     // Wrap the button and dropdown in a container
@@ -705,13 +742,12 @@ dropdownContent.style.overflowY = 'auto';
     dropdownContainer.className = 'dropdown';
     dropdownContainer.style.position = 'fixed';
     dropdownContainer.style.left = '50%';
-    dropdownContainer.style.top = '10px'; // Position at the top
+    dropdownContainer.style.top = '10px';
     dropdownContainer.style.transform = 'translateX(-50%)';
     dropdownContainer.style.zIndex = '1001';
     dropdownContainer.appendChild(button);
     dropdownContainer.appendChild(dropdownContent);
 
-    // Add the dropdown container to the body
     document.body.appendChild(dropdownContainer);
 
     // Function to add donors
@@ -724,30 +760,177 @@ dropdownContent.style.overflowY = 'auto';
             <span class="donor-amount" style="color: #9b4dca; margin-left: 10px; font-weight: bold;">£${amount}</span>
             <div class="donor-subtext" style="font-size: 12px; color: #666; margin-top: 1px;">${subtext}</div>
         `;
-        donorDiv.style.marginBottom = '12px'; // Maintain gap between donors
+        donorDiv.style.marginBottom = '12px';
         donorList.appendChild(donorDiv);
     }
-
-    // Add example donors
-       addDonor('Anonymous', '15', ' ');
-  addDonor('Matt Hall', '5', 'Fantastic stuff! Looking forward to finding out more about this fascinating city.');
+    addDonor('Anonymous', '15', ' ');
+    addDonor('Matt Hall', '5', 'Fantastic stuff! Looking forward to finding out more about this fascinating city.');
     addDonor('Chip Pedro', '5', 'Will be very useful on our upcoming trip - really nice work!');
     addDonor('buffsteve24', '5', 'Amazing work!');
     addDonor('marksaw20', '5', 'Lovely map. Really interesting.');
 
-    // Button click event to toggle dropdown visibility
     button.addEventListener('click', (e) => {
         e.preventDefault();
         dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
     });
 
-    // Close dropdown when clicking outside
+    // === MARKER LIST BUTTON & POPUP ===
+    // Create the marker list button
+    const markerListButton = document.createElement('button');
+    markerListButton.textContent = '📍 Show All Locations';
+    markerListButton.className = 'custom-button';
+    markerListButton.style.marginTop = '10px';
+    markerListButton.style.display = 'block';
+
+    // Marker list popup
+    const markerListPopup = document.createElement('div');
+    markerListPopup.style.display = 'none';
+    markerListPopup.style.position = 'fixed';
+    markerListPopup.style.top = '90px';
+    markerListPopup.style.left = '50%';
+    markerListPopup.style.transform = 'translateX(-50%)';
+    markerListPopup.style.background = '#fff';
+    markerListPopup.style.padding = '15px 20px 20px 20px';
+    markerListPopup.style.border = '1.5px solid #ccc';
+    markerListPopup.style.borderRadius = '12px';
+    markerListPopup.style.boxShadow = '0 8px 32px 0 rgba(0,0,0,0.22)';
+    markerListPopup.style.zIndex = '10002';
+    markerListPopup.style.maxHeight = '60vh';
+    markerListPopup.style.overflowY = 'auto';
+    markerListPopup.style.minWidth = '240px';
+    markerListPopup.style.fontFamily = "'Poppins', sans-serif";
+    markerListPopup.style.fontSize = '15px';
+    markerListPopup.style.lineHeight = '1.28';
+
+    // Mode toggle UI
+    const popupModeContainer = document.createElement('div');
+    popupModeContainer.style.display = 'flex';
+    popupModeContainer.style.justifyContent = 'center';
+    popupModeContainer.style.gap = '14px';
+    popupModeContainer.style.marginBottom = '12px';
+
+    const listModeBtn = document.createElement('button');
+    listModeBtn.textContent = 'List';
+    listModeBtn.className = 'custom-button';
+    listModeBtn.style.padding = '4px 20px';
+    listModeBtn.style.fontWeight = 'bold';
+
+    const socialModeBtn = document.createElement('button');
+    socialModeBtn.textContent = 'From Social Media';
+    socialModeBtn.className = 'custom-button';
+    socialModeBtn.style.padding = '4px 20px';
+    socialModeBtn.style.fontWeight = 'bold';
+
+    popupModeContainer.appendChild(listModeBtn);
+    popupModeContainer.appendChild(socialModeBtn);
+
+    let popupMode = 'list';
+    function updateModeButtons() {
+      if (popupMode === 'list') {
+        listModeBtn.style.background = '#9b4dca';
+        listModeBtn.style.color = '#fff';
+        socialModeBtn.style.background = '#e9e8e0';
+        socialModeBtn.style.color = '#111';
+      } else {
+        socialModeBtn.style.background = '#9b4dca';
+        socialModeBtn.style.color = '#fff';
+        listModeBtn.style.background = '#e9e8e0';
+        listModeBtn.style.color = '#111';
+      }
+    }
+
+    const popupContentDiv = document.createElement('div');
+    function populateMarkerList() {
+      updateModeButtons();
+      popupContentDiv.innerHTML = '';
+      if (popupMode === 'list') {
+        popupContentDiv.innerHTML = '<b>All Locations & Buildings</b><br><br>';
+        const allMarkers = [
+          ...locations.map(l => ({ name: l.name, coords: l.coords })),
+          ...buildings.map(b => ({ name: b.name, coords: b.coords }))
+        ];
+        allMarkers.forEach(({ name, coords }) => {
+          const item = document.createElement('button');
+          item.textContent = name;
+          item.className = 'custom-button';
+          item.style.margin = '4px 0';
+          item.style.width = '100%';
+          item.style.textAlign = 'left';
+          item.style.fontSize = '15px';
+          item.onclick = () => {
+            markerListPopup.style.display = 'none';
+            map.flyTo({ center: coords, zoom: 17, speed: 1.4 });
+          };
+          popupContentDiv.appendChild(item);
+        });
+      } else {
+        // Social media mode
+        popupContentDiv.innerHTML = '<b>From Social Media</b><br><br>';
+        const socialBuildings = buildings.filter(b => b["social media"] === "yes");
+        if (!socialBuildings.length) {
+          popupContentDiv.innerHTML += '<div style="color:#777; margin-bottom:10px;">No social media markers yet.</div>';
+        } else {
+          const grid = document.createElement('div');
+          grid.className = 'marker-list-grid';
+          socialBuildings.forEach(b => {
+            const imgBtn = document.createElement('button');
+            imgBtn.className = 'marker-list-grid-btn';
+            const img = document.createElement('img');
+            img.className = 'marker-list-grid-img';
+            img.src = b.posterUrl || b.image || '';
+            img.alt = b.name;
+            const label = document.createElement('div');
+            label.className = 'marker-list-grid-label';
+            label.textContent = b.name;
+            imgBtn.appendChild(img);
+            imgBtn.appendChild(label);
+            imgBtn.onclick = () => {
+              markerListPopup.style.display = 'none';
+              map.flyTo({ center: b.coords, zoom: 17, speed: 1.4 });
+            };
+            grid.appendChild(imgBtn);
+          });
+          popupContentDiv.appendChild(grid);
+        }
+      }
+      // Add close button at the end (always)
+      const close = document.createElement('button');
+      close.textContent = 'Close';
+      close.className = 'custom-button';
+      close.style.background = '#eee';
+      close.style.color = '#333';
+      close.style.marginTop = '14px';
+      close.onclick = () => markerListPopup.style.display = 'none';
+      popupContentDiv.appendChild(close);
+    }
+    listModeBtn.onclick = () => { popupMode = 'list'; populateMarkerList(); };
+    socialModeBtn.onclick = () => { popupMode = 'social'; populateMarkerList(); };
+
+    markerListButton.onclick = () => {
+      if (markerListPopup.style.display === 'block') {
+        markerListPopup.style.display = 'none';
+      } else {
+        popupMode = 'list';
+        populateMarkerList();
+        markerListPopup.style.display = 'block';
+      }
+    };
+    markerListPopup.innerHTML = '';
+    markerListPopup.appendChild(popupModeContainer);
+    markerListPopup.appendChild(popupContentDiv);
+
+    // Insert markerListButton below support button
+    dropdownContainer.appendChild(markerListButton);
+    document.body.appendChild(markerListPopup);
+
+    // Close popups when clicking outside
     document.addEventListener('click', (event) => {
-        if (!dropdownContainer.contains(event.target)) {
+        if (!dropdownContainer.contains(event.target) && !markerListButton.contains(event.target) && !markerListPopup.contains(event.target)) {
             dropdownContent.style.display = 'none';
+            markerListPopup.style.display = 'none';
         }
     });
 
     // Set the dropdown width to match the button width
-    dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`; // Match width with maxWidth
-});  
+    dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
+});
