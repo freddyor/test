@@ -499,12 +499,13 @@ stylePopup.innerHTML = `
     margin-bottom: 10px;
   }
   /* Social media image grid */
-  .marker-list-grid {
+.marker-list-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 12px;
-  }
+    gap: 4px;
+    margin-bottom: 8px;
+    justify-items: center; /* Center grid items horizontally */
+}
   .marker-list-grid-btn {
     background: none;
     border: none;
@@ -514,15 +515,19 @@ stylePopup.innerHTML = `
     flex-direction: column;
     align-items: center;
   }
-  .marker-list-grid-img {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
+.marker-list-grid-img {
+    width: 100px;              /* Make them larger */
+    height: auto;              /* Keep original aspect ratio */
+    aspect-ratio: unset;       /* Ensure not forced square */
+    object-fit: contain;       /* Show full image, not cropped */
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-    margin-bottom: 3px;
+    margin-bottom: 0;          /* Remove margin under image */
     border: 1.5px solid #E9E8E0;
-  }
+    background: #fff;          /* Optional: to fill behind transparent images */
+    display: block;
+    max-height: 120px;         /* Optional: limit max height */
+}
   .marker-list-grid-label {
     font-size: 11px;
     font-weight: bold;
@@ -856,11 +861,7 @@ document.addEventListener('DOMContentLoaded', () => {
             img.className = 'marker-list-grid-img';
             img.src = b.posterUrl || b.image || '';
             img.alt = b.name;
-            const label = document.createElement('div');
-            label.className = 'marker-list-grid-label';
-            label.textContent = b.name;
             imgBtn.appendChild(img);
-            imgBtn.appendChild(label);
             imgBtn.onclick = () => {
               markerListPopup.style.display = 'none';
               map.flyTo({ center: b.coords, zoom: 17, speed: 1.4 });
