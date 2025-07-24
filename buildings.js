@@ -48,7 +48,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8723.webp",
   },
                               {
-    name: "Anne Frank",
+    name: "Anne Frank Memorial",
     coords: [-1.0805491809065144, 53.95512418944677 ],
     image: "https://freddyor.github.io/british-map/videos/anne.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_76F7A9CF-AFFF-4D5E-B719-CF3F7440061C.mp4",
@@ -56,7 +56,7 @@ export const buildings = [
                                 "social media": "yes",
   },
       {
-    name: "Murage Doors",
+    name: "Medieval Tax Collection Doors",
     coords: [-1.0785514627213102, 53.96275261954293], 
     image: "https://freddyor.github.io/british-map/videos/IMG_5366.webp", 
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_99554B5C-4B1C-478E-AE7A-6DA7703F19A6.mp4",
@@ -548,7 +548,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6765.webp",
   },
   {
-    'name': 'Aldwark',
+    'name': 'Aldwark Street',
     'coords': [-1.0761003581073905, 53.96032023807792],
     image: "https://freddyor.github.io/british-map/videos/IMG_6762.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_07517F.mp4",
