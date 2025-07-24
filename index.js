@@ -516,17 +516,15 @@ stylePopup.innerHTML = `
     align-items: center;
   }
 .marker-list-grid-img {
-    width: 100px;              /* Make them larger */
-    height: auto;              /* Keep original aspect ratio */
-    aspect-ratio: unset;       /* Ensure not forced square */
-    object-fit: contain;       /* Show full image, not cropped */
+    width: 100px;              /* Adjust as needed for your layout */
+    height: 178px;             /* 100 * 16 / 9 ≈ 178 for a 9:16 aspect ratio */
+    object-fit: cover;         /* Ensures image fills the box, cropping as needed */
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-    margin-bottom: 0;          /* Remove margin under image */
     border: 1.5px solid #E9E8E0;
-    background: #fff;          /* Optional: to fill behind transparent images */
+    background: #fff;
     display: block;
-    max-height: 120px;         /* Optional: limit max height */
+    margin-bottom: 0;
 }
   .marker-list-grid-label {
     font-size: 11px;
