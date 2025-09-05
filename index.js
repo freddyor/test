@@ -326,15 +326,38 @@ buildings.forEach((building) => {
       videoWrapper.appendChild(cameraVideo);
       posterContainer.appendChild(videoWrapper);
 
-      const takePhotoBtn = document.createElement('button');
-      takePhotoBtn.textContent = '📸 Take Photo';
-      takePhotoBtn.className = 'custom-button';
-      takePhotoBtn.style.position = 'absolute';
-      takePhotoBtn.style.left = '50%';
-      takePhotoBtn.style.top = '10px';
-      takePhotoBtn.style.transform = 'translateX(-50%)';
-      takePhotoBtn.style.zIndex = 10;
-      posterContainer.appendChild(takePhotoBtn);
+      // iPhone-style shutter button
+      const shutterBtn = document.createElement('button');
+      shutterBtn.title = 'Take Photo';
+      shutterBtn.className = 'custom-shutter-btn';
+      shutterBtn.style.position = 'absolute';
+      shutterBtn.style.left = '50%';
+      shutterBtn.style.bottom = '20px';
+      shutterBtn.style.transform = 'translateX(-50%)';
+      shutterBtn.style.width = '64px';
+      shutterBtn.style.height = '64px';
+      shutterBtn.style.background = 'white';
+      shutterBtn.style.border = '4px solid #ccc';
+      shutterBtn.style.borderRadius = '50%';
+      shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+      shutterBtn.style.display = 'flex';
+      shutterBtn.style.alignItems = 'center';
+      shutterBtn.style.justifyContent = 'center';
+      shutterBtn.style.cursor = 'pointer';
+      shutterBtn.style.zIndex = 12;
+      shutterBtn.style.outline = 'none';
+      shutterBtn.style.transition = 'box-shadow 0.1s';
+
+      // inner circle for shutter effect
+      const innerCircle = document.createElement('div');
+      innerCircle.style.width = '44px';
+      innerCircle.style.height = '44px';
+      innerCircle.style.background = '#fff';
+      innerCircle.style.borderRadius = '50%';
+      innerCircle.style.boxShadow = '0 0 0 2px #eee';
+      shutterBtn.appendChild(innerCircle);
+
+      posterContainer.appendChild(shutterBtn);
 
       let imgPreview = null,
         downloadBtn = null,
@@ -366,7 +389,7 @@ buildings.forEach((building) => {
 
       await startCameraStream();
 
-      takePhotoBtn.onclick = function () {
+      shutterBtn.onclick = function () {
         cameraVideo.pause();
 
         if (imgPreview) imgPreview.remove();
@@ -439,9 +462,9 @@ buildings.forEach((building) => {
         cancelBtn.style.color = '#333';
         posterContainer.appendChild(cancelBtn);
 
-        // Hide video and take photo button and text overlay
+        // Hide video and shutter button and text overlay
         videoWrapper.style.display = 'none';
-        takePhotoBtn.style.display = 'none';
+        shutterBtn.style.display = 'none';
         textOverlay.style.display = 'none';
 
         cancelBtn.onclick = function () {
@@ -450,7 +473,7 @@ buildings.forEach((building) => {
           if (cancelBtn) cancelBtn.remove();
 
           videoWrapper.style.display = 'flex';
-          takePhotoBtn.style.display = 'block';
+          shutterBtn.style.display = 'flex';
           textOverlay.style.display = 'block';
 
           cameraVideo.play();
@@ -771,6 +794,21 @@ stylePopup.innerHTML = `
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  /* iPhone-style camera shutter */
+  .custom-shutter-btn {
+    background: white;
+    border: 4px solid #ccc;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    outline: none;
+    transition: box-shadow 0.1s;
+  }
  `;
 
 document.head.appendChild(stylePopup);
@@ -948,10 +986,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <b>If this site was free for you to use, it means someone else paid forward.</b>
         </div>
            <div class="project-info" style="margin-bottom: 15px;">
-            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no other city has before.
+            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no[...]
         </div>
         <div class="project-info" style="margin-bottom: 15px;">
-             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic images from York Archives to use) ❤️
+             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic imag[...]
         </div>
         <button 
             class="support-button" 
