@@ -6,7 +6,7 @@ const loadingScreenStart = Date.now();
 
 // --- First Video Popup additions START ---
 let firstVideoLoadedThisSession = false;
-function showFirstVideoWaitMessage(videoElement) { }
+function showFirstVideoWaitMessage(videoElement) {}
 
 const yorkBounds = [
   [-1.170, 53.930],
@@ -14,7 +14,8 @@ const yorkBounds = [
 ];
 
 // Set Mapbox access token
-mapboxgl.accessToken = 'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
+mapboxgl.accessToken =
+  'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
 var map = new mapboxgl.Map({
   container: 'map',
@@ -31,15 +32,15 @@ var map = new mapboxgl.Map({
 // Geolocate control and user location marker
 const geolocate = new mapboxgl.GeolocateControl({
   positionOptions: {
-    enableHighAccuracy: true
+    enableHighAccuracy: true,
   },
   trackUserLocation: true,
   showUserHeading: true,
   showAccuracyCircle: false,
   fitBoundsOptions: {
-    maxZoom: 15
+    maxZoom: 15,
   },
-  showUserLocation: false
+  showUserLocation: false,
 });
 map.addControl(geolocate);
 
@@ -69,11 +70,15 @@ geolocate.on('geolocate', (e) => {
 });
 
 // --- Marker and helper functions ---
-locations.forEach(location => {
-  const { element: markerElement } = createCustomMarker(location.image, '#FFFFFF', true);
+locations.forEach((location) => {
+  const { element: markerElement } = createCustomMarker(
+    location.image,
+    '#FFFFFF',
+    true
+  );
   markerElement.className += ' location-marker';
   const marker = new mapboxgl.Marker({
-    element: markerElement
+    element: markerElement,
   })
     .setLngLat(location.coords)
     .addTo(map);
@@ -85,12 +90,16 @@ locations.forEach(location => {
   });
 });
 
-buildings.forEach(building => {
-  const outlineColor = building.colour === "yes" ? '#FF69B4' : '#FFFFFF';
-  const { element: markerElement } = createCustomMarker(building.image, outlineColor, false);
+buildings.forEach((building) => {
+  const outlineColor = building.colour === 'yes' ? '#FF69B4' : '#FFFFFF';
+  const { element: markerElement } = createCustomMarker(
+    building.image,
+    outlineColor,
+    false
+  );
   markerElement.className += ' building-marker';
 
-  if (building.colour === "yes") markerElement.style.zIndex = '3';
+  if (building.colour === 'yes') markerElement.style.zIndex = '3';
 
   const marker = new mapboxgl.Marker({ element: markerElement })
     .setLngLat(building.coords)
@@ -104,7 +113,7 @@ buildings.forEach(building => {
       console.error('Video URL not available for this building.');
       return;
     }
-    document.querySelectorAll('.video-modal-overlay').forEach(el => el.remove());
+    document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
     const overlay = document.createElement('div');
     overlay.className = 'video-modal-overlay';
     overlay.style.position = 'fixed';
@@ -219,17 +228,17 @@ buildings.forEach(building => {
         videoElement.currentTime = 0;
       }
       if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream.getTracks().forEach((track) => track.stop());
       }
       overlay.remove();
     }
 
     closeBtn.onclick = () => removeOverlayAndPauseVideo();
     let startY;
-    overlay.addEventListener('touchstart', e => {
+    overlay.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) startY = e.touches[0].clientY;
     });
-    overlay.addEventListener('touchmove', e => {
+    overlay.addEventListener('touchmove', (e) => {
       if (startY !== undefined && e.touches.length === 1) {
         const dy = e.touches[0].clientY - startY;
         if (dy > 70) {
@@ -238,7 +247,9 @@ buildings.forEach(building => {
         }
       }
     });
-    overlay.addEventListener('touchend', () => { startY = undefined; });
+    overlay.addEventListener('touchend', () => {
+      startY = undefined;
+    });
     playBtn.style.display = 'none';
     closeBtn.style.display = 'none';
     posterImg.onload = function () {
@@ -257,12 +268,18 @@ buildings.forEach(building => {
 
     // CAMERA ICON FUNCTIONALITY
     cameraIcon.onclick = async function () {
+      if (
+        !(
+          navigator.mediaDevices &&
+          typeof navigator.mediaDevices.getUserMedia === 'function'
+        )
+      ) {
+        alert(
+          "Camera access is not supported on this browser/device. If you're on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date."
+        );
+        return;
+      }
 
-        if (!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function')) {
-    alert('Camera access is not supported on this browser/device. If you\'re on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date.');
-    return;
-  }
-      
       posterContainer.innerHTML = '';
       posterContainer.appendChild(cameraIcon);
       posterContainer.appendChild(closeBtn);
@@ -275,7 +292,6 @@ buildings.forEach(building => {
       cameraVideo.style.borderRadius = '14px';
       cameraVideo.style.display = 'block';
       cameraVideo.style.margin = '0 auto';
-
       posterContainer.appendChild(cameraVideo);
 
       const takePhotoBtn = document.createElement('button');
@@ -286,23 +302,42 @@ buildings.forEach(building => {
       takePhotoBtn.style.top = '10px';
       takePhotoBtn.style.transform = 'translateX(-50%)';
       takePhotoBtn.style.zIndex = 10;
-
       posterContainer.appendChild(takePhotoBtn);
 
-      let imgPreview = null, downloadBtn = null;
+      let imgPreview = null,
+        downloadBtn = null,
+        cancelBtn = null;
 
-      try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-  video: { facingMode: { exact: "environment" } }
-});
-        cameraVideo.srcObject = cameraStream;
-      } catch (err) {
-        alert('Could not access camera: ' + err.message);
+      async function startCameraStream() {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' },
+          });
+          cameraVideo.srcObject = cameraStream;
+        } catch (err) {
+          // fallback to default camera
+          try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+            });
+            cameraVideo.srcObject = cameraStream;
+          } catch (err2) {
+            alert('Could not access camera: ' + err2.message);
+          }
+        }
       }
 
+      await startCameraStream();
+
       takePhotoBtn.onclick = function () {
+        // Pause stream and show photo
+        cameraVideo.pause();
+
+        // Remove previous photo/download/cancel if any
         if (imgPreview) imgPreview.remove();
         if (downloadBtn) downloadBtn.remove();
+        if (cancelBtn) cancelBtn.remove();
+
         const canvas = document.createElement('canvas');
         canvas.width = cameraVideo.videoWidth;
         canvas.height = cameraVideo.videoHeight;
@@ -329,6 +364,32 @@ buildings.forEach(building => {
         downloadBtn.style.background = '#9b4dca';
         downloadBtn.style.color = '#fff';
         posterContainer.appendChild(downloadBtn);
+
+        cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.className = 'custom-button';
+        cancelBtn.style.display = 'block';
+        cancelBtn.style.margin = '10px auto 0 auto';
+        cancelBtn.style.background = '#e0e0e0';
+        cancelBtn.style.color = '#333';
+        posterContainer.appendChild(cancelBtn);
+
+        // Hide video and take photo button
+        cameraVideo.style.display = 'none';
+        takePhotoBtn.style.display = 'none';
+
+        cancelBtn.onclick = function () {
+          // Remove photo and buttons
+          if (imgPreview) imgPreview.remove();
+          if (downloadBtn) downloadBtn.remove();
+          if (cancelBtn) cancelBtn.remove();
+
+          // Show video and take photo button
+          cameraVideo.style.display = 'block';
+          takePhotoBtn.style.display = 'block';
+
+          cameraVideo.play();
+        };
       };
     };
 
@@ -361,7 +422,8 @@ buildings.forEach(building => {
 
       function onProgress() {
         if (videoElement.duration && videoElement.buffered.length) {
-          const bufferedEnd = videoElement.buffered.end(videoElement.buffered.length - 1);
+          const bufferedEnd =
+            videoElement.buffered.end(videoElement.buffered.length - 1);
           const percentBuffered = bufferedEnd / videoElement.duration;
           if (percentBuffered >= 0.25 && !hasStarted) {
             videoElement.play();
@@ -385,66 +447,66 @@ buildings.forEach(building => {
   });
 });
 function scaleMarkersBasedOnZoom() {
-    const zoomLevel = map.getZoom();
-    const markerSize = (zoomLevel - 13);
-    const markerWidth = markerSize + 'em';
-    const markerHeight = markerSize + 'em';
-    const borderWidth = (markerSize * 0.075) + 'em';
+  const zoomLevel = map.getZoom();
+  const markerSize = zoomLevel - 13;
+  const markerWidth = markerSize + 'em';
+  const markerHeight = markerSize + 'em';
+  const borderWidth = markerSize * 0.075 + 'em';
 
-    document.querySelectorAll('.location-marker, .building-marker').forEach(marker => {
-        marker.style.width = markerWidth;
-        marker.style.height = markerHeight;
-        marker.style.borderWidth = borderWidth;
+  document.querySelectorAll('.location-marker, .building-marker').forEach((marker) => {
+    marker.style.width = markerWidth;
+    marker.style.height = markerHeight;
+    marker.style.borderWidth = borderWidth;
 
-        // Scale the bump if present
-const bump = marker.querySelector('.marker-bump');
-if (bump) {
-    const bumpWidth = (markerSize * 0.4) + 'em';
-    const bumpHeight = (markerSize * 0.25) + 'em';
-    bump.style.width = bumpWidth;
-    bump.style.height = bumpHeight;
-    // No border scaling needed for solid color
-}
-    });
+    // Scale the bump if present
+    const bump = marker.querySelector('.marker-bump');
+    if (bump) {
+      const bumpWidth = markerSize * 0.4 + 'em';
+      const bumpHeight = markerSize * 0.25 + 'em';
+      bump.style.width = bumpWidth;
+      bump.style.height = bumpHeight;
+      // No border scaling needed for solid color
+    }
+  });
 }
 scaleMarkersBasedOnZoom();
 
 // Map event listeners immediately
 map.on('click', (e) => {
-    const currentLat = e.lngLat.lat;
-    const currentLng = e.lngLat.lng;
-    const currentZoom = map.getZoom();
-    const mapLink = generateMapLink(currentLat, currentLng, currentZoom);
-    console.log('Map Link:', mapLink);
+  const currentLat = e.lngLat.lat;
+  const currentLng = e.lngLat.lng;
+  const currentZoom = map.getZoom();
+  const mapLink = generateMapLink(currentLat, currentLng, currentZoom);
+  console.log('Map Link:', mapLink);
 });
 map.on('zoom', () => scaleMarkersBasedOnZoom());
 
 // Only what requires style load
 map.on('load', () => {
-    geolocate.trigger();
+  geolocate.trigger();
 
-    // Hide the loading screen after at least 5 seconds
-    const loadingScreen = document.getElementById('loading-screen');
-    const elapsed = Date.now() - loadingScreenStart;
-    const minDuration = 5000; // 5 seconds
+  // Hide the loading screen after at least 5 seconds
+  const loadingScreen = document.getElementById('loading-screen');
+  const elapsed = Date.now() - loadingScreenStart;
+  const minDuration = 5000; // 5 seconds
 
-    if (loadingScreen) {
-        if (elapsed >= minDuration) {
-            loadingScreen.style.display = 'none';
-        } else {
-            setTimeout(() => {
-                loadingScreen.style.display = 'none';
-            }, minDuration - elapsed);
-        }
+  if (loadingScreen) {
+    if (elapsed >= minDuration) {
+      loadingScreen.style.display = 'none';
+    } else {
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+      }, minDuration - elapsed);
     }
+  }
 });
 // Function to parse URL parameters
 function getUrlParameter(name) {
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    var results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-};
+  name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+  var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+  var results = regex.exec(location.search);
+  return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+}
 
 // Get parameters from URL
 const lat = getUrlParameter('lat');
@@ -487,9 +549,9 @@ document.body.appendChild(bottomSheet);
 
 // Function to generate a URL with given coordinates and zoom
 function generateMapLink(latitude, longitude, zoomLevel) {
-    const baseUrl = window.location.origin + window.location.pathname;
-    const params = `?lat=${latitude}&lng=${longitude}&zoom=${zoomLevel}`;
-    return baseUrl + params;
+  const baseUrl = window.location.origin + window.location.pathname;
+  const params = `?lat=${latitude}&lng=${longitude}&zoom=${zoomLevel}`;
+  return baseUrl + params;
 }
 
 // Container for both buttons
@@ -509,8 +571,8 @@ const stylePopup = document.createElement('style');
 
 // Add the link to Google Fonts for Poppins
 const link = document.createElement('link');
-link.href = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap";
-link.rel = "stylesheet";
+link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap';
+link.rel = 'stylesheet';
 document.head.appendChild(link);
 
 // Style for the popup and markers
@@ -670,24 +732,25 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   imageElement.style.borderRadius = '50%';
 
   // Create the "bump" at the bottom as a smooth upside-down triangle (teardrop)
-const bump = document.createElement('div');
-bump.className = 'marker-bump';
-bump.style.position = 'absolute';
-bump.style.left = '50%';
-bump.style.top = '98%';
-bump.style.transform = 'translateX(-50%)';
-bump.style.width = '5em';
-bump.style.height = '0.5em';
-bump.style.background = color; // Or 'white' for a hollow pyramid with border
-bump.style.clipPath = 'polygon(0% 0%, 100% 0%, 55% 96%, 56% 100%, 44% 100%, 45% 96%)';
-bump.style.zIndex = '1';
+  const bump = document.createElement('div');
+  bump.className = 'marker-bump';
+  bump.style.position = 'absolute';
+  bump.style.left = '50%';
+  bump.style.top = '98%';
+  bump.style.transform = 'translateX(-50%)';
+  bump.style.width = '5em';
+  bump.style.height = '0.5em';
+  bump.style.background = color; // Or 'white' for a hollow pyramid with border
+  bump.style.clipPath =
+    'polygon(0% 0%, 100% 0%, 55% 96%, 56% 100%, 44% 100%, 45% 96%)';
+  bump.style.zIndex = '1';
 
   markerDiv.appendChild(imageElement);
   markerDiv.appendChild(bump);
 
   return {
     element: markerDiv,
-    id: `marker-${Date.now()}-${Math.random()}`
+    id: `marker-${Date.now()}-${Math.random()}`,
   };
 }
 
@@ -695,11 +758,11 @@ bump.style.zIndex = '1';
 let isBottomSheetOpen = false;
 
 function toggleBottomSheet(contentHTML) {
-    if (isBottomSheetOpen) {
-        bottomSheet.style.bottom = '-100%'; // Hide
-    } else {
-        // Add a close button to the top-right corner of the content
-        const closeButtonHTML = `
+  if (isBottomSheetOpen) {
+    bottomSheet.style.bottom = '-100%'; // Hide
+  } else {
+    // Add a close button to the top-right corner of the content
+    const closeButtonHTML = `
             <button id="close-bottom-sheet" style="
                 position: absolute;
                 top: 5px;
@@ -714,35 +777,35 @@ function toggleBottomSheet(contentHTML) {
             ">❌</button>
         `;
 
-        bottomSheet.innerHTML = closeButtonHTML + contentHTML; // Add close button + content
-        bottomSheet.style.bottom = '0'; // Show
+    bottomSheet.innerHTML = closeButtonHTML + contentHTML; // Add close button + content
+    bottomSheet.style.bottom = '0'; // Show
 
-        // Attach event listener to the close button
-        document.getElementById('close-bottom-sheet').addEventListener('click', () => {
-            // Stop video playback
-            const videoElement = document.querySelector('video'); // Adjust selector as needed
-            if (videoElement) {
-                videoElement.pause();
-                videoElement.currentTime = 0; // Optional: Reset video to start
-            }
-            toggleBottomSheet(); // Close the popup
-        });
-    }
-    isBottomSheetOpen = !isBottomSheetOpen;
+    // Attach event listener to the close button
+    document.getElementById('close-bottom-sheet').addEventListener('click', () => {
+      // Stop video playback
+      const videoElement = document.querySelector('video'); // Adjust selector as needed
+      if (videoElement) {
+        videoElement.pause();
+        videoElement.currentTime = 0; // Optional: Reset video to start
+      }
+      toggleBottomSheet(); // Close the popup
+    });
+  }
+  isBottomSheetOpen = !isBottomSheetOpen;
 }
 
 function createPopupContent(location, isFirebase = false) {
-    const data = isFirebase ? location : location;
-    const eventsData = isFirebase ? data.events : data.events;
-    const videoUrl = data.videoUrl ? data.videoUrl : null;
-    const tldrContent = !videoUrl
-        ? `<p style="background: #f9f9f9; padding: 10px; margin-top: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); font-size: 15px; color: #000000;">${data.tldr}</p>`
-        : '';
-    const imageContent = !videoUrl
-        ? `<img src="${data.image || data.imageUrl}" alt="${data.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" />`
-        : '';
+  const data = isFirebase ? location : location;
+  const eventsData = isFirebase ? data.events : data.events;
+  const videoUrl = data.videoUrl ? data.videoUrl : null;
+  const tldrContent = !videoUrl
+    ? `<p style="background: #f9f9f9; padding: 10px; margin-top: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); font-size: 15px; color: #000000;">${data.tldr}</p>`
+    : '';
+  const imageContent = !videoUrl
+    ? `<img src="${data.image || data.imageUrl}" alt="${data.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" />`
+    : '';
 
-    return `
+  return `
         <div style="text-align: center; padding: 0; margin: 0;">
             <p style="font-size: 15px; font-weight: bold; margin-bottom: 10px;">${data.description}</p>
             ${imageContent}
@@ -751,11 +814,15 @@ function createPopupContent(location, isFirebase = false) {
             ${tldrContent}
             ${eventsData && eventsData.length ? `
                 <div style="margin-top: 10px;">
-                    ${eventsData.map(event => `
+                    ${eventsData
+                      .map(
+                        (event) => `
                         <div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
                             <strong style="color: #7C6E4D; font-size: 15px;">${event.date || event.label}</strong>: <span style="font-size: 15px;">${event.description}</span>
                         </div>
-                    `).join('')}
+                    `
+                      )
+                      .join('')}
                 </div>
             ` : ''}
             ${videoUrl ? `
@@ -779,33 +846,33 @@ function createPopupContent(location, isFirebase = false) {
 // ========== Support Button + Marker List Button & Popup =============
 
 document.addEventListener('DOMContentLoaded', () => {
-    // === SUPPORT BUTTON ===
-    const button = document.createElement('button');
-    button.id = 'custom-bmc-button';
-    button.className = 'custom-button';
-    button.textContent = '❤️ This site costs - please support it ❤️';
+  // === SUPPORT BUTTON ===
+  const button = document.createElement('button');
+  button.id = 'custom-bmc-button';
+  button.className = 'custom-button';
+  button.textContent = '❤️ This site costs - please support it ❤️';
 
-    // Create the dropdown content
-    const dropdownContent = document.createElement('div');
-    dropdownContent.style.display = 'none';
-    dropdownContent.style.position = 'fixed';
-    dropdownContent.style.top = '50px';
-    dropdownContent.style.left = '50%';
-    dropdownContent.style.transform = 'translateX(-50%)';
-    dropdownContent.style.backgroundColor = '#f9f9f9';
-    dropdownContent.style.padding = '20px';
-    dropdownContent.style.border = '1px solid #ccc';
-    dropdownContent.style.borderRadius = '8px';
-    dropdownContent.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
-    dropdownContent.style.fontSize = '14px';
-    dropdownContent.style.lineHeight = '1.25';
-    dropdownContent.style.zIndex = '10000';
-    dropdownContent.style.maxWidth = '300px';
-    dropdownContent.style.textAlign = 'center';
-    dropdownContent.style.maxHeight = 'calc(100vh - 200px)';
-    dropdownContent.style.overflowY = 'auto';
+  // Create the dropdown content
+  const dropdownContent = document.createElement('div');
+  dropdownContent.style.display = 'none';
+  dropdownContent.style.position = 'fixed';
+  dropdownContent.style.top = '50px';
+  dropdownContent.style.left = '50%';
+  dropdownContent.style.transform = 'translateX(-50%)';
+  dropdownContent.style.backgroundColor = '#f9f9f9';
+  dropdownContent.style.padding = '20px';
+  dropdownContent.style.border = '1px solid #ccc';
+  dropdownContent.style.borderRadius = '8px';
+  dropdownContent.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
+  dropdownContent.style.fontSize = '14px';
+  dropdownContent.style.lineHeight = '1.25';
+  dropdownContent.style.zIndex = '10000';
+  dropdownContent.style.maxWidth = '300px';
+  dropdownContent.style.textAlign = 'center';
+  dropdownContent.style.maxHeight = 'calc(100vh - 200px)';
+  dropdownContent.style.overflowY = 'auto';
 
-    dropdownContent.innerHTML = `
+  dropdownContent.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jpeg" 
          alt="Profile Photo" 
@@ -847,199 +914,219 @@ document.addEventListener('DOMContentLoaded', () => {
 <div id="donor-list" style="margin-top: 10px;"></div>
     `;
 
-    // Wrap the button and dropdown in a container
-    const dropdownContainer = document.createElement('div');
-    dropdownContainer.className = 'dropdown';
-    dropdownContainer.style.position = 'fixed';
-    dropdownContainer.style.left = '50%';
-    dropdownContainer.style.top = '10px';
-    dropdownContainer.style.transform = 'translateX(-50%)';
-    dropdownContainer.style.zIndex = '1001';
-    dropdownContainer.style.display = 'flex';
-    dropdownContainer.style.flexDirection = 'column';
-    dropdownContainer.style.alignItems = 'center';
-    dropdownContainer.appendChild(button);
+  // Wrap the button and dropdown in a container
+  const dropdownContainer = document.createElement('div');
+  dropdownContainer.className = 'dropdown';
+  dropdownContainer.style.position = 'fixed';
+  dropdownContainer.style.left = '50%';
+  dropdownContainer.style.top = '10px';
+  dropdownContainer.style.transform = 'translateX(-50%)';
+  dropdownContainer.style.zIndex = '1001';
+  dropdownContainer.style.display = 'flex';
+  dropdownContainer.style.flexDirection = 'column';
+  dropdownContainer.style.alignItems = 'center';
+  dropdownContainer.appendChild(button);
 
-    // === MARKER LIST BUTTON & POPUP ===
-    // Create the marker list button
-    const markerListButton = document.createElement('button');
-    markerListButton.textContent = '🔍 Search Locations';
-    markerListButton.className = 'custom-button';
-    markerListButton.style.marginTop = '10px';
-    markerListButton.style.marginLeft = 'auto';
-    markerListButton.style.marginRight = 'auto';
-    markerListButton.style.display = 'block';
+  // === MARKER LIST BUTTON & POPUP ===
+  // Create the marker list button
+  const markerListButton = document.createElement('button');
+  markerListButton.textContent = '🔍 Search Locations';
+  markerListButton.className = 'custom-button';
+  markerListButton.style.marginTop = '10px';
+  markerListButton.style.marginLeft = 'auto';
+  markerListButton.style.marginRight = 'auto';
+  markerListButton.style.display = 'block';
 
-    // Marker list popup
-    const markerListPopup = document.createElement('div');
-    markerListPopup.style.display = 'none';
-    markerListPopup.style.position = 'fixed';
-    markerListPopup.style.top = '90px';
-    markerListPopup.style.left = '50%';
-    markerListPopup.style.transform = 'translateX(-50%)';
-    markerListPopup.style.background = '#fff';
-    markerListPopup.style.padding = '15px 20px 20px 20px';
-    markerListPopup.style.border = '1.5px solid #ccc';
-    markerListPopup.style.borderRadius = '12px';
-    markerListPopup.style.boxShadow = '0 8px 32px 0 rgba(0,0,0,0.22)';
-    markerListPopup.style.zIndex = '10002';
-    markerListPopup.style.maxHeight = '60vh';
-    markerListPopup.style.overflowY = 'auto';
-    markerListPopup.style.minWidth = '240px';
-    markerListPopup.style.fontFamily = "'Poppins', sans-serif";
-    markerListPopup.style.fontSize = '15px';
-    markerListPopup.style.lineHeight = '1.28';
+  // Marker list popup
+  const markerListPopup = document.createElement('div');
+  markerListPopup.style.display = 'none';
+  markerListPopup.style.position = 'fixed';
+  markerListPopup.style.top = '90px';
+  markerListPopup.style.left = '50%';
+  markerListPopup.style.transform = 'translateX(-50%)';
+  markerListPopup.style.background = '#fff';
+  markerListPopup.style.padding = '15px 20px 20px 20px';
+  markerListPopup.style.border = '1.5px solid #ccc';
+  markerListPopup.style.borderRadius = '12px';
+  markerListPopup.style.boxShadow = '0 8px 32px 0 rgba(0,0,0,0.22)';
+  markerListPopup.style.zIndex = '10002';
+  markerListPopup.style.maxHeight = '60vh';
+  markerListPopup.style.overflowY = 'auto';
+  markerListPopup.style.minWidth = '240px';
+  markerListPopup.style.fontFamily = "'Poppins', sans-serif";
+  markerListPopup.style.fontSize = '15px';
+  markerListPopup.style.lineHeight = '1.28';
 
-    // Mode toggle UI
-    const popupModeContainer = document.createElement('div');
-    popupModeContainer.style.display = 'flex';
-    popupModeContainer.style.justifyContent = 'center';
-    popupModeContainer.style.gap = '14px';
-    popupModeContainer.style.marginBottom = '12px';
+  // Mode toggle UI
+  const popupModeContainer = document.createElement('div');
+  popupModeContainer.style.display = 'flex';
+  popupModeContainer.style.justifyContent = 'center';
+  popupModeContainer.style.gap = '14px';
+  popupModeContainer.style.marginBottom = '12px';
 
-    const listModeBtn = document.createElement('button');
-    listModeBtn.textContent = 'List';
-    listModeBtn.className = 'custom-button';
-    listModeBtn.style.padding = '4px 20px';
-    listModeBtn.style.fontWeight = 'bold';
+  const listModeBtn = document.createElement('button');
+  listModeBtn.textContent = 'List';
+  listModeBtn.className = 'custom-button';
+  listModeBtn.style.padding = '4px 20px';
+  listModeBtn.style.fontWeight = 'bold';
 
-    const socialModeBtn = document.createElement('button');
-    socialModeBtn.textContent = 'From Social Media';
-    socialModeBtn.className = 'custom-button';
-    socialModeBtn.style.padding = '4px 20px';
-    socialModeBtn.style.fontWeight = 'bold';
+  const socialModeBtn = document.createElement('button');
+  socialModeBtn.textContent = 'From Social Media';
+  socialModeBtn.className = 'custom-button';
+  socialModeBtn.style.padding = '4px 20px';
+  socialModeBtn.style.fontWeight = 'bold';
 
-    popupModeContainer.appendChild(listModeBtn);
-    popupModeContainer.appendChild(socialModeBtn);
+  popupModeContainer.appendChild(listModeBtn);
+  popupModeContainer.appendChild(socialModeBtn);
 
-    let popupMode = 'list';
-    function updateModeButtons() {
-      if (popupMode === 'list') {
-        listModeBtn.style.background = '#9b4dca';
-        listModeBtn.style.color = '#fff';
-        socialModeBtn.style.background = '#e9e8e0';
-        socialModeBtn.style.color = '#111';
-      } else {
-        socialModeBtn.style.background = '#9b4dca';
-        socialModeBtn.style.color = '#fff';
-        listModeBtn.style.background = '#e9e8e0';
-        listModeBtn.style.color = '#111';
-      }
+  let popupMode = 'list';
+  function updateModeButtons() {
+    if (popupMode === 'list') {
+      listModeBtn.style.background = '#9b4dca';
+      listModeBtn.style.color = '#fff';
+      socialModeBtn.style.background = '#e9e8e0';
+      socialModeBtn.style.color = '#111';
+    } else {
+      socialModeBtn.style.background = '#9b4dca';
+      socialModeBtn.style.color = '#fff';
+      listModeBtn.style.background = '#e9e8e0';
+      listModeBtn.style.color = '#111';
     }
+  }
 
-    const popupContentDiv = document.createElement('div');
-    function populateMarkerList() {
-      updateModeButtons();
-      popupContentDiv.innerHTML = '';
-      if (popupMode === 'list') {
-        // Alphabetical order
-        const allMarkers = [
-          ...locations.map(l => ({ name: l.name, coords: l.coords })),
-          ...buildings.map(b => ({ name: b.name, coords: b.coords }))
-        ].sort((a, b) => a.name.localeCompare(b.name));
-        allMarkers.forEach(({ name, coords }) => {
-          const item = document.createElement('button');
-          item.textContent = name;
-          item.className = 'custom-button';
-          item.style.margin = '4px 0';
-          item.style.width = '100%';
-          item.style.textAlign = 'left';
-          item.style.fontSize = '15px';
-          item.onclick = () => {
+  const popupContentDiv = document.createElement('div');
+  function populateMarkerList() {
+    updateModeButtons();
+    popupContentDiv.innerHTML = '';
+    if (popupMode === 'list') {
+      // Alphabetical order
+      const allMarkers = [
+        ...locations.map((l) => ({ name: l.name, coords: l.coords })),
+        ...buildings.map((b) => ({ name: b.name, coords: b.coords })),
+      ].sort((a, b) => a.name.localeCompare(b.name));
+      allMarkers.forEach(({ name, coords }) => {
+        const item = document.createElement('button');
+        item.textContent = name;
+        item.className = 'custom-button';
+        item.style.margin = '4px 0';
+        item.style.width = '100%';
+        item.style.textAlign = 'left';
+        item.style.fontSize = '15px';
+        item.onclick = () => {
+          markerListPopup.style.display = 'none';
+          map.flyTo({ center: coords, zoom: 17, speed: 1.4 });
+        };
+        popupContentDiv.appendChild(item);
+      });
+    } else {
+      // Social media mode
+      const socialBuildings = buildings.filter((b) => b['social media'] === 'yes');
+      if (!socialBuildings.length) {
+        popupContentDiv.innerHTML +=
+          '<div style="color:#777; margin-bottom:10px;">No social media markers yet.</div>';
+      } else {
+        const grid = document.createElement('div');
+        grid.className = 'marker-list-grid';
+        socialBuildings.forEach((b) => {
+          const imgBtn = document.createElement('button');
+          imgBtn.className = 'marker-list-grid-btn';
+          const img = document.createElement('img');
+          img.className = 'marker-list-grid-img';
+          img.src = b.posterUrl || b.image || '';
+          img.alt = b.name;
+          imgBtn.appendChild(img);
+          imgBtn.onclick = () => {
             markerListPopup.style.display = 'none';
-            map.flyTo({ center: coords, zoom: 17, speed: 1.4 });
+            map.flyTo({ center: b.coords, zoom: 17, speed: 1.4 });
           };
-          popupContentDiv.appendChild(item);
+          grid.appendChild(imgBtn);
         });
-      } else {
-        // Social media mode
-        const socialBuildings = buildings.filter(b => b["social media"] === "yes");
-        if (!socialBuildings.length) {
-          popupContentDiv.innerHTML += '<div style="color:#777; margin-bottom:10px;">No social media markers yet.</div>';
-        } else {
-          const grid = document.createElement('div');
-          grid.className = 'marker-list-grid';
-          socialBuildings.forEach(b => {
-            const imgBtn = document.createElement('button');
-            imgBtn.className = 'marker-list-grid-btn';
-            const img = document.createElement('img');
-            img.className = 'marker-list-grid-img';
-            img.src = b.posterUrl || b.image || '';
-            img.alt = b.name;
-            imgBtn.appendChild(img);
-            imgBtn.onclick = () => {
-              markerListPopup.style.display = 'none';
-              map.flyTo({ center: b.coords, zoom: 17, speed: 1.4 });
-            };
-            grid.appendChild(imgBtn);
-          });
-          popupContentDiv.appendChild(grid);
-        }
+        popupContentDiv.appendChild(grid);
       }
-      // Add close button at the end (always)
-      const close = document.createElement('button');
-      close.textContent = 'Close';
-      close.className = 'custom-button';
-      close.style.background = '#eee';
-      close.style.color = '#333';
-      close.style.marginTop = '14px';
-      close.onclick = () => markerListPopup.style.display = 'none';
-      popupContentDiv.appendChild(close);
     }
-    listModeBtn.onclick = () => { popupMode = 'list'; populateMarkerList(); };
-    socialModeBtn.onclick = () => { popupMode = 'social'; populateMarkerList(); };
+    // Add close button at the end (always)
+    const close = document.createElement('button');
+    close.textContent = 'Close';
+    close.className = 'custom-button';
+    close.style.background = '#eee';
+    close.style.color = '#333';
+    close.style.marginTop = '14px';
+    close.onclick = () => (markerListPopup.style.display = 'none');
+    popupContentDiv.appendChild(close);
+  }
+  listModeBtn.onclick = () => {
+    popupMode = 'list';
+    populateMarkerList();
+  };
+  socialModeBtn.onclick = () => {
+    popupMode = 'social';
+    populateMarkerList();
+  };
 
-    markerListButton.onclick = () => {
-      if (markerListPopup.style.display === 'block') {
-        markerListPopup.style.display = 'none';
-      } else {
-        popupMode = 'list';
-        populateMarkerList();
-        markerListPopup.style.display = 'block';
-      }
-    };
-    markerListPopup.innerHTML = '';
-    markerListPopup.appendChild(popupModeContainer);
-    markerListPopup.appendChild(popupContentDiv);
+  markerListButton.onclick = () => {
+    if (markerListPopup.style.display === 'block') {
+      markerListPopup.style.display = 'none';
+    } else {
+      popupMode = 'list';
+      populateMarkerList();
+      markerListPopup.style.display = 'block';
+    }
+  };
+  markerListPopup.innerHTML = '';
+  markerListPopup.appendChild(popupModeContainer);
+  markerListPopup.appendChild(popupContentDiv);
 
-    // Center the button below the support button
-    dropdownContainer.appendChild(markerListButton);
-    dropdownContainer.appendChild(dropdownContent); // keep donors popup functional
-    document.body.appendChild(dropdownContainer);
-    document.body.appendChild(markerListPopup);
+  // Center the button below the support button
+  dropdownContainer.appendChild(markerListButton);
+  dropdownContainer.appendChild(dropdownContent); // keep donors popup functional
+  document.body.appendChild(dropdownContainer);
+  document.body.appendChild(markerListPopup);
 
-    // Function to add donors
-    function addDonor(name, amount, subtext) {
-        const donorList = document.getElementById('donor-list');
-        const donorDiv = document.createElement('div');
-        donorDiv.className = 'donor';
-        donorDiv.innerHTML = `
+  // Function to add donors
+  function addDonor(name, amount, subtext) {
+    const donorList = document.getElementById('donor-list');
+    const donorDiv = document.createElement('div');
+    donorDiv.className = 'donor';
+    donorDiv.innerHTML = `
             <span class="donor-name" style="font-weight: bold;">${name}</span>
             <span class="donor-amount" style="color: #9b4dca; margin-left: 10px; font-weight: bold;">£${amount}</span>
             <div class="donor-subtext" style="font-size: 12px; color: #666; margin-top: 1px;">${subtext}</div>
         `;
-        donorDiv.style.marginBottom = '12px';
-        donorList.appendChild(donorDiv);
+    donorDiv.style.marginBottom = '12px';
+    donorList.appendChild(donorDiv);
+  }
+  addDonor('Anonymous', '15', ' ');
+  addDonor(
+    'Matt Hall',
+    '5',
+    'Fantastic stuff! Looking forward to finding out more about this fascinating city.'
+  );
+  addDonor(
+    'Chip Pedro',
+    '5',
+    'Will be very useful on our upcoming trip - really nice work!'
+  );
+  addDonor('buffsteve24', '5', 'Amazing work!');
+  addDonor('marksaw20', '5', 'Lovely map. Really interesting.');
+
+  button.addEventListener('click', (e) => {
+    e.preventDefault();
+    dropdownContent.style.display =
+      dropdownContent.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // Close popups when clicking outside
+  document.addEventListener('click', (event) => {
+    if (
+      !dropdownContainer.contains(event.target) &&
+      !markerListButton.contains(event.target) &&
+      !markerListPopup.contains(event.target)
+    ) {
+      dropdownContent.style.display = 'none';
+      markerListPopup.style.display = 'none';
     }
-    addDonor('Anonymous', '15', ' ');
-    addDonor('Matt Hall', '5', 'Fantastic stuff! Looking forward to finding out more about this fascinating city.');
-    addDonor('Chip Pedro', '5', 'Will be very useful on our upcoming trip - really nice work!');
-    addDonor('buffsteve24', '5', 'Amazing work!');
-    addDonor('marksaw20', '5', 'Lovely map. Really interesting.');
+  });
 
-    button.addEventListener('click', (e) => {
-        e.preventDefault();
-        dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-    });
-
-    // Close popups when clicking outside
-    document.addEventListener('click', (event) => {
-        if (!dropdownContainer.contains(event.target) && !markerListButton.contains(event.target) && !markerListPopup.contains(event.target)) {
-            dropdownContent.style.display = 'none';
-            markerListPopup.style.display = 'none';
-        }
-    });
-
-    // Set the dropdown width to match the button width
-    dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
+  // Set the dropdown width to match the button width
+  dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
 });
