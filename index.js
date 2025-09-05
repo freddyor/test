@@ -978,7 +978,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   dropdownContent.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center;">
-    <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jpeg" 
+    <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jp" 
          alt="Profile Photo" 
          style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;"/>
   </div>
