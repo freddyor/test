@@ -134,14 +134,14 @@ buildings.forEach((building) => {
 
     // Camera icon button
     const cameraIcon = document.createElement('button');
-    cameraIcon.innerHTML = '📷';
+    cameraIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" fill="black" viewBox="0 0 24 24"><path d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm6-3h-1.171l-1.414-1.414a2 2 0 0 0-1.415-.586H9a2 2 0 0 0-1.414.586L6.172 6H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm0 11H6v-9h12v9z"/></svg>';
     cameraIcon.title = 'Open Camera';
-    cameraIcon.style.position = 'absolute';
-    cameraIcon.style.left = '50%';
-    cameraIcon.style.top = '-44px';
-    cameraIcon.style.transform = 'translateX(-50%)';
+cameraIcon.style.position = 'absolute';
+cameraIcon.style.top = '0';
+cameraIcon.style.left = '50%';
+cameraIcon.style.transform = 'translate(-50%, -50%)';  // horizontal center; vertical middle aligned to top edge
     cameraIcon.style.background = 'white';
-    cameraIcon.style.border = '2px solid #9b4dca';
+    cameraIcon.style.border = 'none';
     cameraIcon.style.borderRadius = '50%';
     cameraIcon.style.fontSize = '2.1rem';
     cameraIcon.style.width = '48px';
