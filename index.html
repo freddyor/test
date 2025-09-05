@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Minimal Camera Demo</title>
+    <meta name="description" content="Free historic map for tourists visiting York, UK 🇬🇧. Short video breakdowns of each building and unseen curiosity in the city. Independent made.">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#192b4a" media="(prefers-color-scheme: dark)">
+    <title>YorkMapped</title>
+
+    <!-- Optional: Remove if not necessary -->
+    <link rel="icon" href="https://freddyor.github.io/british-map/videos/favicon.png" type="image/png" sizes="32x32">
+
+    <!-- Mapbox GL JS CSS (replace MapLibre) -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet" />
+
     <style>
         body, html {
             margin: 0;
@@ -13,46 +23,59 @@
             font-family: 'Poppins', sans-serif;
             display: flex;
             flex-direction: column;
-            align-items: center;
+        }
+
+        #map {
+            flex: 1;
+            width: 100%;
+            margin: 0; /* Ensure no margin */
+            padding: 0; /* Ensure no padding */
+        }
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #192b4a;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
+            z-index: 9999;
         }
-        #camera-container {
-            margin-top: 40px;
-            text-align: center;
+
+        #loading-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 20px;
         }
-        #cam {
-            width: 90vw;
-            max-width: 400px;
-            height: 50vh;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-            border: 2px solid #9b4dca;
-            background: #eee;
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ccc;
+            border-top: 4px solid #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        #error-message {
-            color: #b00;
-            margin-top: 20px;
-            font-weight: bold;
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div id="camera-container">
-        <h2>Camera Test (iOS Safari)</h2>
-        <video id="cam" autoplay playsinline webkit-playsinline></video>
-        <div id="error-message"></div>
+    <div id="loading-screen">
+        <img src="https://freddyor.github.io/british-map/videos/favicon.png" alt="Loading icon" id="loading-icon">
+        <div class="spinner"></div>
     </div>
-    <script>
-        // Minimal camera test logic
-        (async function() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({video: true});
-                const cam = document.getElementById('cam');
-                cam.srcObject = stream;
-            } catch (err) {
-                document.getElementById('error-message').textContent = "Camera error: " + err.message;
-            }
-        })();
-    </script>
+    <div id="map"></div>
+
+    <!-- Mapbox GL JS (replace MapLibre) -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+    <!-- Your custom script -->
+    <script type="module" src="index.js"></script>
 </body>
 </html>
