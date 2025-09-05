@@ -109,6 +109,8 @@ buildings.forEach((building) => {
     map.getCanvas().style.cursor = 'pointer';
     const videoUrl = building.videoUrl;
     const posterUrl = building.posterUrl;
+    const markerText = building.text || ""; // <- text for overlay and photo
+
     if (!videoUrl) {
       console.error('Video URL not available for this building.');
       return;
@@ -284,6 +286,23 @@ buildings.forEach((building) => {
       posterContainer.appendChild(cameraIcon);
       posterContainer.appendChild(closeBtn);
 
+      //--- ADD TEXT OVERLAY DIV ---
+      const textOverlay = document.createElement('div');
+      textOverlay.textContent = markerText;
+      textOverlay.style.position = 'absolute';
+      textOverlay.style.top = '16px';
+      textOverlay.style.left = '50%';
+      textOverlay.style.transform = 'translateX(-50%)';
+      textOverlay.style.background = 'rgba(0,0,0,0.4)';
+      textOverlay.style.color = '#fff';
+      textOverlay.style.padding = '6px 18px';
+      textOverlay.style.borderRadius = '8px';
+      textOverlay.style.fontSize = '18px';
+      textOverlay.style.fontWeight = 'bold';
+      textOverlay.style.pointerEvents = 'none';
+      textOverlay.style.zIndex = 20;
+      posterContainer.appendChild(textOverlay);
+
       const cameraVideo = document.createElement('video');
       cameraVideo.autoplay = true;
       cameraVideo.playsInline = true;
@@ -344,6 +363,21 @@ buildings.forEach((building) => {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
+        // --- DRAW TEXT OVERLAY ON IMAGE ---
+        if (markerText) {
+          ctx.font = "bold 36px 'Poppins', sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "top";
+          // Draw semi-transparent black rectangle for text background
+          const textPadding = 14;
+          const textHeight = 48;
+          ctx.fillStyle = "rgba(0,0,0,0.4)";
+          ctx.fillRect(0, 0, canvas.width, textHeight + textPadding);
+          // Draw text in white, centered
+          ctx.fillStyle = "#fff";
+          ctx.fillText(markerText, canvas.width / 2, textPadding);
+        }
+
         imgPreview = document.createElement('img');
         imgPreview.src = canvas.toDataURL('image/png');
         imgPreview.style.display = 'block';
@@ -374,9 +408,10 @@ buildings.forEach((building) => {
         cancelBtn.style.color = '#333';
         posterContainer.appendChild(cancelBtn);
 
-        // Hide video and take photo button
+        // Hide video and take photo button and text overlay
         cameraVideo.style.display = 'none';
         takePhotoBtn.style.display = 'none';
+        textOverlay.style.display = 'none';
 
         cancelBtn.onclick = function () {
           // Remove photo and buttons
@@ -384,9 +419,10 @@ buildings.forEach((building) => {
           if (downloadBtn) downloadBtn.remove();
           if (cancelBtn) cancelBtn.remove();
 
-          // Show video and take photo button
+          // Show video and take photo button and text overlay
           cameraVideo.style.display = 'block';
           takePhotoBtn.style.display = 'block';
+          textOverlay.style.display = 'block';
 
           cameraVideo.play();
         };
