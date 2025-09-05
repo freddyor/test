@@ -292,7 +292,9 @@ buildings.forEach(building => {
       let imgPreview = null, downloadBtn = null;
 
       try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+  video: { facingMode: { exact: "environment" } }
+});
         cameraVideo.srcObject = cameraStream;
       } catch (err) {
         alert('Could not access camera: ' + err.message);
