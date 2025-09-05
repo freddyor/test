@@ -305,7 +305,7 @@ buildings.forEach((building) => {
 
       // --- FORCE 9:16 VIDEO RATIO ---
       const videoWrapper = document.createElement('div');
-      videoWrapper.style.width = '44vw'; // for portrait, narrower width
+      videoWrapper.style.width = '88vw'; // for portrait, narrower width
       videoWrapper.style.maxHeight = '80vh';
       videoWrapper.style.aspectRatio = '9/16'; // modern browsers, portrait
       videoWrapper.style.overflow = 'hidden';
