@@ -303,15 +303,28 @@ buildings.forEach((building) => {
       textOverlay.style.zIndex = 20;
       posterContainer.appendChild(textOverlay);
 
+      // --- FORCE 16:9 VIDEO RATIO ---
+      const videoWrapper = document.createElement('div');
+      videoWrapper.style.width = '88vw';
+      videoWrapper.style.maxHeight = '80vh';
+      videoWrapper.style.aspectRatio = '16/9'; // modern browsers
+      videoWrapper.style.overflow = 'hidden';
+      videoWrapper.style.display = 'flex';
+      videoWrapper.style.alignItems = 'center';
+      videoWrapper.style.justifyContent = 'center';
+
       const cameraVideo = document.createElement('video');
       cameraVideo.autoplay = true;
       cameraVideo.playsInline = true;
-      cameraVideo.style.maxWidth = '88vw';
-      cameraVideo.style.maxHeight = '80vh';
+      cameraVideo.style.width = '100%';
+      cameraVideo.style.height = '100%';
+      cameraVideo.style.objectFit = 'cover';
       cameraVideo.style.borderRadius = '14px';
       cameraVideo.style.display = 'block';
       cameraVideo.style.margin = '0 auto';
-      posterContainer.appendChild(cameraVideo);
+
+      videoWrapper.appendChild(cameraVideo);
+      posterContainer.appendChild(videoWrapper);
 
       const takePhotoBtn = document.createElement('button');
       takePhotoBtn.textContent = '📸 Take Photo';
@@ -330,7 +343,12 @@ buildings.forEach((building) => {
       async function startCameraStream() {
         try {
           cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment' },
+            video: {
+              facingMode: 'environment',
+              aspectRatio: 16 / 9, // <-- Request 16:9 aspect ratio
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }
           });
           cameraVideo.srcObject = cameraStream;
         } catch (err) {
@@ -349,33 +367,43 @@ buildings.forEach((building) => {
       await startCameraStream();
 
       takePhotoBtn.onclick = function () {
-        // Pause stream and show photo
         cameraVideo.pause();
 
-        // Remove previous photo/download/cancel if any
         if (imgPreview) imgPreview.remove();
         if (downloadBtn) downloadBtn.remove();
         if (cancelBtn) cancelBtn.remove();
 
-        const canvas = document.createElement('canvas');
-        canvas.width = cameraVideo.videoWidth;
-        canvas.height = cameraVideo.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+        // --- CROP TO 16:9 and DRAW TEXT ---
+        const videoW = cameraVideo.videoWidth;
+        const videoH = cameraVideo.videoHeight;
+        let outW = videoW, outH = videoH;
+        let sx = 0, sy = 0;
 
-        // --- DRAW TEXT OVERLAY ON IMAGE ---
+        if (videoW / videoH > 16 / 9) {
+          outH = videoH;
+          outW = videoH * 16 / 9;
+          sx = (videoW - outW) / 2;
+        } else {
+          outW = videoW;
+          outH = videoW * 9 / 16;
+          sy = (videoH - outH) / 2;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = outW;
+        canvas.height = outH;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(cameraVideo, sx, sy, outW, outH, 0, 0, outW, outH);
+
+        // --- Draw text overlay ---
         if (markerText) {
           ctx.font = "bold 36px 'Poppins', sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "top";
-          // Draw semi-transparent black rectangle for text background
-          const textPadding = 14;
-          const textHeight = 48;
           ctx.fillStyle = "rgba(0,0,0,0.4)";
-          ctx.fillRect(0, 0, canvas.width, textHeight + textPadding);
-          // Draw text in white, centered
+          ctx.fillRect(0, 0, canvas.width, 60);
           ctx.fillStyle = "#fff";
-          ctx.fillText(markerText, canvas.width / 2, textPadding);
+          ctx.fillText(markerText, canvas.width / 2, 14);
         }
 
         imgPreview = document.createElement('img');
@@ -409,18 +437,16 @@ buildings.forEach((building) => {
         posterContainer.appendChild(cancelBtn);
 
         // Hide video and take photo button and text overlay
-        cameraVideo.style.display = 'none';
+        videoWrapper.style.display = 'none';
         takePhotoBtn.style.display = 'none';
         textOverlay.style.display = 'none';
 
         cancelBtn.onclick = function () {
-          // Remove photo and buttons
           if (imgPreview) imgPreview.remove();
           if (downloadBtn) downloadBtn.remove();
           if (cancelBtn) cancelBtn.remove();
 
-          // Show video and take photo button and text overlay
-          cameraVideo.style.display = 'block';
+          videoWrapper.style.display = 'flex';
           takePhotoBtn.style.display = 'block';
           textOverlay.style.display = 'block';
 
