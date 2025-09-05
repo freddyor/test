@@ -257,6 +257,12 @@ buildings.forEach(building => {
 
     // CAMERA ICON FUNCTIONALITY
     cameraIcon.onclick = async function () {
+
+        if (!(navigator.mediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function')) {
+    alert('Camera access is not supported on this browser/device. If you\'re on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date.');
+    return;
+  }
+      
       posterContainer.innerHTML = '';
       posterContainer.appendChild(cameraIcon);
       posterContainer.appendChild(closeBtn);
