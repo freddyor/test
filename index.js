@@ -303,11 +303,11 @@ buildings.forEach((building) => {
       textOverlay.style.zIndex = 20;
       posterContainer.appendChild(textOverlay);
 
-      // --- FORCE 16:9 VIDEO RATIO ---
+      // --- FORCE 9:16 VIDEO RATIO ---
       const videoWrapper = document.createElement('div');
-      videoWrapper.style.width = '88vw';
+      videoWrapper.style.width = '44vw'; // for portrait, narrower width
       videoWrapper.style.maxHeight = '80vh';
-      videoWrapper.style.aspectRatio = '16/9'; // modern browsers
+      videoWrapper.style.aspectRatio = '9/16'; // modern browsers, portrait
       videoWrapper.style.overflow = 'hidden';
       videoWrapper.style.display = 'flex';
       videoWrapper.style.alignItems = 'center';
@@ -345,9 +345,9 @@ buildings.forEach((building) => {
           cameraStream = await navigator.mediaDevices.getUserMedia({
             video: {
               facingMode: 'environment',
-              aspectRatio: 16 / 9, // <-- Request 16:9 aspect ratio
-              width: { ideal: 1280 },
-              height: { ideal: 720 }
+              aspectRatio: 9 / 16, // <-- Request 9:16 aspect ratio
+              width: { ideal: 720 },
+              height: { ideal: 1280 }
             }
           });
           cameraVideo.srcObject = cameraStream;
@@ -373,19 +373,22 @@ buildings.forEach((building) => {
         if (downloadBtn) downloadBtn.remove();
         if (cancelBtn) cancelBtn.remove();
 
-        // --- CROP TO 16:9 and DRAW TEXT ---
+        // --- CROP TO 9:16 and DRAW TEXT ---
         const videoW = cameraVideo.videoWidth;
         const videoH = cameraVideo.videoHeight;
         let outW = videoW, outH = videoH;
         let sx = 0, sy = 0;
 
-        if (videoW / videoH > 16 / 9) {
+        // Portrait crop calculation for 9:16
+        if (videoW / videoH > 9 / 16) {
+          // Video is wider than 9:16, crop width
           outH = videoH;
-          outW = videoH * 16 / 9;
+          outW = videoH * 9 / 16;
           sx = (videoW - outW) / 2;
         } else {
+          // Video is taller than 9:16, crop height
           outW = videoW;
-          outH = videoW * 9 / 16;
+          outH = videoW * 16 / 9;
           sy = (videoH - outH) / 2;
         }
 
@@ -454,6 +457,7 @@ buildings.forEach((building) => {
         };
       };
     };
+
 
     playBtn.onclick = () => {
       playBtn.style.display = 'none';
