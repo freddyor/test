@@ -332,22 +332,18 @@ cameraVideo.style.objectFit = 'cover'; // crop/fill container
         try {
 cameraStream = await navigator.mediaDevices.getUserMedia({
   video: { 
-    facingMode: 'environment',
-    width: { ideal: 1080 },
-    height: { ideal: 1920 }
+    facingMode: { ideal: 'environment' } // request back camera
+    // no aspectRatio, no width/height constraints
   },
 });
+
 
           cameraVideo.srcObject = cameraStream;
         } catch (err) {
           // fallback to default camera
           try {
-cameraStream = await navigator.mediaDevices.getUserMedia({
-  video: { 
-        width: { ideal: 1080 },
-    height: { ideal: 1920 }
-  },
-});
+cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+
 
             cameraVideo.srcObject = cameraStream;
           } catch (err2) {
@@ -368,14 +364,14 @@ cameraStream = await navigator.mediaDevices.getUserMedia({
         if (cancelBtn) cancelBtn.remove();
 
 const canvas = document.createElement('canvas');
-const targetWidth = 720;    // you can pick 720, 1080 etc.
-const targetHeight = 1280;  // ensures 9:16 aspect
-canvas.width = targetWidth;
-canvas.height = targetHeight;
+canvas.width = cameraVideo.videoWidth;   // exact actual pixels
+canvas.height = cameraVideo.videoHeight;
 
 const ctx = canvas.getContext('2d');
-// Center/crop the video feed into 9:16 canvas
-ctx.drawImage(cameraVideo, 0, 0, targetWidth, targetHeight);
+// Draw full native frame
+ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+
+
 
 
         // --- DRAW TEXT OVERLAY ON IMAGE ---
