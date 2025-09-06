@@ -2,7 +2,6 @@ import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
 const loadingScreenStart = Date.now();
-
 const yorkBounds = [
   [-1.170, 53.930],
   [-1.010, 54.010]
@@ -58,6 +57,7 @@ const userLocationMarker = new mapboxgl.Marker({ element: userLocationEl })
 geolocate.on('error', (e) => {
   if (e.code === 1) console.log('Location access denied by user');
 });
+
 geolocate.on('geolocate', (e) => {
   userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
 });
@@ -74,7 +74,6 @@ locations.forEach((location) => {
   })
     .setLngLat(location.coords)
     .addTo(map);
-
   marker.getElement().addEventListener('click', () => {
     map.getCanvas().style.cursor = 'pointer';
     const contentHTML = createPopupContent(location);
@@ -90,13 +89,10 @@ buildings.forEach((building) => {
     false
   );
   markerElement.className += ' building-marker';
-
   if (building.colour === 'yes') markerElement.style.zIndex = '3';
-
   const marker = new mapboxgl.Marker({ element: markerElement })
     .setLngLat(building.coords)
     .addTo(map);
-
   marker.getElement().addEventListener('click', () => {
     map.getCanvas().style.cursor = 'pointer';
     showPeekCarouselModal(building);
@@ -142,18 +138,26 @@ function showPeekCarouselModal(building) {
   }
   setBlur(true);
 
-  // Modal container (same as classic)
+  // Modal container (full screen overlay with centered box)
   const modalContainer = document.createElement('div');
   modalContainer.className = 'peek-carousel-modal-container';
-  modalContainer.style.position = 'relative';
-  modalContainer.style.width = '380px';
-  modalContainer.style.maxWidth = '98vw';
-  modalContainer.style.height = '464px';
+
+  // Size modal container as fixed 9:16 ratio box, centered
+  const modalWidth = 360; // px, adjust as preferred
+  const modalHeight = Math.round(modalWidth * 16 / 9); // calculate height for 9:16 ratio
+  modalContainer.style.position = 'absolute';
+  modalContainer.style.width = modalWidth + 'px';
+  modalContainer.style.height = modalHeight + 'px';
+  // center modal
+  modalContainer.style.top = '50%';
+  modalContainer.style.left = '50%';
+  modalContainer.style.transform = 'translate(-50%, -50%)';
   modalContainer.style.background = '#fff';
   modalContainer.style.borderRadius = '16px';
   modalContainer.style.boxShadow = '0 8px 32px rgba(0,0,0,0.22)';
   modalContainer.style.display = 'block';
   modalContainer.style.overflow = 'visible';
+  modalContainer.style.zIndex = '100001';
 
   // Boards
   const boards = ['video', 'textboard', 'camera'];
@@ -165,8 +169,10 @@ function showPeekCarouselModal(building) {
     wrapper.className = 'peek-carousel-board';
     wrapper.style.position = 'absolute';
     wrapper.style.top = '0';
-    wrapper.style.width = '380px';
-    wrapper.style.height = '464px';
+    wrapper.style.width = '70%';
+    wrapper.style.height = '70%';
+    wrapper.style.left = '50%';
+    wrapper.style.transform = 'translateX(-50%)';
     wrapper.style.transition = 'left 0.3s cubic-bezier(.77,.2,.64,1.09), opacity 0.3s';
     wrapper.style.borderRadius = '16px';
     wrapper.style.overflow = 'hidden';
@@ -182,8 +188,8 @@ function showPeekCarouselModal(building) {
         const videoElement = document.createElement('video');
         videoElement.src = videoUrl;
         if (posterUrl) videoElement.poster = posterUrl;
-        videoElement.width = 380;
-        videoElement.height = 464;
+        videoElement.width = '100%';
+        videoElement.height = '100%';
         videoElement.style.width = '100%';
         videoElement.style.height = '100%';
         videoElement.style.borderRadius = '16px';
@@ -273,6 +279,7 @@ function showPeekCarouselModal(building) {
         }
       };
     }
+
     return wrapper;
   });
 
@@ -280,22 +287,25 @@ function showPeekCarouselModal(building) {
   function updateBoardPositions() {
     for (let i = 0; i < boardWrappers.length; ++i) {
       if (i === currentIndex) {
-        boardWrappers[i].style.left = '0px';
+        boardWrappers[i].style.left = '50%';
         boardWrappers[i].style.opacity = '1';
         boardWrappers[i].style.zIndex = '3';
         boardWrappers[i].style.boxShadow = '0 8px 32px rgba(0,0,0,0.22)';
+        boardWrappers[i].style.transform = 'translateX(-50%)';
         if (boardWrappers[i]._activate) boardWrappers[i]._activate();
       } else if (i < currentIndex) {
-        boardWrappers[i].style.left = '-60px';
+        boardWrappers[i].style.left = 'calc(50% - 60px)';
         boardWrappers[i].style.opacity = '0.7';
         boardWrappers[i].style.zIndex = '2';
         boardWrappers[i].style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+        boardWrappers[i].style.transform = 'translateX(-50%)';
         if (boardWrappers[i]._deactivate) boardWrappers[i]._deactivate();
       } else {
-        boardWrappers[i].style.left = '60px';
+        boardWrappers[i].style.left = 'calc(50% + 60px)';
         boardWrappers[i].style.opacity = '0.7';
         boardWrappers[i].style.zIndex = '2';
         boardWrappers[i].style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+        boardWrappers[i].style.transform = 'translateX(-50%)';
         if (boardWrappers[i]._deactivate) boardWrappers[i]._deactivate();
       }
     }
@@ -401,11 +411,10 @@ function showPeekCarouselModal(building) {
   closeBtn.style.borderRadius = '50%';
   closeBtn.style.cursor = 'pointer';
   closeBtn.style.fontSize = '1rem';
-  closeBtn.style.zIndex = '100001';
+  closeBtn.style.zIndex = '100002';
   closeBtn.style.display = 'flex';
   closeBtn.style.alignItems = 'center';
   closeBtn.style.justifyContent = 'center';
-
   closeBtn.onclick = () => {
     overlay.remove();
     setBlur(false);
@@ -417,7 +426,6 @@ function showPeekCarouselModal(building) {
   boardWrappers.forEach(w => modalContainer.appendChild(w));
   modalContainer.appendChild(navLeft);
   modalContainer.appendChild(navRight);
-
   overlay.appendChild(modalContainer);
   overlay.appendChild(closeBtn);
   document.body.appendChild(overlay);
@@ -435,7 +443,6 @@ function scaleMarkersBasedOnZoom() {
   const markerWidth = markerSize + 'em';
   const markerHeight = markerSize + 'em';
   const borderWidth = markerSize * 0.075 + 'em';
-
   document.querySelectorAll('.location-marker, .building-marker').forEach((marker) => {
     marker.style.width = markerWidth;
     marker.style.height = markerHeight;
@@ -458,6 +465,7 @@ map.on('click', (e) => {
   const mapLink = generateMapLink(currentLat, currentLng, currentZoom);
   console.log('Map Link:', mapLink);
 });
+
 map.on('zoom', () => scaleMarkersBasedOnZoom());
 
 map.on('load', () => {
@@ -475,6 +483,7 @@ map.on('load', () => {
     }
   }
 });
+
 function getUrlParameter(name) {
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
   var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -485,10 +494,8 @@ function getUrlParameter(name) {
 const lat = getUrlParameter('lat');
 const lng = getUrlParameter('lng');
 const zoom = getUrlParameter('zoom');
-
 const defaultCenter = [-1.0835104081554843, 53.95838745239521];
 const defaultZoom = 15;
-
 const initialCenter = lat && lng ? [parseFloat(lng), parseFloat(lat)] : defaultCenter;
 const initialZoom = zoom ? parseFloat(zoom) : defaultZoom;
 
@@ -535,7 +542,6 @@ buttonGroup.style.gap = '10px';
 document.body.appendChild(buttonGroup);
 
 const stylePopup = document.createElement('style');
-
 const link = document.createElement('link');
 link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap';
 link.rel = 'stylesheet';
@@ -742,7 +748,6 @@ stylePopup.innerHTML = `
     transition: box-shadow 0.1s;
   }
  `;
-
 document.head.appendChild(stylePopup);
 
 // ... rest unchanged (support buttons, marker list, etc.) ...
@@ -792,7 +797,6 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
 }
 
 let isBottomSheetOpen = false;
-
 function toggleBottomSheet(contentHTML) {
   if (isBottomSheetOpen) {
     bottomSheet.style.bottom = '-100%';
@@ -811,10 +815,8 @@ function toggleBottomSheet(contentHTML) {
                 font-size: 10px;
             ">❌</button>
         `;
-
     bottomSheet.innerHTML = closeButtonHTML + contentHTML;
     bottomSheet.style.bottom = '0';
-
     document.getElementById('close-bottom-sheet').addEventListener('click', () => {
       const videoElement = document.querySelector('video');
       if (videoElement) {
@@ -837,7 +839,6 @@ function createPopupContent(location, isFirebase = false) {
   const imageContent = !videoUrl
     ? `<img src="${data.image || data.imageUrl}" alt="${data.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" />`
     : '';
-
   return `
         <div style="text-align: center; padding: 0; margin: 0;">
             <p style="font-size: 15px; font-weight: bold; margin-bottom: 10px;">${data.description}</p>
@@ -877,7 +878,6 @@ function createPopupContent(location, isFirebase = false) {
 }
 
 // ========== Support Button + Marker List Button & Popup =============
-
 document.addEventListener('DOMContentLoaded', () => {
   const button = document.createElement('button');
   button.id = 'custom-bmc-button';
@@ -902,48 +902,47 @@ document.addEventListener('DOMContentLoaded', () => {
   dropdownContent.style.textAlign = 'center';
   dropdownContent.style.maxHeight = 'calc(100vh - 200px)';
   dropdownContent.style.overflowY = 'auto';
-
   dropdownContent.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center;">
-    <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jp" 
-         alt="Profile Photo" 
-         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;"/>
-  </div>
-        <div class="project-info" style="margin-bottom: 15px;">
-            <b>If this site was free for you to use, it means someone else paid forward.</b>
-        </div>
-           <div class="project-info" style="margin-bottom: 15px;">
-            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no[...]
-        </div>
-        <div class="project-info" style="margin-bottom: 15px;">
-             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic imag[...]
-        </div>
-        <button 
-            class="support-button" 
-            style="
-                background-color: #9b4dca; 
-                color: white; 
-                padding: 10px 20px; 
-                font-size: 16px; 
-                font-weight: bold; 
-                border: none; 
-                border-radius: 8px; 
-                cursor: pointer; 
-                text-align: center;
-                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-                margin-bottom: 15px;
-            "
-            onclick="window.open('https://www.buymeacoffee.com/britmap', '_blank')"
-        >
-            Support
-        </button>
- <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 16px; font-weight: bold;">
-    <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
-    Our Donors ❤️
-    <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
-</div>
-<div id="donor-list" style="margin-top: 10px;"></div>
-    `;
+        <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jp" 
+             alt="Profile Photo" 
+             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;"/>
+      </div>
+      <div class="project-info" style="margin-bottom: 15px;">
+        <b>If this site was free for you to use, it means someone else paid forward.</b>
+      </div>
+      <div class="project-info" style="margin-bottom: 15px;">
+        My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no[...]
+      </div>
+      <div class="project-info" style="margin-bottom: 15px;">
+        I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic imag[...]
+      </div>
+      <button 
+          class="support-button" 
+          style="
+              background-color: #9b4dca; 
+              color: white; 
+              padding: 10px 20px; 
+              font-size: 16px; 
+              font-weight: bold; 
+              border: none; 
+              border-radius: 8px; 
+              cursor: pointer; 
+              text-align: center;
+              box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+              margin-bottom: 15px;
+          "
+          onclick="window.open('https://www.buymeacoffee.com/britmap', '_blank')"
+      >
+          Support
+      </button>
+      <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 16px; font-weight: bold;">
+        <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
+        Our Donors ❤️
+        <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
+      </div>
+      <div id="donor-list" style="margin-top: 10px;"></div>
+  `;
 
   const dropdownContainer = document.createElement('div');
   dropdownContainer.className = 'dropdown';
@@ -1077,6 +1076,7 @@ document.addEventListener('DOMContentLoaded', () => {
     close.onclick = () => (markerListPopup.style.display = 'none');
     popupContentDiv.appendChild(close);
   }
+
   listModeBtn.onclick = () => {
     popupMode = 'list';
     populateMarkerList();
@@ -1085,7 +1085,6 @@ document.addEventListener('DOMContentLoaded', () => {
     popupMode = 'social';
     populateMarkerList();
   };
-
   markerListButton.onclick = () => {
     if (markerListPopup.style.display === 'block') {
       markerListPopup.style.display = 'none';
@@ -1095,10 +1094,10 @@ document.addEventListener('DOMContentLoaded', () => {
       markerListPopup.style.display = 'block';
     }
   };
+
   markerListPopup.innerHTML = '';
   markerListPopup.appendChild(popupModeContainer);
   markerListPopup.appendChild(popupContentDiv);
-
   dropdownContainer.appendChild(markerListButton);
   dropdownContainer.appendChild(dropdownContent);
   document.body.appendChild(dropdownContainer);
@@ -1116,6 +1115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     donorDiv.style.marginBottom = '12px';
     donorList.appendChild(donorDiv);
   }
+
   addDonor('Anonymous', '15', ' ');
   addDonor(
     'Matt Hall',
