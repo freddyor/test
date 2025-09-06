@@ -397,80 +397,61 @@ buildings.forEach((building) => {
         if (downloadBtn) downloadBtn.remove();
         if (cancelBtn) cancelBtn.remove();
 
-        // Make sure font is loaded for canvas
-        await document.fonts.load("bold 18px 'Poppins'");
+        // Use html2canvas to capture the posterContainer including the camera stream and text overlay
+        // Make sure html2canvas is loaded in your HTML: 
+        // <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+        html2canvas(posterContainer, {
+          backgroundColor: null,
+          useCORS: true,
+          scale: window.devicePixelRatio
+        }).then(canvas => {
+          imgPreview = document.createElement('img');
+          imgPreview.src = canvas.toDataURL('image/png');
+          imgPreview.style.display = 'block';
+          imgPreview.style.margin = '16px auto 8px auto';
+          imgPreview.style.maxWidth = '90vw';
+          imgPreview.style.maxHeight = '60vh';
+          imgPreview.style.borderRadius = '12px';
+          imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+          posterContainer.appendChild(imgPreview);
 
-        const canvas = document.createElement('canvas');
-        canvas.width = cameraVideo.videoWidth;
-        canvas.height = cameraVideo.videoHeight;
+          downloadBtn = document.createElement('a');
+          downloadBtn.textContent = 'Download Photo';
+          downloadBtn.className = 'custom-button';
+          downloadBtn.href = imgPreview.src;
+          downloadBtn.download = 'photo.png';
+          downloadBtn.style.display = 'block';
+          downloadBtn.style.margin = '10px auto 0 auto';
+          downloadBtn.style.background = '#9b4dca';
+          downloadBtn.style.color = '#fff';
+          posterContainer.appendChild(downloadBtn);
 
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+          cancelBtn = document.createElement('button');
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.className = 'custom-button';
+          cancelBtn.style.display = 'block';
+          cancelBtn.style.margin = '10px auto 0 auto';
+          cancelBtn.style.background = '#e0e0e0';
+          cancelBtn.style.color = '#333';
+          posterContainer.appendChild(cancelBtn);
 
-        // Match overlay style
-        const textPaddingY = 16;
-        const overlayHeight = 38; // 18px font + padding
-        ctx.font = "bold 18px 'Poppins', sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-        // Draw semi-transparent black rectangle for text background
-        ctx.fillStyle = "rgba(0,0,0,0.4)";
-        ctx.fillRect(
-          canvas.width/2 - canvas.width*0.4, // roughly match overlay's width
-          textPaddingY,
-          canvas.width*0.8,
-          overlayHeight
-        );
-        // Draw text in white, centered
-        ctx.fillStyle = "#fff";
-        ctx.fillText(markerText, canvas.width / 2, textPaddingY + 8);
+          // Hide video and take photo button and text overlay
+          cameraVideo.style.display = 'none';
+          shutterBtn.style.display = 'none';
+          textOverlay.style.display = 'none';
 
-        imgPreview = document.createElement('img');
-        imgPreview.src = canvas.toDataURL('image/png');
-        imgPreview.style.display = 'block';
-        imgPreview.style.margin = '16px auto 8px auto';
-        imgPreview.style.maxWidth = '90vw';
-        imgPreview.style.maxHeight = '60vh';
-        imgPreview.style.borderRadius = '12px';
-        imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-        posterContainer.appendChild(imgPreview);
+          cancelBtn.onclick = function () {
+            if (imgPreview) imgPreview.remove();
+            if (downloadBtn) downloadBtn.remove();
+            if (cancelBtn) cancelBtn.remove();
 
-        downloadBtn = document.createElement('a');
-        downloadBtn.textContent = 'Download Photo';
-        downloadBtn.className = 'custom-button';
-        downloadBtn.href = imgPreview.src;
-        downloadBtn.download = 'photo.png';
-        downloadBtn.style.display = 'block';
-        downloadBtn.style.margin = '10px auto 0 auto';
-        downloadBtn.style.background = '#9b4dca';
-        downloadBtn.style.color = '#fff';
-        posterContainer.appendChild(downloadBtn);
+            cameraVideo.style.display = 'block';
+            shutterBtn.style.display = 'block';
+            textOverlay.style.display = 'block';
 
-        cancelBtn = document.createElement('button');
-        cancelBtn.textContent = 'Cancel';
-        cancelBtn.className = 'custom-button';
-        cancelBtn.style.display = 'block';
-        cancelBtn.style.margin = '10px auto 0 auto';
-        cancelBtn.style.background = '#e0e0e0';
-        cancelBtn.style.color = '#333';
-        posterContainer.appendChild(cancelBtn);
-
-        // Hide video and take photo button and text overlay
-        cameraVideo.style.display = 'none';
-        shutterBtn.style.display = 'none';
-        textOverlay.style.display = 'none';
-
-        cancelBtn.onclick = function () {
-          if (imgPreview) imgPreview.remove();
-          if (downloadBtn) downloadBtn.remove();
-          if (cancelBtn) cancelBtn.remove();
-
-          cameraVideo.style.display = 'block';
-          shutterBtn.style.display = 'block';
-          textOverlay.style.display = 'block';
-
-          cameraVideo.play();
-        };
+            cameraVideo.play();
+          };
+        });
       };
     };
 
