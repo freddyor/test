@@ -314,15 +314,37 @@ cameraVideo.style.objectFit = 'contain'; // crop/fill container
       cameraVideo.style.margin = '0 auto';
       posterContainer.appendChild(cameraVideo);
 
-      const takePhotoBtn = document.createElement('button');
-      takePhotoBtn.textContent = '📸 Take Photo';
-      takePhotoBtn.className = 'custom-button';
-      takePhotoBtn.style.position = 'absolute';
-      takePhotoBtn.style.left = '50%';
-      takePhotoBtn.style.top = '10px';
-      takePhotoBtn.style.transform = 'translateX(-50%)';
-      takePhotoBtn.style.zIndex = 10;
-      posterContainer.appendChild(takePhotoBtn);
+ const shutterBtn = document.createElement('button');
+      shutterBtn.title = 'Take Photo';
+      shutterBtn.className = 'custom-shutter-btn';
+      shutterBtn.style.position = 'absolute';
+      shutterBtn.style.left = '50%';
+      shutterBtn.style.bottom = '20px';
+      shutterBtn.style.transform = 'translateX(-50%)';
+      shutterBtn.style.width = '64px';
+      shutterBtn.style.height = '64px';
+      shutterBtn.style.background = 'white';
+      shutterBtn.style.border = '4px solid #ccc';
+      shutterBtn.style.borderRadius = '50%';
+      shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+      shutterBtn.style.display = 'flex';
+      shutterBtn.style.alignItems = 'center';
+      shutterBtn.style.justifyContent = 'center';
+      shutterBtn.style.cursor = 'pointer';
+      shutterBtn.style.zIndex = 12;
+      shutterBtn.style.outline = 'none';
+      shutterBtn.style.transition = 'box-shadow 0.1s';
+
+      // inner circle for shutter effect
+      const innerCircle = document.createElement('div');
+      innerCircle.style.width = '44px';
+      innerCircle.style.height = '44px';
+      innerCircle.style.background = '#fff';
+      innerCircle.style.borderRadius = '50%';
+      innerCircle.style.boxShadow = '0 0 0 2px #eee';
+      shutterBtn.appendChild(innerCircle);
+
+      posterContainer.appendChild(shutterBtn);
 
       let imgPreview = null,
         downloadBtn = null,
@@ -356,7 +378,7 @@ cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
 
       await startCameraStream();
 
-      takePhotoBtn.onclick = function () {
+      shutterBtn.onclick = function () {
         // Pause stream and show photo
         cameraVideo.pause();
 
@@ -423,7 +445,7 @@ ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
         // Hide video and take photo button and text overlay
         cameraVideo.style.display = 'none';
-        takePhotoBtn.style.display = 'none';
+        shutterBtn.style.display = 'none';
         textOverlay.style.display = 'none';
 
         cancelBtn.onclick = function () {
@@ -434,7 +456,7 @@ ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
           // Show video and take photo button and text overlay
           cameraVideo.style.display = 'block';
-          takePhotoBtn.style.display = 'block';
+          shutterBtn.style.display = 'block';
           textOverlay.style.display = 'block';
 
           cameraVideo.play();
