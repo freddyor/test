@@ -107,19 +107,20 @@ buildings.forEach((building) => {
 
   marker.getElement().addEventListener('click', () => {
     map.getCanvas().style.cursor = 'pointer';
-    // === CAROUSEL POPUP START ===
-    showCarouselModal(building);
-    // === CAROUSEL POPUP END ===
+    // === STACKED MODAL POPUP START ===
+    showStackedModal(building);
+    // === STACKED MODAL POPUP END ===
   });
 });
 
-// ======== CAROUSEL MODAL FUNCTION ========
-function showCarouselModal(building) {
-  document.querySelectorAll('.carousel-modal-overlay').forEach((el) => el.remove());
+// ======== STACKED MODAL FUNCTION ========
+// Video element up front, text board and camera behind with peek on right
+function showStackedModal(building) {
+  document.querySelectorAll('.stacked-modal-overlay').forEach((el) => el.remove());
 
-  // Create overlay
+  // Overlay
   const overlay = document.createElement('div');
-  overlay.className = 'carousel-modal-overlay';
+  overlay.className = 'stacked-modal-overlay';
   overlay.style.position = 'fixed';
   overlay.style.top = 0;
   overlay.style.left = 0;
@@ -150,377 +151,305 @@ function showCarouselModal(building) {
   }
   setBlur(true);
 
-  // Carousel container
-  const carouselContainer = document.createElement('div');
-  carouselContainer.className = 'carousel-container';
-  carouselContainer.style.display = 'flex';
-  carouselContainer.style.flexDirection = 'row';
-  carouselContainer.style.alignItems = 'center';
-  carouselContainer.style.justifyContent = 'center';
-  carouselContainer.style.width = '680px';
-  carouselContainer.style.maxWidth = '98vw';
-  carouselContainer.style.height = '480px';
-  carouselContainer.style.background = '#E9E8E0';
-  carouselContainer.style.borderRadius = '20px';
-  carouselContainer.style.boxShadow = '0 6px 24px rgba(0,0,0,0.22)';
-  carouselContainer.style.position = 'relative';
-  carouselContainer.style.overflow = 'visible';
+  // Modal container
+  const modalContainer = document.createElement('div');
+  modalContainer.className = 'stacked-modal-container';
+  modalContainer.style.position = 'relative';
+  modalContainer.style.width = '420px';
+  modalContainer.style.height = '480px';
+  modalContainer.style.maxWidth = '98vw';
+  modalContainer.style.background = 'none';
+  modalContainer.style.display = 'flex';
+  modalContainer.style.justifyContent = 'flex-start';
+  modalContainer.style.alignItems = 'center';
 
-  // Carousel items
-  const items = ['video', 'textboard', 'camera'];
-  let currentIndex = 0;
+  // Video Element (front)
+  const videoCard = document.createElement('div');
+  videoCard.className = 'stacked-modal-card';
+  videoCard.style.position = 'absolute';
+  videoCard.style.top = '0px';
+  videoCard.style.left = '0px';
+  videoCard.style.width = '380px';
+  videoCard.style.height = '464px';
+  videoCard.style.background = '#fff';
+  videoCard.style.borderRadius = '16px';
+  videoCard.style.boxShadow = '0 8px 32px rgba(0,0,0,0.22)';
+  videoCard.style.zIndex = '3';
+  videoCard.style.display = 'flex';
+  videoCard.style.flexDirection = 'column';
+  videoCard.style.alignItems = 'center';
+  videoCard.style.justifyContent = 'center';
+  videoCard.style.transition = 'box-shadow 0.23s';
 
-  // Helper to create each carousel item
-  // 1. Video Element
-  function createVideoItem() {
-    const container = document.createElement('div');
-    container.className = 'carousel-item';
-    container.style.width = '380px';
-    container.style.height = '464px';
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.alignItems = 'center';
-    container.style.justifyContent = 'center';
-    container.style.background = '#fff';
-    container.style.borderRadius = '16px';
-    container.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-    container.style.position = 'relative';
+  // Peeked Text Board (middle)
+  const textCard = document.createElement('div');
+  textCard.className = 'stacked-modal-card';
+  textCard.style.position = 'absolute';
+  textCard.style.top = '16px';
+  textCard.style.left = '44px';
+  textCard.style.width = '340px';
+  textCard.style.height = '424px';
+  textCard.style.background = '#fff';
+  textCard.style.borderRadius = '16px';
+  textCard.style.boxShadow = '0 4px 18px rgba(0,0,0,0.16)';
+  textCard.style.zIndex = '2';
+  textCard.style.opacity = '0.7';
+  textCard.style.display = 'flex';
+  textCard.style.flexDirection = 'column';
+  textCard.style.alignItems = 'center';
+  textCard.style.justifyContent = 'center';
+  textCard.style.pointerEvents = 'none';
 
-    const videoUrl = building.videoUrl;
-    const posterUrl = building.posterUrl;
-    if (videoUrl) {
-      const videoElement = document.createElement('video');
-      videoElement.src = videoUrl;
-      if (posterUrl) videoElement.poster = posterUrl;
-      videoElement.width = 300;
-      videoElement.height = 464;
-      videoElement.style.borderRadius = '14px';
-      videoElement.style.border = '1.5px solid #E9E8E0';
-      videoElement.controls = true;
-      videoElement.autoplay = true;
-      videoElement.setAttribute('playsinline', '');
-      videoElement.setAttribute('webkit-playsinline', '');
-      videoElement.playsInline = true;
-      container.appendChild(videoElement);
-    } else {
-      const msg = document.createElement('div');
-      msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">No video available.</p>';
-      container.appendChild(msg);
-    }
-    return container;
+  // Peeked Camera Card (back)
+  const cameraCard = document.createElement('div');
+  cameraCard.className = 'stacked-modal-card';
+  cameraCard.style.position = 'absolute';
+  cameraCard.style.top = '32px';
+  cameraCard.style.left = '84px';
+  cameraCard.style.width = '300px';
+  cameraCard.style.height = '384px';
+  cameraCard.style.background = '#fff';
+  cameraCard.style.borderRadius = '16px';
+  cameraCard.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+  cameraCard.style.zIndex = '1';
+  cameraCard.style.opacity = '0.5';
+  cameraCard.style.display = 'flex';
+  cameraCard.style.flexDirection = 'column';
+  cameraCard.style.alignItems = 'center';
+  cameraCard.style.justifyContent = 'center';
+  cameraCard.style.pointerEvents = 'none';
+
+  // Video content
+  const videoUrl = building.videoUrl;
+  const posterUrl = building.posterUrl;
+  if (videoUrl) {
+    const videoElement = document.createElement('video');
+    videoElement.src = videoUrl;
+    if (posterUrl) videoElement.poster = posterUrl;
+    videoElement.width = 300;
+    videoElement.height = 464;
+    videoElement.style.borderRadius = '14px';
+    videoElement.style.border = '1.5px solid #E9E8E0';
+    videoElement.controls = true;
+    videoElement.autoplay = true;
+    videoElement.setAttribute('playsinline', '');
+    videoElement.setAttribute('webkit-playsinline', '');
+    videoElement.playsInline = true;
+    videoCard.appendChild(videoElement);
+  } else {
+    const msg = document.createElement('div');
+    msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">No video available.</p>';
+    videoCard.appendChild(msg);
   }
 
-  // 2. Text Board
-  function createTextboardItem() {
-    const container = document.createElement('div');
-    container.className = 'carousel-item';
-    container.style.width = '380px';
-    container.style.height = '464px';
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.alignItems = 'center';
-    container.style.justifyContent = 'center';
-    container.style.background = '#fff';
-    container.style.borderRadius = '16px';
-    container.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-    container.style.position = 'relative';
-    container.style.fontFamily = "'Poppins', sans-serif";
-    container.style.padding = '32px 18px';
+  // Text Board content
+  const textboardContent = building.textboard || 'No board content yet.';
+  const title = document.createElement('div');
+  title.textContent = building.name || '';
+  title.style.fontSize = '1.1em';
+  title.style.fontWeight = 'bold';
+  title.style.marginBottom = '10px';
+  title.style.color = '#9b4dca';
 
-    // Use building.textboard (user must add this to buildings.js)
-    const textboardContent = building.textboard || 'No board content yet.';
-    const title = document.createElement('div');
-    title.textContent = building.name || '';
-    title.style.fontSize = '1.2em';
-    title.style.fontWeight = 'bold';
-    title.style.marginBottom = '12px';
-    title.style.color = '#9b4dca';
+  const board = document.createElement('div');
+  board.textContent = textboardContent;
+  board.style.fontSize = '1em';
+  board.style.fontWeight = 'normal';
+  board.style.color = '#333';
+  board.style.textAlign = 'center';
+  board.style.lineHeight = '1.32';
+  board.style.marginBottom = '8px';
 
-    const board = document.createElement('div');
-    board.textContent = textboardContent;
-    board.style.fontSize = '1.08em';
-    board.style.fontWeight = 'normal';
-    board.style.color = '#333';
-    board.style.textAlign = 'center';
-    board.style.lineHeight = '1.32';
-    board.style.marginBottom = '8px';
+  textCard.appendChild(title);
+  textCard.appendChild(board);
 
-    container.appendChild(title);
-    container.appendChild(board);
-    return container;
-  }
+  // Camera content
+  const videoWrapper = document.createElement('div');
+  videoWrapper.style.width = '100%';
+  videoWrapper.style.height = '100%';
+  videoWrapper.style.display = 'flex';
+  videoWrapper.style.alignItems = 'center';
+  videoWrapper.style.justifyContent = 'center';
 
-  // 3. Camera Stream
-  function createCameraItem() {
-    const container = document.createElement('div');
-    container.className = 'carousel-item';
-    container.style.width = '380px';
-    container.style.height = '464px';
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
-    container.style.alignItems = 'center';
-    container.style.justifyContent = 'center';
-    container.style.background = '#fff';
-    container.style.borderRadius = '16px';
-    container.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-    container.style.position = 'relative';
+  const cameraVideo = document.createElement('video');
+  cameraVideo.autoplay = true;
+  cameraVideo.playsInline = true;
+  cameraVideo.style.width = '98%';
+  cameraVideo.style.height = '98%';
+  cameraVideo.style.objectFit = 'contain';
+  cameraVideo.style.borderRadius = '14px';
+  cameraVideo.style.display = 'block';
+  cameraVideo.style.margin = '0 auto';
 
-    // Camera Stream
-    const videoWrapper = document.createElement('div');
-    videoWrapper.style.width = '100%';
-    videoWrapper.style.height = '100%';
-    videoWrapper.style.display = 'flex';
-    videoWrapper.style.alignItems = 'center';
-    videoWrapper.style.justifyContent = 'center';
+  videoWrapper.appendChild(cameraVideo);
+  cameraCard.appendChild(videoWrapper);
 
-    const cameraVideo = document.createElement('video');
-    cameraVideo.autoplay = true;
-    cameraVideo.playsInline = true;
-    cameraVideo.style.width = '100%';
-    cameraVideo.style.height = '100%';
-    cameraVideo.style.objectFit = 'contain';
-    cameraVideo.style.borderRadius = '14px';
-    cameraVideo.style.display = 'block';
-    cameraVideo.style.margin = '0 auto';
-
-    videoWrapper.appendChild(cameraVideo);
-    container.appendChild(videoWrapper);
-
-    // Camera and shutter controls
-    let cameraStream = null;
-    async function startCameraStream() {
-      try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: 'environment',
-            aspectRatio: 9 / 16,
-            width: { ideal: 720 },
-            height: { ideal: 1280 }
-          }
-        });
-        cameraVideo.srcObject = cameraStream;
-      } catch (err) {
-        try {
-          cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-          cameraVideo.srcObject = cameraStream;
-        } catch (err2) {
-          let msg = document.createElement('div');
-          msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">Could not access camera.</p>';
-          container.appendChild(msg);
+  // Start camera stream
+  let cameraStream = null;
+  async function startCameraStream() {
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: 'environment',
+          aspectRatio: 9 / 16,
+          width: { ideal: 720 },
+          height: { ideal: 1280 }
         }
+      });
+      cameraVideo.srcObject = cameraStream;
+    } catch (err) {
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        cameraVideo.srcObject = cameraStream;
+      } catch (err2) {
+        let msg = document.createElement('div');
+        msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">Could not access camera.</p>';
+        cameraCard.appendChild(msg);
       }
     }
-    startCameraStream();
-
-    // Shutter button
-    const shutterBtn = document.createElement('button');
-    shutterBtn.title = 'Take Photo';
-    shutterBtn.className = 'custom-shutter-btn';
-    shutterBtn.style.position = 'absolute';
-    shutterBtn.style.left = '50%';
-    shutterBtn.style.bottom = '20px';
-    shutterBtn.style.transform = 'translateX(-50%)';
-    shutterBtn.style.width = '64px';
-    shutterBtn.style.height = '64px';
-    shutterBtn.style.background = 'white';
-    shutterBtn.style.border = '4px solid #ccc';
-    shutterBtn.style.borderRadius = '50%';
-    shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-    shutterBtn.style.display = 'flex';
-    shutterBtn.style.alignItems = 'center';
-    shutterBtn.style.justifyContent = 'center';
-    shutterBtn.style.cursor = 'pointer';
-    shutterBtn.style.zIndex = 12;
-    shutterBtn.style.outline = 'none';
-    shutterBtn.style.transition = 'box-shadow 0.1s';
-
-    const innerCircle = document.createElement('div');
-    innerCircle.style.width = '44px';
-    innerCircle.style.height = '44px';
-    innerCircle.style.background = '#fff';
-    innerCircle.style.borderRadius = '50%';
-    innerCircle.style.boxShadow = '0 0 0 2px #eee';
-    shutterBtn.appendChild(innerCircle);
-    container.appendChild(shutterBtn);
-
-    let imgPreview = null, downloadBtn = null, cancelBtn = null;
-    shutterBtn.onclick = function () {
-      cameraVideo.pause();
-      if (imgPreview) imgPreview.remove();
-      if (downloadBtn) downloadBtn.remove();
-      if (cancelBtn) cancelBtn.remove();
-
-      // Crop and draw to canvas
-      const videoW = cameraVideo.videoWidth;
-      const videoH = cameraVideo.videoHeight;
-      let outW = videoW, outH = videoH;
-      let sx = 0, sy = 0;
-      if (videoW / videoH > 9 / 16) {
-        outH = videoH;
-        outW = videoH * 9 / 16;
-        sx = (videoW - outW) / 2;
-      } else {
-        outW = videoW;
-        outH = videoW * 16 / 9;
-        sy = (videoH - outH) / 2;
-      }
-      const canvas = document.createElement('canvas');
-      canvas.width = outW;
-      canvas.height = outH;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(cameraVideo, sx, sy, outW, outH, 0, 0, outW, outH);
-
-      imgPreview = document.createElement('img');
-      imgPreview.src = canvas.toDataURL('image/png');
-      imgPreview.style.display = 'block';
-      imgPreview.style.margin = '16px auto 8px auto';
-      imgPreview.style.maxWidth = '90vw';
-      imgPreview.style.maxHeight = '60vh';
-      imgPreview.style.borderRadius = '12px';
-      imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-      container.appendChild(imgPreview);
-
-      downloadBtn = document.createElement('a');
-      downloadBtn.textContent = 'Download Photo';
-      downloadBtn.className = 'custom-button';
-      downloadBtn.href = imgPreview.src;
-      downloadBtn.download = 'photo.png';
-      downloadBtn.style.display = 'block';
-      downloadBtn.style.margin = '10px auto 0 auto';
-      downloadBtn.style.background = '#9b4dca';
-      downloadBtn.style.color = '#fff';
-      container.appendChild(downloadBtn);
-
-      cancelBtn = document.createElement('button');
-      cancelBtn.textContent = 'Cancel';
-      cancelBtn.className = 'custom-button';
-      cancelBtn.style.display = 'block';
-      cancelBtn.style.margin = '10px auto 0 auto';
-      cancelBtn.style.background = '#e0e0e0';
-      cancelBtn.style.color = '#333';
-      container.appendChild(cancelBtn);
-
-      cancelBtn.onclick = function () {
-        if (imgPreview) imgPreview.remove();
-        if (downloadBtn) downloadBtn.remove();
-        if (cancelBtn) cancelBtn.remove();
-        cameraVideo.play();
-      };
-    }
-    return container;
   }
-
-  // Carousel item elements
-  const carouselItems = [
-    createVideoItem(),
-    createTextboardItem(),
-    createCameraItem()
-  ];
-  carouselItems.forEach((el, i) => {
-    el.style.transition = 'transform 0.33s cubic-bezier(.77,.2,.64,1.09), opacity 0.33s';
-    el.style.position = 'absolute';
-    el.style.top = '8px';
-    el.style.left = `${150 + 230 * i}px`; // initial positioning, will be updated
-    el.style.opacity = i === currentIndex ? '1' : '0.6';
-    carouselContainer.appendChild(el);
-  });
+  startCameraStream();
 
   // Navigation Buttons
-  const prevBtn = document.createElement('button');
-  prevBtn.textContent = '‹';
-  prevBtn.className = 'carousel-nav-btn';
-  prevBtn.style.position = 'absolute';
-  prevBtn.style.left = '0px';
-  prevBtn.style.top = '50%';
-  prevBtn.style.transform = 'translateY(-50%)';
-  prevBtn.style.background = '#fff';
-  prevBtn.style.border = 'none';
-  prevBtn.style.borderRadius = '50%';
-  prevBtn.style.width = '48px';
-  prevBtn.style.height = '48px';
-  prevBtn.style.fontSize = '2.3em';
-  prevBtn.style.color = '#9b4dca';
-  prevBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
-  prevBtn.style.cursor = 'pointer';
-  prevBtn.style.zIndex = 100;
+  const navRight = document.createElement('button');
+  navRight.textContent = '›';
+  navRight.className = 'stacked-nav-btn';
+  navRight.style.position = 'absolute';
+  navRight.style.right = '-38px';
+  navRight.style.top = '50%';
+  navRight.style.transform = 'translateY(-50%)';
+  navRight.style.background = '#fff';
+  navRight.style.border = 'none';
+  navRight.style.borderRadius = '50%';
+  navRight.style.width = '46px';
+  navRight.style.height = '46px';
+  navRight.style.fontSize = '2.1em';
+  navRight.style.color = '#9b4dca';
+  navRight.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+  navRight.style.cursor = 'pointer';
+  navRight.style.zIndex = 101;
 
-  const nextBtn = document.createElement('button');
-  nextBtn.textContent = '›';
-  nextBtn.className = 'carousel-nav-btn';
-  nextBtn.style.position = 'absolute';
-  nextBtn.style.right = '0px';
-  nextBtn.style.top = '50%';
-  nextBtn.style.transform = 'translateY(-50%)';
-  nextBtn.style.background = '#fff';
-  nextBtn.style.border = 'none';
-  nextBtn.style.borderRadius = '50%';
-  nextBtn.style.width = '48px';
-  nextBtn.style.height = '48px';
-  nextBtn.style.fontSize = '2.3em';
-  nextBtn.style.color = '#9b4dca';
-  nextBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
-  nextBtn.style.cursor = 'pointer';
-  nextBtn.style.zIndex = 100;
+  const navLeft = document.createElement('button');
+  navLeft.textContent = '‹';
+  navLeft.className = 'stacked-nav-btn';
+  navLeft.style.position = 'absolute';
+  navLeft.style.left = '-38px';
+  navLeft.style.top = '50%';
+  navLeft.style.transform = 'translateY(-50%)';
+  navLeft.style.background = '#fff';
+  navLeft.style.border = 'none';
+  navLeft.style.borderRadius = '50%';
+  navLeft.style.width = '46px';
+  navLeft.style.height = '46px';
+  navLeft.style.fontSize = '2.1em';
+  navLeft.style.color = '#9b4dca';
+  navLeft.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+  navLeft.style.cursor = 'pointer';
+  navLeft.style.zIndex = 101;
 
-  carouselContainer.appendChild(prevBtn);
-  carouselContainer.appendChild(nextBtn);
+  // Track which card is front (0=video, 1=text, 2=camera)
+  let currentFront = 0; // Start at video
+  function updateStackedCards() {
+    // Order: [video, text, camera]
+    if (currentFront === 0) {
+      videoCard.style.zIndex = '3';
+      videoCard.style.left = '0px';
+      videoCard.style.opacity = '1';
+      videoCard.style.pointerEvents = 'auto';
 
-  function updateCarousel() {
-    // Each item is left: 30px (offscreen left), 150px (center), 370px (offscreen right)
-    for (let i = 0; i < carouselItems.length; ++i) {
-      const offset = i - currentIndex;
-      carouselItems[i].style.left = `${150 + offset * 230}px`;
-      carouselItems[i].style.opacity = (offset === 0) ? '1' : '0.6';
-      carouselItems[i].style.zIndex = offset === 0 ? '2' : '1';
-      carouselItems[i].style.filter = offset === 0 ? '' : 'scale(0.95) blur(2px)';
-      carouselItems[i].style.pointerEvents = offset === 0 ? 'auto' : 'none';
+      textCard.style.zIndex = '2';
+      textCard.style.left = '44px';
+      textCard.style.opacity = '0.7';
+      textCard.style.pointerEvents = 'none';
+
+      cameraCard.style.zIndex = '1';
+      cameraCard.style.left = '84px';
+      cameraCard.style.opacity = '0.5';
+      cameraCard.style.pointerEvents = 'none';
+
+      navLeft.style.display = 'none';
+      navRight.style.display = '';
+    } else if (currentFront === 1) {
+      textCard.style.zIndex = '3';
+      textCard.style.left = '0px';
+      textCard.style.opacity = '1';
+      textCard.style.pointerEvents = 'auto';
+
+      videoCard.style.zIndex = '2';
+      videoCard.style.left = '44px';
+      videoCard.style.opacity = '0.7';
+      videoCard.style.pointerEvents = 'none';
+
+      cameraCard.style.zIndex = '1';
+      cameraCard.style.left = '84px';
+      cameraCard.style.opacity = '0.5';
+      cameraCard.style.pointerEvents = 'none';
+
+      navLeft.style.display = '';
+      navRight.style.display = '';
+    } else if (currentFront === 2) {
+      cameraCard.style.zIndex = '3';
+      cameraCard.style.left = '0px';
+      cameraCard.style.opacity = '1';
+      cameraCard.style.pointerEvents = 'auto';
+
+      textCard.style.zIndex = '2';
+      textCard.style.left = '44px';
+      textCard.style.opacity = '0.7';
+      textCard.style.pointerEvents = 'none';
+
+      videoCard.style.zIndex = '1';
+      videoCard.style.left = '84px';
+      videoCard.style.opacity = '0.5';
+      videoCard.style.pointerEvents = 'none';
+
+      navLeft.style.display = '';
+      navRight.style.display = 'none';
     }
-    prevBtn.style.display = currentIndex === 0 ? 'none' : 'block';
-    nextBtn.style.display = currentIndex === carouselItems.length - 1 ? 'none' : 'block';
   }
-  updateCarousel();
+  updateStackedCards();
 
-  prevBtn.onclick = () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      updateCarousel();
+  navRight.onclick = () => {
+    if (currentFront < 2) {
+      currentFront++;
+      updateStackedCards();
     }
   };
-  nextBtn.onclick = () => {
-    if (currentIndex < carouselItems.length - 1) {
-      currentIndex++;
-      updateCarousel();
+  navLeft.onclick = () => {
+    if (currentFront > 0) {
+      currentFront--;
+      updateStackedCards();
     }
   };
 
   // Touch/drag swipe support
   let dragStartX = null;
-  carouselContainer.addEventListener('touchstart', (e) => {
+  modalContainer.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) dragStartX = e.touches[0].clientX;
   });
-  carouselContainer.addEventListener('touchmove', (e) => {
+  modalContainer.addEventListener('touchmove', (e) => {
     if (dragStartX !== null && e.touches.length === 1) {
       const dx = e.touches[0].clientX - dragStartX;
-      if (Math.abs(dx) > 60) {
-        if (dx > 0 && currentIndex > 0) {
-          currentIndex--;
-          updateCarousel();
-        } else if (dx < 0 && currentIndex < carouselItems.length - 1) {
-          currentIndex++;
-          updateCarousel();
+      if (Math.abs(dx) > 50) {
+        if (dx < 0 && currentFront < 2) {
+          currentFront++;
+          updateStackedCards();
+        } else if (dx > 0 && currentFront > 0) {
+          currentFront--;
+          updateStackedCards();
         }
         dragStartX = null;
       }
     }
   });
-  carouselContainer.addEventListener('touchend', () => {
+  modalContainer.addEventListener('touchend', () => {
     dragStartX = null;
   });
 
   // Close button
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '❌';
-  closeBtn.className = 'carousel-close-btn';
+  closeBtn.className = 'stacked-close-btn';
   closeBtn.style.position = 'absolute';
   closeBtn.style.top = '-16px';
   closeBtn.style.right = '-16px';
@@ -541,25 +470,29 @@ function showCarouselModal(building) {
     overlay.remove();
     setBlur(false);
     // Stop camera stream
-    if (carouselItems[2] && carouselItems[2].querySelector('video') && carouselItems[2].querySelector('video').srcObject) {
-      let tracks = carouselItems[2].querySelector('video').srcObject.getTracks();
-      tracks.forEach(t => t.stop());
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(t => t.stop());
     }
   };
 
-  overlay.appendChild(carouselContainer);
+  // Add cards to modal container
+  modalContainer.appendChild(cameraCard);
+  modalContainer.appendChild(textCard);
+  modalContainer.appendChild(videoCard);
+  modalContainer.appendChild(navLeft);
+  modalContainer.appendChild(navRight);
+
+  overlay.appendChild(modalContainer);
   overlay.appendChild(closeBtn);
   document.body.appendChild(overlay);
 
-  // Click outside to close
   overlay.addEventListener('mousedown', function (e) {
     if (e.target === overlay) {
       closeBtn.onclick();
     }
   });
 }
-
-// ======== END CAROUSEL MODAL FUNCTION ========
+// ======== END STACKED MODAL FUNCTION ========
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
@@ -583,7 +516,6 @@ function scaleMarkersBasedOnZoom() {
 }
 scaleMarkersBasedOnZoom();
 
-// Map event listeners immediately
 map.on('click', (e) => {
   const currentLat = e.lngLat.lat;
   const currentLng = e.lngLat.lng;
@@ -689,37 +621,45 @@ stylePopup.innerHTML = `
     margin-right: 5px;
     margin-bottom: 10px;
   }
-  .carousel-modal-overlay {
+  .stacked-modal-overlay {
     animation: fadeIn 0.21s cubic-bezier(.77,.2,.64,1.09);
   }
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
-  .carousel-container {
-    /* see JS for sizing */
+  .stacked-modal-container {
+    position: relative;
+    width: 420px;
+    height: 480px;
+    max-width: 98vw;
+    background: none;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
   }
-  .carousel-item {
+  .stacked-modal-card {
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     border-radius: 16px;
     background: #fff;
-    transition: transform 0.33s cubic-bezier(.77,.2,.64,1.09), opacity 0.33s;
-    will-change: transform, opacity;
+    transition: left 0.23s, box-shadow 0.23s, opacity 0.23s;
+    will-change: left, opacity, box-shadow;
+    position: absolute;
   }
-  .carousel-nav-btn {
-    font-size: 2.3em;
+  .stacked-nav-btn {
+    font-size: 2.1em;
     background: #fff;
     color: #9b4dca;
     border: none;
     border-radius: 50%;
-    width: 48px;
-    height: 48px;
+    width: 46px;
+    height: 46px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.18);
     cursor: pointer;
-    z-index: 100;
+    z-index: 101;
     position: absolute;
   }
-  .carousel-close-btn {
+  .stacked-close-btn {
     background: #000;
     color: #fff;
     border: 1.5px solid #E9E8E0;
