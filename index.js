@@ -136,14 +136,18 @@ overlay.style.webkitBackdropFilter = 'blur(10px)'; // For Safari
 
     // Camera icon button
     const cameraIcon = document.createElement('button');
-    cameraIcon.innerHTML = '📷';
+    cameraIcon.innerHTML = `
+  <svg xmlns="http://www.w3.org/2000/svg" fill="#333" width="32" height="32" viewBox="0 0 24 24">
+    <path d="M20 7h-1.586l-1.707-1.707A.996.996 0 0 0 16 5h-2V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v1H4c-1.104 0-2 .896-2 2v11c0 1.104.896 2 2 2h16c1.104 0 2-.896 2-2V9c0-1.104-.896-2-2-2ZM8 4h4v1H8V4Zm12 15c0 .552-.448 1-1 1H4c-.552 0-1-.448-1-1V9c0-.552.448-1 1-1h16c.552 0 1 .448 1 1v10ZM12 8c-2.761 0-5 2.239-5 5s2.239 5 5 5 5-2.239 5-5-2.239-5-5-5Zm0 8c-1.654 0-3-1.346-3-3s1.346-3 3-3 3 1.346 3 3-1.346 3-3 3Z"/>
+  </svg>
+`;
     cameraIcon.title = 'Open Camera';
     cameraIcon.style.position = 'absolute';
     cameraIcon.style.left = '50%';
-    cameraIcon.style.top = '-44px';
-    cameraIcon.style.transform = 'translateX(-50%)';
+    cameraIcon.style.top = '0';
+    cameraIcon.style.transform = 'translate(-50%, -50%)';
     cameraIcon.style.background = 'white';
-    cameraIcon.style.border = '2px solid #9b4dca';
+    cameraIcon.style.border = 'none';
     cameraIcon.style.borderRadius = '50%';
     cameraIcon.style.fontSize = '2.1rem';
     cameraIcon.style.width = '48px';
