@@ -438,7 +438,7 @@ function showPeekCarouselModal(building) {
       closeBtn.onclick();
     }
   });
-}
+
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
