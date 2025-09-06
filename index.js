@@ -1,19 +1,13 @@
 import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
-// Track when the loading screen is first shown
 const loadingScreenStart = Date.now();
-
-// --- First Video Popup additions START ---
-let firstVideoLoadedThisSession = false;
-function showFirstVideoWaitMessage(videoElement) {}
 
 const yorkBounds = [
   [-1.170, 53.930],
   [-1.010, 54.010]
 ];
 
-// Set Mapbox access token
 mapboxgl.accessToken =
   'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
@@ -29,7 +23,6 @@ var map = new mapboxgl.Map({
   maxZoom: 19,
 });
 
-// Geolocate control and user location marker
 const geolocate = new mapboxgl.GeolocateControl({
   positionOptions: {
     enableHighAccuracy: true,
@@ -69,7 +62,6 @@ geolocate.on('geolocate', (e) => {
   userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
 });
 
-// --- Marker and helper functions ---
 locations.forEach((location) => {
   const { element: markerElement } = createCustomMarker(
     location.image,
@@ -107,20 +99,19 @@ buildings.forEach((building) => {
 
   marker.getElement().addEventListener('click', () => {
     map.getCanvas().style.cursor = 'pointer';
-    // === STACKED MODAL POPUP START ===
-    showStackedModal(building);
-    // === STACKED MODAL POPUP END ===
+    showPeekCarouselModal(building);
   });
 });
 
-// ======== STACKED MODAL FUNCTION ========
-// Video element up front, text board and camera behind with peek on right
-function showStackedModal(building) {
-  document.querySelectorAll('.stacked-modal-overlay').forEach((el) => el.remove());
+// ----------------------
+// MODAL CAROUSEL FUNCTION
+// ----------------------
+function showPeekCarouselModal(building) {
+  document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
 
   // Overlay
   const overlay = document.createElement('div');
-  overlay.className = 'stacked-modal-overlay';
+  overlay.className = 'video-modal-overlay';
   overlay.style.position = 'fixed';
   overlay.style.top = 0;
   overlay.style.left = 0;
@@ -133,7 +124,7 @@ function showStackedModal(building) {
   overlay.style.zIndex = 100000;
   overlay.style.overflow = 'hidden';
 
-  // BLUR PATCH
+  // Blur patch
   function setBlur(enabled) {
     const targets = [
       document.getElementById('map'),
@@ -151,178 +142,179 @@ function showStackedModal(building) {
   }
   setBlur(true);
 
-  // Modal container
+  // Modal container (same as classic)
   const modalContainer = document.createElement('div');
-  modalContainer.className = 'stacked-modal-container';
+  modalContainer.className = 'peek-carousel-modal-container';
   modalContainer.style.position = 'relative';
-  modalContainer.style.width = '420px';
-  modalContainer.style.height = '480px';
+  modalContainer.style.width = '380px';
   modalContainer.style.maxWidth = '98vw';
-  modalContainer.style.background = 'none';
-  modalContainer.style.display = 'flex';
-  modalContainer.style.justifyContent = 'flex-start';
-  modalContainer.style.alignItems = 'center';
+  modalContainer.style.height = '464px';
+  modalContainer.style.background = '#fff';
+  modalContainer.style.borderRadius = '16px';
+  modalContainer.style.boxShadow = '0 8px 32px rgba(0,0,0,0.22)';
+  modalContainer.style.display = 'block';
+  modalContainer.style.overflow = 'visible';
 
-  // Video Element (front)
-  const videoCard = document.createElement('div');
-  videoCard.className = 'stacked-modal-card';
-  videoCard.style.position = 'absolute';
-  videoCard.style.top = '0px';
-  videoCard.style.left = '0px';
-  videoCard.style.width = '380px';
-  videoCard.style.height = '464px';
-  videoCard.style.background = '#fff';
-  videoCard.style.borderRadius = '16px';
-  videoCard.style.boxShadow = '0 8px 32px rgba(0,0,0,0.22)';
-  videoCard.style.zIndex = '3';
-  videoCard.style.display = 'flex';
-  videoCard.style.flexDirection = 'column';
-  videoCard.style.alignItems = 'center';
-  videoCard.style.justifyContent = 'center';
-  videoCard.style.transition = 'box-shadow 0.23s';
+  // Boards
+  const boards = ['video', 'textboard', 'camera'];
+  let currentIndex = 0;
 
-  // Peeked Text Board (middle)
-  const textCard = document.createElement('div');
-  textCard.className = 'stacked-modal-card';
-  textCard.style.position = 'absolute';
-  textCard.style.top = '16px';
-  textCard.style.left = '44px';
-  textCard.style.width = '340px';
-  textCard.style.height = '424px';
-  textCard.style.background = '#fff';
-  textCard.style.borderRadius = '16px';
-  textCard.style.boxShadow = '0 4px 18px rgba(0,0,0,0.16)';
-  textCard.style.zIndex = '2';
-  textCard.style.opacity = '0.7';
-  textCard.style.display = 'flex';
-  textCard.style.flexDirection = 'column';
-  textCard.style.alignItems = 'center';
-  textCard.style.justifyContent = 'center';
-  textCard.style.pointerEvents = 'none';
+  // Board content wrappers
+  const boardWrappers = boards.map((type, i) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'peek-carousel-board';
+    wrapper.style.position = 'absolute';
+    wrapper.style.top = '0';
+    wrapper.style.width = '380px';
+    wrapper.style.height = '464px';
+    wrapper.style.transition = 'left 0.3s cubic-bezier(.77,.2,.64,1.09), opacity 0.3s';
+    wrapper.style.borderRadius = '16px';
+    wrapper.style.overflow = 'hidden';
+    wrapper.style.background = '#fff';
+    wrapper.style.boxShadow = i === currentIndex ? '0 8px 32px rgba(0,0,0,0.22)' : '0 2px 8px rgba(0,0,0,0.10)';
+    wrapper.style.zIndex = i === currentIndex ? '3' : '2';
 
-  // Peeked Camera Card (back)
-  const cameraCard = document.createElement('div');
-  cameraCard.className = 'stacked-modal-card';
-  cameraCard.style.position = 'absolute';
-  cameraCard.style.top = '32px';
-  cameraCard.style.left = '84px';
-  cameraCard.style.width = '300px';
-  cameraCard.style.height = '384px';
-  cameraCard.style.background = '#fff';
-  cameraCard.style.borderRadius = '16px';
-  cameraCard.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
-  cameraCard.style.zIndex = '1';
-  cameraCard.style.opacity = '0.5';
-  cameraCard.style.display = 'flex';
-  cameraCard.style.flexDirection = 'column';
-  cameraCard.style.alignItems = 'center';
-  cameraCard.style.justifyContent = 'center';
-  cameraCard.style.pointerEvents = 'none';
+    // Contents
+    if (type === 'video') {
+      const videoUrl = building.videoUrl;
+      const posterUrl = building.posterUrl;
+      if (videoUrl) {
+        const videoElement = document.createElement('video');
+        videoElement.src = videoUrl;
+        if (posterUrl) videoElement.poster = posterUrl;
+        videoElement.width = 380;
+        videoElement.height = 464;
+        videoElement.style.width = '100%';
+        videoElement.style.height = '100%';
+        videoElement.style.borderRadius = '16px';
+        videoElement.style.border = 'none';
+        videoElement.controls = true;
+        videoElement.autoplay = true;
+        videoElement.setAttribute('playsinline', '');
+        videoElement.setAttribute('webkit-playsinline', '');
+        videoElement.playsInline = true;
+        wrapper.appendChild(videoElement);
+      } else {
+        const msg = document.createElement('div');
+        msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">No video available.</p>';
+        wrapper.appendChild(msg);
+      }
+    } else if (type === 'textboard') {
+      const textboardContent = building.textboard || 'No board content yet.';
+      const title = document.createElement('div');
+      title.textContent = building.name || '';
+      title.style.fontSize = '1.1em';
+      title.style.fontWeight = 'bold';
+      title.style.marginTop = '32px';
+      title.style.marginBottom = '10px';
+      title.style.color = '#9b4dca';
+      title.style.textAlign = 'center';
 
-  // Video content
-  const videoUrl = building.videoUrl;
-  const posterUrl = building.posterUrl;
-  if (videoUrl) {
-    const videoElement = document.createElement('video');
-    videoElement.src = videoUrl;
-    if (posterUrl) videoElement.poster = posterUrl;
-    videoElement.width = 300;
-    videoElement.height = 464;
-    videoElement.style.borderRadius = '14px';
-    videoElement.style.border = '1.5px solid #E9E8E0';
-    videoElement.controls = true;
-    videoElement.autoplay = true;
-    videoElement.setAttribute('playsinline', '');
-    videoElement.setAttribute('webkit-playsinline', '');
-    videoElement.playsInline = true;
-    videoCard.appendChild(videoElement);
-  } else {
-    const msg = document.createElement('div');
-    msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">No video available.</p>';
-    videoCard.appendChild(msg);
-  }
+      const board = document.createElement('div');
+      board.textContent = textboardContent;
+      board.style.fontSize = '1em';
+      board.style.fontWeight = 'normal';
+      board.style.color = '#333';
+      board.style.textAlign = 'center';
+      board.style.lineHeight = '1.32';
+      board.style.marginBottom = '8px';
+      board.style.marginLeft = '14px';
+      board.style.marginRight = '14px';
 
-  // Text Board content
-  const textboardContent = building.textboard || 'No board content yet.';
-  const title = document.createElement('div');
-  title.textContent = building.name || '';
-  title.style.fontSize = '1.1em';
-  title.style.fontWeight = 'bold';
-  title.style.marginBottom = '10px';
-  title.style.color = '#9b4dca';
+      wrapper.appendChild(title);
+      wrapper.appendChild(board);
+    } else if (type === 'camera') {
+      const videoWrapper = document.createElement('div');
+      videoWrapper.style.width = '96%';
+      videoWrapper.style.height = '96%';
+      videoWrapper.style.display = 'flex';
+      videoWrapper.style.alignItems = 'center';
+      videoWrapper.style.justifyContent = 'center';
+      videoWrapper.style.margin = '2%';
 
-  const board = document.createElement('div');
-  board.textContent = textboardContent;
-  board.style.fontSize = '1em';
-  board.style.fontWeight = 'normal';
-  board.style.color = '#333';
-  board.style.textAlign = 'center';
-  board.style.lineHeight = '1.32';
-  board.style.marginBottom = '8px';
+      const cameraVideo = document.createElement('video');
+      cameraVideo.autoplay = true;
+      cameraVideo.playsInline = true;
+      cameraVideo.style.width = '100%';
+      cameraVideo.style.height = '100%';
+      cameraVideo.style.objectFit = 'contain';
+      cameraVideo.style.borderRadius = '14px';
+      cameraVideo.style.display = 'block';
+      cameraVideo.style.margin = '0 auto';
 
-  textCard.appendChild(title);
-  textCard.appendChild(board);
+      videoWrapper.appendChild(cameraVideo);
+      wrapper.appendChild(videoWrapper);
 
-  // Camera content
-  const videoWrapper = document.createElement('div');
-  videoWrapper.style.width = '100%';
-  videoWrapper.style.height = '100%';
-  videoWrapper.style.display = 'flex';
-  videoWrapper.style.alignItems = 'center';
-  videoWrapper.style.justifyContent = 'center';
-
-  const cameraVideo = document.createElement('video');
-  cameraVideo.autoplay = true;
-  cameraVideo.playsInline = true;
-  cameraVideo.style.width = '98%';
-  cameraVideo.style.height = '98%';
-  cameraVideo.style.objectFit = 'contain';
-  cameraVideo.style.borderRadius = '14px';
-  cameraVideo.style.display = 'block';
-  cameraVideo.style.margin = '0 auto';
-
-  videoWrapper.appendChild(cameraVideo);
-  cameraCard.appendChild(videoWrapper);
-
-  // Start camera stream
-  let cameraStream = null;
-  async function startCameraStream() {
-    try {
-      cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'environment',
-          aspectRatio: 9 / 16,
-          width: { ideal: 720 },
-          height: { ideal: 1280 }
+      // Start camera stream only when board active
+      wrapper._activate = function () {
+        if (!cameraVideo.srcObject) {
+          navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: 'environment',
+              aspectRatio: 9 / 16,
+              width: { ideal: 720 },
+              height: { ideal: 1280 }
+            }
+          }).then(stream => {
+            cameraVideo.srcObject = stream;
+            wrapper._stream = stream;
+          }).catch(() => {
+            let msg = document.createElement('div');
+            msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">Could not access camera.</p>';
+            wrapper.appendChild(msg);
+          });
         }
-      });
-      cameraVideo.srcObject = cameraStream;
-    } catch (err) {
-      try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-        cameraVideo.srcObject = cameraStream;
-      } catch (err2) {
-        let msg = document.createElement('div');
-        msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">Could not access camera.</p>';
-        cameraCard.appendChild(msg);
+      };
+      wrapper._deactivate = function () {
+        if (wrapper._stream) {
+          wrapper._stream.getTracks().forEach(t => t.stop());
+          cameraVideo.srcObject = null;
+          wrapper._stream = null;
+        }
+      };
+    }
+    return wrapper;
+  });
+
+  // Position boards for initial state
+  function updateBoardPositions() {
+    for (let i = 0; i < boardWrappers.length; ++i) {
+      if (i === currentIndex) {
+        boardWrappers[i].style.left = '0px';
+        boardWrappers[i].style.opacity = '1';
+        boardWrappers[i].style.zIndex = '3';
+        boardWrappers[i].style.boxShadow = '0 8px 32px rgba(0,0,0,0.22)';
+        if (boardWrappers[i]._activate) boardWrappers[i]._activate();
+      } else if (i < currentIndex) {
+        boardWrappers[i].style.left = '-60px';
+        boardWrappers[i].style.opacity = '0.7';
+        boardWrappers[i].style.zIndex = '2';
+        boardWrappers[i].style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+        if (boardWrappers[i]._deactivate) boardWrappers[i]._deactivate();
+      } else {
+        boardWrappers[i].style.left = '60px';
+        boardWrappers[i].style.opacity = '0.7';
+        boardWrappers[i].style.zIndex = '2';
+        boardWrappers[i].style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+        if (boardWrappers[i]._deactivate) boardWrappers[i]._deactivate();
       }
     }
   }
-  startCameraStream();
+  updateBoardPositions();
 
-  // Navigation Buttons
+  // Arrows
   const navRight = document.createElement('button');
   navRight.textContent = '›';
-  navRight.className = 'stacked-nav-btn';
+  navRight.className = 'peek-carousel-nav-btn';
   navRight.style.position = 'absolute';
-  navRight.style.right = '-38px';
+  navRight.style.right = '-24px';
   navRight.style.top = '50%';
   navRight.style.transform = 'translateY(-50%)';
   navRight.style.background = '#fff';
   navRight.style.border = 'none';
   navRight.style.borderRadius = '50%';
-  navRight.style.width = '46px';
-  navRight.style.height = '46px';
+  navRight.style.width = '40px';
+  navRight.style.height = '40px';
   navRight.style.fontSize = '2.1em';
   navRight.style.color = '#9b4dca';
   navRight.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
@@ -331,98 +323,44 @@ function showStackedModal(building) {
 
   const navLeft = document.createElement('button');
   navLeft.textContent = '‹';
-  navLeft.className = 'stacked-nav-btn';
+  navLeft.className = 'peek-carousel-nav-btn';
   navLeft.style.position = 'absolute';
-  navLeft.style.left = '-38px';
+  navLeft.style.left = '-24px';
   navLeft.style.top = '50%';
   navLeft.style.transform = 'translateY(-50%)';
   navLeft.style.background = '#fff';
   navLeft.style.border = 'none';
   navLeft.style.borderRadius = '50%';
-  navLeft.style.width = '46px';
-  navLeft.style.height = '46px';
+  navLeft.style.width = '40px';
+  navLeft.style.height = '40px';
   navLeft.style.fontSize = '2.1em';
   navLeft.style.color = '#9b4dca';
   navLeft.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
   navLeft.style.cursor = 'pointer';
   navLeft.style.zIndex = 101;
 
-  // Track which card is front (0=video, 1=text, 2=camera)
-  let currentFront = 0; // Start at video
-  function updateStackedCards() {
-    // Order: [video, text, camera]
-    if (currentFront === 0) {
-      videoCard.style.zIndex = '3';
-      videoCard.style.left = '0px';
-      videoCard.style.opacity = '1';
-      videoCard.style.pointerEvents = 'auto';
-
-      textCard.style.zIndex = '2';
-      textCard.style.left = '44px';
-      textCard.style.opacity = '0.7';
-      textCard.style.pointerEvents = 'none';
-
-      cameraCard.style.zIndex = '1';
-      cameraCard.style.left = '84px';
-      cameraCard.style.opacity = '0.5';
-      cameraCard.style.pointerEvents = 'none';
-
-      navLeft.style.display = 'none';
-      navRight.style.display = '';
-    } else if (currentFront === 1) {
-      textCard.style.zIndex = '3';
-      textCard.style.left = '0px';
-      textCard.style.opacity = '1';
-      textCard.style.pointerEvents = 'auto';
-
-      videoCard.style.zIndex = '2';
-      videoCard.style.left = '44px';
-      videoCard.style.opacity = '0.7';
-      videoCard.style.pointerEvents = 'none';
-
-      cameraCard.style.zIndex = '1';
-      cameraCard.style.left = '84px';
-      cameraCard.style.opacity = '0.5';
-      cameraCard.style.pointerEvents = 'none';
-
-      navLeft.style.display = '';
-      navRight.style.display = '';
-    } else if (currentFront === 2) {
-      cameraCard.style.zIndex = '3';
-      cameraCard.style.left = '0px';
-      cameraCard.style.opacity = '1';
-      cameraCard.style.pointerEvents = 'auto';
-
-      textCard.style.zIndex = '2';
-      textCard.style.left = '44px';
-      textCard.style.opacity = '0.7';
-      textCard.style.pointerEvents = 'none';
-
-      videoCard.style.zIndex = '1';
-      videoCard.style.left = '84px';
-      videoCard.style.opacity = '0.5';
-      videoCard.style.pointerEvents = 'none';
-
-      navLeft.style.display = '';
-      navRight.style.display = 'none';
-    }
+  function updateNavButtons() {
+    navLeft.style.display = currentIndex === 0 ? 'none' : '';
+    navRight.style.display = currentIndex === boards.length - 1 ? 'none' : '';
   }
-  updateStackedCards();
+  updateNavButtons();
 
   navRight.onclick = () => {
-    if (currentFront < 2) {
-      currentFront++;
-      updateStackedCards();
+    if (currentIndex < boards.length - 1) {
+      currentIndex++;
+      updateBoardPositions();
+      updateNavButtons();
     }
   };
   navLeft.onclick = () => {
-    if (currentFront > 0) {
-      currentFront--;
-      updateStackedCards();
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateBoardPositions();
+      updateNavButtons();
     }
   };
 
-  // Touch/drag swipe support
+  // Swipe support
   let dragStartX = null;
   modalContainer.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) dragStartX = e.touches[0].clientX;
@@ -431,12 +369,14 @@ function showStackedModal(building) {
     if (dragStartX !== null && e.touches.length === 1) {
       const dx = e.touches[0].clientX - dragStartX;
       if (Math.abs(dx) > 50) {
-        if (dx < 0 && currentFront < 2) {
-          currentFront++;
-          updateStackedCards();
-        } else if (dx > 0 && currentFront > 0) {
-          currentFront--;
-          updateStackedCards();
+        if (dx < 0 && currentIndex < boards.length - 1) {
+          currentIndex++;
+          updateBoardPositions();
+          updateNavButtons();
+        } else if (dx > 0 && currentIndex > 0) {
+          currentIndex--;
+          updateBoardPositions();
+          updateNavButtons();
         }
         dragStartX = null;
       }
@@ -449,7 +389,7 @@ function showStackedModal(building) {
   // Close button
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '❌';
-  closeBtn.className = 'stacked-close-btn';
+  closeBtn.className = 'peek-carousel-close-btn';
   closeBtn.style.position = 'absolute';
   closeBtn.style.top = '-16px';
   closeBtn.style.right = '-16px';
@@ -470,15 +410,11 @@ function showStackedModal(building) {
     overlay.remove();
     setBlur(false);
     // Stop camera stream
-    if (cameraStream) {
-      cameraStream.getTracks().forEach(t => t.stop());
-    }
+    boardWrappers.forEach(w => w._deactivate && w._deactivate());
   };
 
-  // Add cards to modal container
-  modalContainer.appendChild(cameraCard);
-  modalContainer.appendChild(textCard);
-  modalContainer.appendChild(videoCard);
+  // Add boards to container
+  boardWrappers.forEach(w => modalContainer.appendChild(w));
   modalContainer.appendChild(navLeft);
   modalContainer.appendChild(navRight);
 
@@ -492,7 +428,6 @@ function showStackedModal(building) {
     }
   });
 }
-// ======== END STACKED MODAL FUNCTION ========
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
@@ -621,45 +556,50 @@ stylePopup.innerHTML = `
     margin-right: 5px;
     margin-bottom: 10px;
   }
-  .stacked-modal-overlay {
+  .video-modal-overlay {
     animation: fadeIn 0.21s cubic-bezier(.77,.2,.64,1.09);
   }
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
-  .stacked-modal-container {
+  .peek-carousel-modal-container {
     position: relative;
-    width: 420px;
-    height: 480px;
+    width: 380px;
     max-width: 98vw;
-    background: none;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
+    height: 464px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+    display: block;
+    overflow: visible;
   }
-  .stacked-modal-card {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  .peek-carousel-board {
+    position: absolute;
+    top: 0;
+    width: 380px;
+    height: 464px;
     border-radius: 16px;
     background: #fff;
-    transition: left 0.23s, box-shadow 0.23s, opacity 0.23s;
-    will-change: left, opacity, box-shadow;
-    position: absolute;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    transition: left 0.3s cubic-bezier(.77,.2,.64,1.09), opacity 0.3s;
+    will-change: left, opacity;
+    overflow: hidden;
   }
-  .stacked-nav-btn {
+  .peek-carousel-nav-btn {
     font-size: 2.1em;
     background: #fff;
     color: #9b4dca;
     border: none;
     border-radius: 50%;
-    width: 46px;
-    height: 46px;
+    width: 40px;
+    height: 40px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.18);
     cursor: pointer;
     z-index: 101;
     position: absolute;
   }
-  .stacked-close-btn {
+  .peek-carousel-close-btn {
     background: #000;
     color: #fff;
     border: 1.5px solid #E9E8E0;
@@ -804,6 +744,8 @@ stylePopup.innerHTML = `
  `;
 
 document.head.appendChild(stylePopup);
+
+// ... rest unchanged (support buttons, marker list, etc.) ...
 
 function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
