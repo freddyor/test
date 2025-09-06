@@ -294,7 +294,6 @@ buildings.forEach((building) => {
       cameraIcon.remove();
 
       posterContainer.innerHTML = '';
-      // posterContainer.appendChild(closeBtn); // REMOVED
 
       //--- ADD TEXT OVERLAY DIV ---
       const textOverlay = document.createElement('div');
@@ -358,6 +357,34 @@ buildings.forEach((building) => {
 
       posterContainer.appendChild(shutterBtn);
 
+      // Close button for camera/photo mode
+      const cameraCloseBtn = document.createElement('button');
+      cameraCloseBtn.textContent = '❌';
+      cameraCloseBtn.style.position = 'absolute';
+      cameraCloseBtn.style.top = '-8px';
+      cameraCloseBtn.style.right = '-8px';
+      cameraCloseBtn.style.width = '25px';
+      cameraCloseBtn.style.height = '25px';
+      cameraCloseBtn.style.background = '#000';
+      cameraCloseBtn.style.color = '#fff';
+      cameraCloseBtn.style.border = '1.5px solid #E9E8E0';
+      cameraCloseBtn.style.borderRadius = '50%';
+      cameraCloseBtn.style.cursor = 'pointer';
+      cameraCloseBtn.style.fontSize = '0.7rem';
+      cameraCloseBtn.style.zIndex = '100001';
+      cameraCloseBtn.style.display = 'flex';
+      cameraCloseBtn.style.alignItems = 'center';
+      cameraCloseBtn.style.justifyContent = 'center';
+
+      // Remove camera stream and overlay
+      cameraCloseBtn.onclick = () => {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((track) => track.stop());
+        }
+        overlay.remove();
+      };
+      posterContainer.appendChild(cameraCloseBtn);
+
       let imgPreview = null,
         downloadBtn = null,
         cancelBtn = null;
@@ -394,14 +421,20 @@ buildings.forEach((building) => {
         if (downloadBtn) downloadBtn.remove();
         if (cancelBtn) cancelBtn.remove();
 
+        // Hide shutter and close buttons before capture
+        shutterBtn.style.display = 'none';
+        cameraCloseBtn.style.display = 'none';
+
         // Use html2canvas to capture the posterContainer including the camera stream and text overlay
-        // Make sure html2canvas is loaded in your HTML: 
-        // <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
         html2canvas(posterContainer, {
           backgroundColor: null,
           useCORS: true,
           scale: window.devicePixelRatio
         }).then(canvas => {
+          // Restore shutter and close buttons after capture
+          shutterBtn.style.display = 'block';
+          cameraCloseBtn.style.display = 'flex';
+
           imgPreview = document.createElement('img');
           imgPreview.src = canvas.toDataURL('image/png');
           imgPreview.style.display = 'block';
@@ -432,10 +465,11 @@ buildings.forEach((building) => {
           cancelBtn.style.color = '#333';
           posterContainer.appendChild(cancelBtn);
 
-          // Hide video and take photo button and text overlay
+          // Hide video, take photo button, text overlay, and close button
           cameraVideo.style.display = 'none';
           shutterBtn.style.display = 'none';
           textOverlay.style.display = 'none';
+          cameraCloseBtn.style.display = 'none';
 
           cancelBtn.onclick = function () {
             if (imgPreview) imgPreview.remove();
@@ -445,6 +479,7 @@ buildings.forEach((building) => {
             cameraVideo.style.display = 'block';
             shutterBtn.style.display = 'block';
             textOverlay.style.display = 'block';
+            cameraCloseBtn.style.display = 'flex';
 
             cameraVideo.play();
           };
@@ -506,6 +541,8 @@ buildings.forEach((building) => {
   });
 });
 
+// ... rest of your file (unchanged) ...
+// (all logic for map, bottom sheet, styling, popup content, support button, marker search, etc.)
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
   const markerSize = zoomLevel - 13;
