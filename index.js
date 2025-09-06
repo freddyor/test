@@ -125,7 +125,7 @@ buildings.forEach((building) => {
     overlay.style.height = '100vh';
     overlay.style.background = 'rgba(0,0,0,0.2)';
     overlay.style.backdropFilter = 'blur(10px)';
-overlay.style.webkitBackdropFilter = 'blur(10px)'; // For Safari
+    overlay.style.webkitBackdropFilter = 'blur(10px)'; // For Safari
     overlay.style.display = 'flex';
     overlay.style.alignItems = 'center';
     overlay.style.justifyContent = 'center';
@@ -134,25 +134,25 @@ overlay.style.webkitBackdropFilter = 'blur(10px)'; // For Safari
     posterContainer.style.position = 'relative';
     posterContainer.style.marginTop = '-60px';
 
-    // Camera icon button
+    // Camera icon button (Instagram-style simple camera)
     const cameraIcon = document.createElement('button');
-cameraIcon.innerHTML = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="3" y="7" width="18" height="14" rx="4" ry="4"></rect>
-    <circle cx="12" cy="14" r="3.5"></circle>
-    <circle cx="17.5" cy="10.5" r="1"></circle>
-    <rect x="8" y="3" width="8" height="4" rx="2" ry="2"></rect>
-  </svg>
-`;
+    cameraIcon.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="7" width="18" height="14" rx="4" ry="4"></rect>
+        <circle cx="12" cy="14" r="3.5"></circle>
+        <circle cx="17.5" cy="10.5" r="1"></circle>
+        <rect x="8" y="3" width="8" height="4" rx="2" ry="2"></rect>
+      </svg>
+    `;
     cameraIcon.title = 'Open Camera';
     cameraIcon.style.position = 'absolute';
     cameraIcon.style.left = '50%';
+    // Centre of button inline with top edge of modal (half above, half below)
     cameraIcon.style.top = '0';
     cameraIcon.style.transform = 'translate(-50%, -50%)';
     cameraIcon.style.background = 'white';
     cameraIcon.style.border = 'none';
     cameraIcon.style.borderRadius = '50%';
-    cameraIcon.style.fontSize = '2.1rem';
     cameraIcon.style.width = '48px';
     cameraIcon.style.height = '48px';
     cameraIcon.style.display = 'flex';
@@ -277,8 +277,6 @@ cameraIcon.innerHTML = `
       if (e.target === overlay) removeOverlayAndPauseVideo();
     });
 
-// ... code before ...
-
     // CAMERA ICON FUNCTIONALITY
     cameraIcon.onclick = async function () {
       if (
@@ -297,7 +295,6 @@ cameraIcon.innerHTML = `
       cameraIcon.remove();
 
       posterContainer.innerHTML = '';
-      // posterContainer.appendChild(cameraIcon); // This line can be removed since cameraIcon is removed
       posterContainer.appendChild(closeBtn);
 
       //--- ADD TEXT OVERLAY DIV ---
@@ -315,6 +312,8 @@ cameraIcon.innerHTML = `
       textOverlay.style.fontWeight = 'bold';
       textOverlay.style.pointerEvents = 'none';
       textOverlay.style.zIndex = 20;
+      textOverlay.style.fontFamily = "'Poppins', sans-serif";
+
       posterContainer.appendChild(textOverlay);
 
       const cameraVideo = document.createElement('video');
@@ -330,7 +329,7 @@ cameraIcon.innerHTML = `
 
       // ... rest of camera stream/photo code ...
 
- const shutterBtn = document.createElement('button');
+      const shutterBtn = document.createElement('button');
       shutterBtn.title = 'Take Photo';
       shutterBtn.className = 'custom-shutter-btn';
       shutterBtn.style.position = 'absolute';
@@ -368,22 +367,19 @@ cameraIcon.innerHTML = `
 
       async function startCameraStream() {
         try {
-cameraStream = await navigator.mediaDevices.getUserMedia({
-  video: { 
-    facingMode: { ideal: 'environment' },
-    width: { ideal: 1920 },
-    height: { ideal: 1080 }
-  }
-});
-
-
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 }
+            }
+          });
 
           cameraVideo.srcObject = cameraStream;
         } catch (err) {
           // fallback to default camera
           try {
-cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
 
             cameraVideo.srcObject = cameraStream;
           } catch (err2) {
@@ -394,40 +390,40 @@ cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
 
       await startCameraStream();
 
-      shutterBtn.onclick = function () {
-        // Pause stream and show photo
+      shutterBtn.onclick = async function () {
         cameraVideo.pause();
 
-        // Remove previous photo/download/cancel if any
         if (imgPreview) imgPreview.remove();
         if (downloadBtn) downloadBtn.remove();
         if (cancelBtn) cancelBtn.remove();
 
-const canvas = document.createElement('canvas');
-canvas.width = cameraVideo.videoWidth;   // exact actual pixels
-canvas.height = cameraVideo.videoHeight;
+        // Make sure font is loaded for canvas
+        await document.fonts.load("bold 18px 'Poppins'");
 
-const ctx = canvas.getContext('2d');
-// Draw full native frame
-ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+        const canvas = document.createElement('canvas');
+        canvas.width = cameraVideo.videoWidth;
+        canvas.height = cameraVideo.videoHeight;
 
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
-
-
-        // --- DRAW TEXT OVERLAY ON IMAGE ---
-        if (markerText) {
-          ctx.font = "bold 36px 'Poppins', sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "top";
-          // Draw semi-transparent black rectangle for text background
-          const textPadding = 14;
-          const textHeight = 48;
-          ctx.fillStyle = "rgba(0,0,0,0.4)";
-          ctx.fillRect(0, 0, canvas.width, textHeight + textPadding);
-          // Draw text in white, centered
-          ctx.fillStyle = "#fff";
-          ctx.fillText(markerText, canvas.width / 2, textPadding);
-        }
+        // Match overlay style
+        const textPaddingY = 16;
+        const overlayHeight = 38; // 18px font + padding
+        ctx.font = "bold 18px 'Poppins', sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        // Draw semi-transparent black rectangle for text background
+        ctx.fillStyle = "rgba(0,0,0,0.4)";
+        ctx.fillRect(
+          canvas.width/2 - canvas.width*0.4, // roughly match overlay's width
+          textPaddingY,
+          canvas.width*0.8,
+          overlayHeight
+        );
+        // Draw text in white, centered
+        ctx.fillStyle = "#fff";
+        ctx.fillText(markerText, canvas.width / 2, textPaddingY + 8);
 
         imgPreview = document.createElement('img');
         imgPreview.src = canvas.toDataURL('image/png');
@@ -465,12 +461,10 @@ ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
         textOverlay.style.display = 'none';
 
         cancelBtn.onclick = function () {
-          // Remove photo and buttons
           if (imgPreview) imgPreview.remove();
           if (downloadBtn) downloadBtn.remove();
           if (cancelBtn) cancelBtn.remove();
 
-          // Show video and take photo button and text overlay
           cameraVideo.style.display = 'block';
           shutterBtn.style.display = 'block';
           textOverlay.style.display = 'block';
