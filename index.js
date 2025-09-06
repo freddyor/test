@@ -333,8 +333,8 @@ cameraVideo.style.objectFit = 'cover'; // crop/fill container
 cameraStream = await navigator.mediaDevices.getUserMedia({
   video: { 
     facingMode: 'environment',
-    width: { ideal: 720 },
-    height: { ideal: 1280 }
+    width: { ideal: 1080 },
+    height: { ideal: 1920 }
   },
 });
 
@@ -344,8 +344,8 @@ cameraStream = await navigator.mediaDevices.getUserMedia({
           try {
 cameraStream = await navigator.mediaDevices.getUserMedia({
   video: { 
-        width: { ideal: 720 },
-    height: { ideal: 1280 }
+        width: { ideal: 1080 },
+    height: { ideal: 1920 }
   },
 });
 
