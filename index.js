@@ -459,6 +459,7 @@ cameraIcon.onclick = async function () {
     };
   };
 };
+    }; 
 
 // ...existing code below...
 function scaleMarkersBasedOnZoom() {
