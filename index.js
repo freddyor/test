@@ -268,6 +268,8 @@ buildings.forEach((building) => {
       if (e.target === overlay) removeOverlayAndPauseVideo();
     });
 
+// ... code before ...
+
     // CAMERA ICON FUNCTIONALITY
     cameraIcon.onclick = async function () {
       if (
@@ -282,8 +284,11 @@ buildings.forEach((building) => {
         return;
       }
 
+      // Remove the camera icon button from the posterContainer
+      cameraIcon.remove();
+
       posterContainer.innerHTML = '';
-      posterContainer.appendChild(cameraIcon);
+      // posterContainer.appendChild(cameraIcon); // This line can be removed since cameraIcon is removed
       posterContainer.appendChild(closeBtn);
 
       //--- ADD TEXT OVERLAY DIV ---
@@ -307,12 +312,14 @@ buildings.forEach((building) => {
       cameraVideo.autoplay = true;
       cameraVideo.playsInline = true;
       cameraVideo.style.width = '90vw';
-cameraVideo.style.height = '160vw';    // 16/9 * width → portrait
-cameraVideo.style.objectFit = 'contain'; // crop/fill container
+      cameraVideo.style.height = '160vw'; // 16/9 * width → portrait
+      cameraVideo.style.objectFit = 'contain'; // crop/fill container
       cameraVideo.style.borderRadius = '14px';
       cameraVideo.style.display = 'block';
       cameraVideo.style.margin = '0 auto';
       posterContainer.appendChild(cameraVideo);
+
+      // ... rest of camera stream/photo code ...
 
  const shutterBtn = document.createElement('button');
       shutterBtn.title = 'Take Photo';
