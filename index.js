@@ -99,13 +99,10 @@ buildings.forEach((building) => {
   });
 });
 
-// ----------------------
-// MODAL CAROUSEL FUNCTION
-// ----------------------
 function showPeekCarouselModal(building) {
   document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
 
-  // Overlay
+  // Overlay - full screen, dark translucent + blurred background
   const overlay = document.createElement('div');
   overlay.className = 'video-modal-overlay';
   overlay.style.position = 'fixed';
@@ -120,17 +117,17 @@ function showPeekCarouselModal(building) {
   overlay.style.zIndex = 100000;
   overlay.style.overflow = 'hidden';
 
-  // Blur patch
+  // Blur patch for map and other page elements behind
   function setBlur(enabled) {
     const targets = [
       document.getElementById('map'),
       document.getElementById('bottom-sheet'),
-      document.getElementById('button-group')
+      document.getElementById('button-group'),
     ];
-    targets.forEach(el => {
+    targets.forEach((el) => {
       if (el) el.style.filter = enabled ? 'blur(12px)' : '';
     });
-    Array.from(document.body.children).forEach(child => {
+    Array.from(document.body.children).forEach((child) => {
       if (child !== overlay && child.style) {
         child.style.filter = enabled ? 'blur(12px)' : '';
       }
@@ -138,49 +135,28 @@ function showPeekCarouselModal(building) {
   }
   setBlur(true);
 
-  // Modal container (full screen overlay with centered box)
-  const modalContainer = document.createElement('div');
-  modalContainer.className = 'peek-carousel-modal-container';
-
-  // Size modal container as fixed 9:16 ratio box, centered
-  const modalWidth = 360; // px, adjust as preferred
-  const modalHeight = Math.round(modalWidth * 16 / 9); // calculate height for 9:16 ratio
-  modalContainer.style.position = 'absolute';
-  modalContainer.style.width = modalWidth + 'px';
-  modalContainer.style.height = modalHeight + 'px';
-  modalContainer.style.background = 'transparent';
-modalContainer.style.boxShadow = 'none';
-modalContainer.style.borderRadius = '0';
-  // center modal
-  modalContainer.style.top = '50%';
-  modalContainer.style.left = '50%';
-  modalContainer.style.transform = 'translate(-50%, -50%)';
-  modalContainer.style.display = 'block';
-  modalContainer.style.overflow = 'visible';
-  modalContainer.style.zIndex = '100001';
-
-  // Boards
   const boards = ['video', 'textboard', 'camera'];
   let currentIndex = 0;
 
-  // Board content wrappers
+  // Create the three boards as direct children of overlay
   const boardWrappers = boards.map((type, i) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'peek-carousel-board';
     wrapper.style.position = 'absolute';
-    wrapper.style.top = '0';
-    wrapper.style.width = '70%';
-    wrapper.style.height = '70%';
+    wrapper.style.top = '50%';
     wrapper.style.left = '50%';
-    wrapper.style.transform = 'translateX(-50%)';
-    wrapper.style.transition = 'left 0.3s cubic-bezier(.77,.2,.64,1.09), opacity 0.3s';
+    wrapper.style.width = '70vw'; // or fixed pixel width you prefer
+    wrapper.style.height = `calc(70vw * 16 / 9)`; // keep 9:16 ratio
+    wrapper.style.transform = 'translate(-50%, -50%)';
     wrapper.style.borderRadius = '16px';
     wrapper.style.overflow = 'hidden';
     wrapper.style.background = '#fff';
-    wrapper.style.boxShadow = i === currentIndex ? '0 8px 32px rgba(0,0,0,0.22)' : '0 2px 8px rgba(0,0,0,0.10)';
+    wrapper.style.boxShadow =
+      i === currentIndex
+        ? '0 8px 32px rgba(0,0,0,0.22)'
+        : '0 2px 8px rgba(0,0,0,0.10)';
     wrapper.style.zIndex = i === currentIndex ? '3' : '2';
 
-    // Contents
     if (type === 'video') {
       const videoUrl = building.videoUrl;
       const posterUrl = building.posterUrl;
@@ -259,21 +235,24 @@ modalContainer.style.borderRadius = '0';
               facingMode: 'environment',
               aspectRatio: 9 / 16,
               width: { ideal: 720 },
-              height: { ideal: 1280 }
-            }
-          }).then(stream => {
-            cameraVideo.srcObject = stream;
-            wrapper._stream = stream;
-          }).catch(() => {
-            let msg = document.createElement('div');
-            msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">Could not access camera.</p>';
-            wrapper.appendChild(msg);
-          });
+              height: { ideal: 1280 },
+            },
+          })
+            .then((stream) => {
+              cameraVideo.srcObject = stream;
+              wrapper._stream = stream;
+            })
+            .catch(() => {
+              let msg = document.createElement('div');
+              msg.innerHTML =
+                '<p style="color:#9b4dca;font-weight:bold;">Could not access camera.</p>';
+              wrapper.appendChild(msg);
+            });
         }
       };
       wrapper._deactivate = function () {
         if (wrapper._stream) {
-          wrapper._stream.getTracks().forEach(t => t.stop());
+          wrapper._stream.getTracks().forEach((t) => t.stop());
           cameraVideo.srcObject = null;
           wrapper._stream = null;
         }
@@ -283,41 +262,20 @@ modalContainer.style.borderRadius = '0';
     return wrapper;
   });
 
-  // Position boards for initial state
+  // Position boards: show only currentIndex board
   function updateBoardPositions() {
-    for (let i = 0; i < boardWrappers.length; ++i) {
-      if (i === currentIndex) {
-        boardWrappers[i].style.left = '50%';
-        boardWrappers[i].style.opacity = '1';
-        boardWrappers[i].style.zIndex = '3';
-        boardWrappers[i].style.boxShadow = '0 8px 32px rgba(0,0,0,0.22)';
-        boardWrappers[i].style.transform = 'translateX(-50%)';
-        if (boardWrappers[i]._activate) boardWrappers[i]._activate();
-      } else if (i < currentIndex) {
-        boardWrappers[i].style.left = 'calc(50% - 60px)';
-        boardWrappers[i].style.opacity = '0.7';
-        boardWrappers[i].style.zIndex = '2';
-        boardWrappers[i].style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
-        boardWrappers[i].style.transform = 'translateX(-50%)';
-        if (boardWrappers[i]._deactivate) boardWrappers[i]._deactivate();
-      } else {
-        boardWrappers[i].style.left = 'calc(50% + 60px)';
-        boardWrappers[i].style.opacity = '0.7';
-        boardWrappers[i].style.zIndex = '2';
-        boardWrappers[i].style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
-        boardWrappers[i].style.transform = 'translateX(-50%)';
-        if (boardWrappers[i]._deactivate) boardWrappers[i]._deactivate();
-      }
-    }
+    boardWrappers.forEach((board, i) => {
+      board.style.display = i === currentIndex ? 'block' : 'none';
+    });
   }
   updateBoardPositions();
 
-  // Arrows
+  // Navigation Arrows
   const navRight = document.createElement('button');
   navRight.textContent = '›';
   navRight.className = 'peek-carousel-nav-btn';
-  navRight.style.position = 'absolute';
-  navRight.style.right = '-24px';
+  navRight.style.position = 'fixed';
+  navRight.style.right = '10vw';
   navRight.style.top = '50%';
   navRight.style.transform = 'translateY(-50%)';
   navRight.style.background = '#fff';
@@ -329,13 +287,13 @@ modalContainer.style.borderRadius = '0';
   navRight.style.color = '#9b4dca';
   navRight.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
   navRight.style.cursor = 'pointer';
-  navRight.style.zIndex = 101;
+  navRight.style.zIndex = 100002;
 
   const navLeft = document.createElement('button');
   navLeft.textContent = '‹';
   navLeft.className = 'peek-carousel-nav-btn';
-  navLeft.style.position = 'absolute';
-  navLeft.style.left = '-24px';
+  navLeft.style.position = 'fixed';
+  navLeft.style.left = '10vw';
   navLeft.style.top = '50%';
   navLeft.style.transform = 'translateY(-50%)';
   navLeft.style.background = '#fff';
@@ -347,11 +305,11 @@ modalContainer.style.borderRadius = '0';
   navLeft.style.color = '#9b4dca';
   navLeft.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
   navLeft.style.cursor = 'pointer';
-  navLeft.style.zIndex = 101;
+  navLeft.style.zIndex = 100002;
 
   function updateNavButtons() {
-    navLeft.style.display = currentIndex === 0 ? 'none' : '';
-    navRight.style.display = currentIndex === boards.length - 1 ? 'none' : '';
+    navLeft.style.display = currentIndex === 0 ? 'none' : 'block';
+    navRight.style.display = currentIndex === boards.length - 1 ? 'none' : 'block';
   }
   updateNavButtons();
 
@@ -370,12 +328,55 @@ modalContainer.style.borderRadius = '0';
     }
   };
 
-  // Swipe support
+  // Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '❌';
+  closeBtn.className = 'peek-carousel-close-btn';
+  closeBtn.style.position = 'fixed';
+  closeBtn.style.top = '10vh';
+  closeBtn.style.right = '10vw';
+  closeBtn.style.width = '32px';
+  closeBtn.style.height = '32px';
+  closeBtn.style.background = '#000';
+  closeBtn.style.color = '#fff';
+  closeBtn.style.border = '1.5px solid #E9E8E0';
+  closeBtn.style.borderRadius = '50%';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.fontSize = '1rem';
+  closeBtn.style.zIndex = 100003;
+  closeBtn.style.display = 'flex';
+  closeBtn.style.alignItems = 'center';
+  closeBtn.style.justifyContent = 'center';
+
+  closeBtn.onclick = () => {
+    overlay.remove();
+    setBlur(false);
+    boardWrappers.forEach((w) => w._deactivate && w._deactivate());
+  };
+
+  // Append controls to overlay
+  overlay.appendChild(navLeft);
+  overlay.appendChild(navRight);
+  overlay.appendChild(closeBtn);
+
+  // Append boards to overlay
+  boardWrappers.forEach((w) => overlay.appendChild(w));
+
+  document.body.appendChild(overlay);
+
+  // Overlay click to close if clicked outside boards
+  overlay.addEventListener('mousedown', (e) => {
+    if (e.target === overlay) {
+      closeBtn.onclick();
+    }
+  });
+
+  // Swipe support for lists and nav
   let dragStartX = null;
-  modalContainer.addEventListener('touchstart', (e) => {
+  overlay.addEventListener('touchstart', (e) => {
     if (e.touches.length === 1) dragStartX = e.touches[0].clientX;
   });
-  modalContainer.addEventListener('touchmove', (e) => {
+  overlay.addEventListener('touchmove', (e) => {
     if (dragStartX !== null && e.touches.length === 1) {
       const dx = e.touches[0].clientX - dragStartX;
       if (Math.abs(dx) > 50) {
@@ -392,9 +393,11 @@ modalContainer.style.borderRadius = '0';
       }
     }
   });
-  modalContainer.addEventListener('touchend', () => {
+  overlay.addEventListener('touchend', () => {
     dragStartX = null;
   });
+}
+
 
   // Close button
   const closeBtn = document.createElement('button');
