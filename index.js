@@ -148,6 +148,9 @@ function showPeekCarouselModal(building) {
   modalContainer.style.position = 'absolute';
   modalContainer.style.width = modalWidth + 'px';
   modalContainer.style.height = modalHeight + 'px';
+  modalContainer.style.background = 'transparent';
+modalContainer.style.boxShadow = 'none';
+modalContainer.style.borderRadius = '0';
   // center modal
   modalContainer.style.top = '50%';
   modalContainer.style.left = '50%';
