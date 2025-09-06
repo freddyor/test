@@ -303,61 +303,25 @@ buildings.forEach((building) => {
       textOverlay.style.zIndex = 20;
       posterContainer.appendChild(textOverlay);
 
-      // --- FORCE 9:16 VIDEO RATIO ---
-      const videoWrapper = document.createElement('div');
-      videoWrapper.style.width = '88vw'; // for portrait, narrower width
-      videoWrapper.style.maxHeight = '80vh';
-      videoWrapper.style.aspectRatio = '9/16'; // modern browsers, portrait
-      videoWrapper.style.overflow = 'hidden';
-      videoWrapper.style.display = 'flex';
-      videoWrapper.style.alignItems = 'center';
-      videoWrapper.style.justifyContent = 'center';
-
       const cameraVideo = document.createElement('video');
       cameraVideo.autoplay = true;
       cameraVideo.playsInline = true;
-      cameraVideo.style.width = '100%';
-      cameraVideo.style.height = '100%';
-      cameraVideo.style.objectFit = 'contain';
+      cameraVideo.style.maxWidth = '88vw';
+      cameraVideo.style.maxHeight = '80vh';
       cameraVideo.style.borderRadius = '14px';
       cameraVideo.style.display = 'block';
       cameraVideo.style.margin = '0 auto';
+      posterContainer.appendChild(cameraVideo);
 
-      videoWrapper.appendChild(cameraVideo);
-      posterContainer.appendChild(videoWrapper);
-
-      // iPhone-style shutter button
-      const shutterBtn = document.createElement('button');
-      shutterBtn.title = 'Take Photo';
-      shutterBtn.className = 'custom-shutter-btn';
-      shutterBtn.style.position = 'absolute';
-      shutterBtn.style.left = '50%';
-      shutterBtn.style.bottom = '20px';
-      shutterBtn.style.transform = 'translateX(-50%)';
-      shutterBtn.style.width = '64px';
-      shutterBtn.style.height = '64px';
-      shutterBtn.style.background = 'white';
-      shutterBtn.style.border = '4px solid #ccc';
-      shutterBtn.style.borderRadius = '50%';
-      shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-      shutterBtn.style.display = 'flex';
-      shutterBtn.style.alignItems = 'center';
-      shutterBtn.style.justifyContent = 'center';
-      shutterBtn.style.cursor = 'pointer';
-      shutterBtn.style.zIndex = 12;
-      shutterBtn.style.outline = 'none';
-      shutterBtn.style.transition = 'box-shadow 0.1s';
-
-      // inner circle for shutter effect
-      const innerCircle = document.createElement('div');
-      innerCircle.style.width = '44px';
-      innerCircle.style.height = '44px';
-      innerCircle.style.background = '#fff';
-      innerCircle.style.borderRadius = '50%';
-      innerCircle.style.boxShadow = '0 0 0 2px #eee';
-      shutterBtn.appendChild(innerCircle);
-
-      posterContainer.appendChild(shutterBtn);
+      const takePhotoBtn = document.createElement('button');
+      takePhotoBtn.textContent = '📸 Take Photo';
+      takePhotoBtn.className = 'custom-button';
+      takePhotoBtn.style.position = 'absolute';
+      takePhotoBtn.style.left = '50%';
+      takePhotoBtn.style.top = '10px';
+      takePhotoBtn.style.transform = 'translateX(-50%)';
+      takePhotoBtn.style.zIndex = 10;
+      posterContainer.appendChild(takePhotoBtn);
 
       let imgPreview = null,
         downloadBtn = null,
@@ -366,12 +330,7 @@ buildings.forEach((building) => {
       async function startCameraStream() {
         try {
           cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              facingMode: 'environment',
-              aspectRatio: 9 / 16, // <-- Request 9:16 aspect ratio
-              width: { ideal: 720 },
-              height: { ideal: 1280 }
-            }
+            video: { facingMode: 'environment' },
           });
           cameraVideo.srcObject = cameraStream;
         } catch (err) {
@@ -389,47 +348,34 @@ buildings.forEach((building) => {
 
       await startCameraStream();
 
-      shutterBtn.onclick = function () {
+      takePhotoBtn.onclick = function () {
+        // Pause stream and show photo
         cameraVideo.pause();
 
+        // Remove previous photo/download/cancel if any
         if (imgPreview) imgPreview.remove();
         if (downloadBtn) downloadBtn.remove();
         if (cancelBtn) cancelBtn.remove();
 
-        // --- CROP TO 9:16 and DRAW TEXT ---
-        const videoW = cameraVideo.videoWidth;
-        const videoH = cameraVideo.videoHeight;
-        let outW = videoW, outH = videoH;
-        let sx = 0, sy = 0;
-
-        // Portrait crop calculation for 9:16
-        if (videoW / videoH > 9 / 16) {
-          // Video is wider than 9:16, crop width
-          outH = videoH;
-          outW = videoH * 9 / 16;
-          sx = (videoW - outW) / 2;
-        } else {
-          // Video is taller than 9:16, crop height
-          outW = videoW;
-          outH = videoW * 16 / 9;
-          sy = (videoH - outH) / 2;
-        }
-
         const canvas = document.createElement('canvas');
-        canvas.width = outW;
-        canvas.height = outH;
+        canvas.width = cameraVideo.videoWidth;
+        canvas.height = cameraVideo.videoHeight;
         const ctx = canvas.getContext('2d');
-        ctx.drawImage(cameraVideo, sx, sy, outW, outH, 0, 0, outW, outH);
+        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
-        // --- Draw text overlay ---
+        // --- DRAW TEXT OVERLAY ON IMAGE ---
         if (markerText) {
           ctx.font = "bold 36px 'Poppins', sans-serif";
           ctx.textAlign = "center";
           ctx.textBaseline = "top";
+          // Draw semi-transparent black rectangle for text background
+          const textPadding = 14;
+          const textHeight = 48;
           ctx.fillStyle = "rgba(0,0,0,0.4)";
-          ctx.fillRect(0, 0, canvas.width, 60);
+          ctx.fillRect(0, 0, canvas.width, textHeight + textPadding);
+          // Draw text in white, centered
           ctx.fillStyle = "#fff";
-          ctx.fillText(markerText, canvas.width / 2, 14);
+          ctx.fillText(markerText, canvas.width / 2, textPadding);
         }
 
         imgPreview = document.createElement('img');
@@ -462,25 +408,26 @@ buildings.forEach((building) => {
         cancelBtn.style.color = '#333';
         posterContainer.appendChild(cancelBtn);
 
-        // Hide video and shutter button and text overlay
-        videoWrapper.style.display = 'none';
-        shutterBtn.style.display = 'none';
+        // Hide video and take photo button and text overlay
+        cameraVideo.style.display = 'none';
+        takePhotoBtn.style.display = 'none';
         textOverlay.style.display = 'none';
 
         cancelBtn.onclick = function () {
+          // Remove photo and buttons
           if (imgPreview) imgPreview.remove();
           if (downloadBtn) downloadBtn.remove();
           if (cancelBtn) cancelBtn.remove();
 
-          videoWrapper.style.display = 'flex';
-          shutterBtn.style.display = 'flex';
+          // Show video and take photo button and text overlay
+          cameraVideo.style.display = 'block';
+          takePhotoBtn.style.display = 'block';
           textOverlay.style.display = 'block';
 
           cameraVideo.play();
         };
       };
     };
-
 
     playBtn.onclick = () => {
       playBtn.style.display = 'none';
@@ -794,21 +741,6 @@ stylePopup.innerHTML = `
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  /* iPhone-style camera shutter */
-  .custom-shutter-btn {
-    background: white;
-    border: 4px solid #ccc;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    width: 64px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    outline: none;
-    transition: box-shadow 0.1s;
-  }
  `;
 
 document.head.appendChild(stylePopup);
@@ -978,7 +910,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   dropdownContent.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center;">
-    <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jp" 
+    <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jpeg" 
          alt="Profile Photo" 
          style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;"/>
   </div>
@@ -986,10 +918,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <b>If this site was free for you to use, it means someone else paid forward.</b>
         </div>
            <div class="project-info" style="margin-bottom: 15px;">
-            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no[...]
+            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no other city has before.
         </div>
         <div class="project-info" style="margin-bottom: 15px;">
-             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic imag[...]
+             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic images from York Archives to use) ❤️
         </div>
         <button 
             class="support-button" 
