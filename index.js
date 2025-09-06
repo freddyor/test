@@ -147,7 +147,6 @@ buildings.forEach((building) => {
     cameraIcon.title = 'Open Camera';
     cameraIcon.style.position = 'absolute';
     cameraIcon.style.left = '50%';
-    // Centre of button inline with top edge of modal (half above, half below)
     cameraIcon.style.top = '0';
     cameraIcon.style.transform = 'translate(-50%, -50%)';
     cameraIcon.style.background = 'white';
@@ -295,7 +294,7 @@ buildings.forEach((building) => {
       cameraIcon.remove();
 
       posterContainer.innerHTML = '';
-      posterContainer.appendChild(closeBtn);
+      // posterContainer.appendChild(closeBtn); // REMOVED
 
       //--- ADD TEXT OVERLAY DIV ---
       const textOverlay = document.createElement('div');
@@ -326,8 +325,6 @@ buildings.forEach((building) => {
       cameraVideo.style.display = 'block';
       cameraVideo.style.margin = '0 auto';
       posterContainer.appendChild(cameraVideo);
-
-      // ... rest of camera stream/photo code ...
 
       const shutterBtn = document.createElement('button');
       shutterBtn.title = 'Take Photo';
@@ -508,6 +505,7 @@ buildings.forEach((building) => {
     };
   });
 });
+
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
   const markerSize = zoomLevel - 13;
