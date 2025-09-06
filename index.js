@@ -1,12 +1,19 @@
 import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
+// Track when the loading screen is first shown
 const loadingScreenStart = Date.now();
+
+// --- First Video Popup additions START ---
+let firstVideoLoadedThisSession = false;
+function showFirstVideoWaitMessage(videoElement) {}
+
 const yorkBounds = [
   [-1.170, 53.930],
   [-1.010, 54.010]
 ];
 
+// Set Mapbox access token
 mapboxgl.accessToken =
   'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
@@ -22,6 +29,7 @@ var map = new mapboxgl.Map({
   maxZoom: 19,
 });
 
+// Geolocate control and user location marker
 const geolocate = new mapboxgl.GeolocateControl({
   positionOptions: {
     enableHighAccuracy: true,
@@ -57,11 +65,11 @@ const userLocationMarker = new mapboxgl.Marker({ element: userLocationEl })
 geolocate.on('error', (e) => {
   if (e.code === 1) console.log('Location access denied by user');
 });
-
 geolocate.on('geolocate', (e) => {
   userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
 });
 
+// --- Marker and helper functions ---
 locations.forEach((location) => {
   const { element: markerElement } = createCustomMarker(
     location.image,
@@ -74,6 +82,7 @@ locations.forEach((location) => {
   })
     .setLngLat(location.coords)
     .addTo(map);
+
   marker.getElement().addEventListener('click', () => {
     map.getCanvas().style.cursor = 'pointer';
     const contentHTML = createPopupContent(location);
@@ -89,130 +98,220 @@ buildings.forEach((building) => {
     false
   );
   markerElement.className += ' building-marker';
+
   if (building.colour === 'yes') markerElement.style.zIndex = '3';
+
   const marker = new mapboxgl.Marker({ element: markerElement })
     .setLngLat(building.coords)
     .addTo(map);
+
   marker.getElement().addEventListener('click', () => {
     map.getCanvas().style.cursor = 'pointer';
-    showPeekCarouselModal(building);
-  });
-});
+    const videoUrl = building.videoUrl;
+    const posterUrl = building.posterUrl;
+    const markerText = building.text || ""; // <- text for overlay and photo
 
-function showPeekCarouselModal(building) {
-  document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
+    if (!videoUrl) {
+      console.error('Video URL not available for this building.');
+      return;
+    }
+    document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
+    const overlay = document.createElement('div');
+    overlay.className = 'video-modal-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = 0;
+    overlay.style.left = 0;
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(0,0,0,0.75)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = 100000;
+    const posterContainer = document.createElement('div');
+    posterContainer.style.position = 'relative';
+    posterContainer.style.marginTop = '-60px';
 
-  // Overlay - full screen, dark translucent + blurred background
-  const overlay = document.createElement('div');
-  overlay.className = 'video-modal-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.top = 0;
-  overlay.style.left = 0;
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.background = 'rgba(0,0,0,0.75)';
-  overlay.style.display = 'flex';
-  overlay.style.alignItems = 'center';
-  overlay.style.justifyContent = 'center';
-  overlay.style.zIndex = 100000;
-  overlay.style.overflow = 'hidden';
+    // Camera icon button
+    const cameraIcon = document.createElement('button');
+    cameraIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" fill="black" viewBox="0 0 24 24"><path d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm6-3h-1.171l-1.414-1.414a2 2 0 0 0-1.415-.586H9a2 2 0 0 0-1.414.586L6.172 6H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm0 11H6v-9h12v9z"/></svg>';
+    cameraIcon.title = 'Open Camera';
+cameraIcon.style.position = 'absolute';
+cameraIcon.style.top = '0';
+cameraIcon.style.left = '50%';
+cameraIcon.style.transform = 'translate(-50%, -50%)';  // horizontal center; vertical middle aligned to top edge
+    cameraIcon.style.background = 'white';
+    cameraIcon.style.border = 'none';
+    cameraIcon.style.borderRadius = '50%';
+    cameraIcon.style.fontSize = '2.1rem';
+    cameraIcon.style.width = '48px';
+    cameraIcon.style.height = '48px';
+    cameraIcon.style.display = 'flex';
+    cameraIcon.style.alignItems = 'center';
+    cameraIcon.style.justifyContent = 'center';
+    cameraIcon.style.cursor = 'pointer';
+    cameraIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+    cameraIcon.style.zIndex = 10;
 
-  // Blur patch for map and other page elements behind
-  function setBlur(enabled) {
-    const targets = [
-      document.getElementById('map'),
-      document.getElementById('bottom-sheet'),
-      document.getElementById('button-group'),
-    ];
-    targets.forEach((el) => {
-      if (el) el.style.filter = enabled ? 'blur(12px)' : '';
+    posterContainer.appendChild(cameraIcon);
+
+    const posterImg = document.createElement('img');
+    posterImg.src = posterUrl || '';
+    posterImg.alt = 'Video cover';
+    posterImg.style.maxWidth = '88vw';
+    posterImg.style.maxHeight = '80vh';
+    posterImg.style.borderRadius = '14px';
+    posterImg.style.display = 'block';
+    posterImg.addEventListener('load', () => {
+      posterImg.style.border = '1.5px solid #E9E8E0';
     });
-    Array.from(document.body.children).forEach((child) => {
-      if (child !== overlay && child.style) {
-        child.style.filter = enabled ? 'blur(12px)' : '';
+
+    const playBtn = document.createElement('button');
+    playBtn.innerHTML = '▶';
+    playBtn.style.position = 'absolute';
+    playBtn.style.top = '50%';
+    playBtn.style.left = '50%';
+    playBtn.style.transform = 'translate(-50%, -50%)';
+    playBtn.style.background = 'rgba(0,0,0,0.6)';
+    playBtn.style.border = 'none';
+    playBtn.style.borderRadius = '50%';
+    playBtn.style.width = '64px';
+    playBtn.style.height = '64px';
+    playBtn.style.color = '#fff';
+    playBtn.style.fontSize = '2.5rem';
+    playBtn.style.cursor = 'pointer';
+    playBtn.style.display = 'flex';
+    playBtn.style.alignItems = 'center';
+    playBtn.style.justifyContent = 'center';
+    playBtn.style.zIndex = 2;
+
+    const spinner = document.createElement('div');
+    spinner.style.position = 'absolute';
+    spinner.style.top = '50%';
+    spinner.style.left = '50%';
+    spinner.style.transform = 'translate(-50%, -50%)';
+    spinner.style.width = '48px';
+    spinner.style.height = '48px';
+    spinner.style.border = '6px solid #eee';
+    spinner.style.borderTop = '6px solid #9b4dca';
+    spinner.style.borderRadius = '50%';
+    spinner.style.animation = 'spin 1s linear infinite';
+    spinner.style.display = 'none';
+    spinner.style.zIndex = 3;
+
+    const spinnerStyle = document.createElement('style');
+    spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
+    document.head.appendChild(spinnerStyle);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '❌';
+    closeBtn.style.position = 'absolute';
+    closeBtn.style.top = '-8px';
+    closeBtn.style.right = '-8px';
+    closeBtn.style.width = '25px';
+    closeBtn.style.height = '25px';
+    closeBtn.style.background = '#000';
+    closeBtn.style.color = '#fff';
+    closeBtn.style.border = '1.5px solid #E9E8E0';
+    closeBtn.style.borderRadius = '50%';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.fontSize = '0.7rem';
+    closeBtn.style.zIndex = '100001';
+    closeBtn.style.display = 'flex';
+    closeBtn.style.alignItems = 'center';
+    closeBtn.style.justifyContent = 'center';
+
+    let videoElement = null;
+    let cameraStream = null;
+
+    function removeOverlayAndPauseVideo() {
+      if (videoElement) {
+        videoElement.pause();
+        videoElement.currentTime = 0;
+      }
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((track) => track.stop());
+      }
+      overlay.remove();
+    }
+
+    closeBtn.onclick = () => removeOverlayAndPauseVideo();
+    let startY;
+    overlay.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) startY = e.touches[0].clientY;
+    });
+    overlay.addEventListener('touchmove', (e) => {
+      if (startY !== undefined && e.touches.length === 1) {
+        const dy = e.touches[0].clientY - startY;
+        if (dy > 70) {
+          removeOverlayAndPauseVideo();
+          startY = undefined;
+        }
       }
     });
-  }
-  setBlur(true);
+    overlay.addEventListener('touchend', () => {
+      startY = undefined;
+    });
+    playBtn.style.display = 'none';
+    closeBtn.style.display = 'none';
+    posterImg.onload = function () {
+      playBtn.style.display = 'flex';
+      closeBtn.style.display = 'flex';
+    };
+    posterContainer.appendChild(posterImg);
+    posterContainer.appendChild(playBtn);
+    posterContainer.appendChild(spinner);
+    posterContainer.appendChild(closeBtn);
+    overlay.appendChild(posterContainer);
+    document.body.appendChild(overlay);
+    overlay.addEventListener('mousedown', function (e) {
+      if (e.target === overlay) removeOverlayAndPauseVideo();
+    });
 
-  const boards = ['video', 'textboard', 'camera'];
-  let currentIndex = 0;
-
-  // Create the three boards as direct children of overlay
-  const boardWrappers = boards.map((type, i) => {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'peek-carousel-board';
-    wrapper.style.position = 'absolute';
-    wrapper.style.top = '50%';
-    wrapper.style.left = '50%';
-    wrapper.style.width = '70vw'; // or fixed pixel width you prefer
-    wrapper.style.height = `calc(70vw * 16 / 9)`; // keep 9:16 ratio
-    wrapper.style.transform = 'translate(-50%, -50%)';
-    wrapper.style.borderRadius = '16px';
-    wrapper.style.overflow = 'hidden';
-    wrapper.style.background = '#fff';
-    wrapper.style.boxShadow =
-      i === currentIndex
-        ? '0 8px 32px rgba(0,0,0,0.22)'
-        : '0 2px 8px rgba(0,0,0,0.10)';
-    wrapper.style.zIndex = i === currentIndex ? '3' : '2';
-
-    if (type === 'video') {
-      const videoUrl = building.videoUrl;
-      const posterUrl = building.posterUrl;
-      if (videoUrl) {
-        const videoElement = document.createElement('video');
-        videoElement.src = videoUrl;
-        if (posterUrl) videoElement.poster = posterUrl;
-        videoElement.width = '100%';
-        videoElement.height = '100%';
-        videoElement.style.width = '100%';
-        videoElement.style.height = '100%';
-        videoElement.style.borderRadius = '16px';
-        videoElement.style.border = 'none';
-        videoElement.controls = true;
-        videoElement.autoplay = true;
-        videoElement.setAttribute('playsinline', '');
-        videoElement.setAttribute('webkit-playsinline', '');
-        videoElement.playsInline = true;
-        wrapper.appendChild(videoElement);
-      } else {
-        const msg = document.createElement('div');
-        msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">No video available.</p>';
-        wrapper.appendChild(msg);
+    // CAMERA ICON FUNCTIONALITY
+    cameraIcon.onclick = async function () {
+      if (
+        !(
+          navigator.mediaDevices &&
+          typeof navigator.mediaDevices.getUserMedia === 'function'
+        )
+      ) {
+        alert(
+          "Camera access is not supported on this browser/device. If you're on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date."
+        );
+        return;
       }
-    } else if (type === 'textboard') {
-      const textboardContent = building.textboard || 'No board content yet.';
-      const title = document.createElement('div');
-      title.textContent = building.name || '';
-      title.style.fontSize = '1.1em';
-      title.style.fontWeight = 'bold';
-      title.style.marginTop = '32px';
-      title.style.marginBottom = '10px';
-      title.style.color = '#9b4dca';
-      title.style.textAlign = 'center';
 
-      const board = document.createElement('div');
-      board.textContent = textboardContent;
-      board.style.fontSize = '1em';
-      board.style.fontWeight = 'normal';
-      board.style.color = '#333';
-      board.style.textAlign = 'center';
-      board.style.lineHeight = '1.32';
-      board.style.marginBottom = '8px';
-      board.style.marginLeft = '14px';
-      board.style.marginRight = '14px';
+      posterContainer.innerHTML = '';
+      posterContainer.appendChild(cameraIcon);
+      posterContainer.appendChild(closeBtn);
 
-      wrapper.appendChild(title);
-      wrapper.appendChild(board);
-    } else if (type === 'camera') {
+      //--- ADD TEXT OVERLAY DIV ---
+      const textOverlay = document.createElement('div');
+      textOverlay.textContent = markerText;
+      textOverlay.style.position = 'absolute';
+      textOverlay.style.top = '16px';
+      textOverlay.style.left = '50%';
+      textOverlay.style.transform = 'translateX(-50%)';
+      textOverlay.style.background = 'rgba(0,0,0,0.4)';
+      textOverlay.style.color = '#fff';
+      textOverlay.style.padding = '6px 18px';
+      textOverlay.style.borderRadius = '8px';
+      textOverlay.style.fontSize = '18px';
+      textOverlay.style.fontWeight = 'bold';
+      textOverlay.style.pointerEvents = 'none';
+      textOverlay.style.zIndex = 20;
+      posterContainer.appendChild(textOverlay);
+
+      // --- FORCE 9:16 VIDEO RATIO ---
       const videoWrapper = document.createElement('div');
-      videoWrapper.style.width = '96%';
-      videoWrapper.style.height = '96%';
+      videoWrapper.style.width = '88vw'; // for portrait, narrower width
+      videoWrapper.style.maxHeight = '80vh';
+      videoWrapper.style.aspectRatio = '9/16'; // modern browsers, portrait
+      videoWrapper.style.overflow = 'hidden';
       videoWrapper.style.display = 'flex';
       videoWrapper.style.alignItems = 'center';
       videoWrapper.style.justifyContent = 'center';
-      videoWrapper.style.margin = '2%';
 
       const cameraVideo = document.createElement('video');
       cameraVideo.autoplay = true;
@@ -225,242 +324,243 @@ function showPeekCarouselModal(building) {
       cameraVideo.style.margin = '0 auto';
 
       videoWrapper.appendChild(cameraVideo);
-      wrapper.appendChild(videoWrapper);
+      posterContainer.appendChild(videoWrapper);
 
-      // Start camera stream only when board active
-      wrapper._activate = function () {
-        if (!cameraVideo.srcObject) {
-          navigator.mediaDevices.getUserMedia({
+      // iPhone-style shutter button
+      const shutterBtn = document.createElement('button');
+      shutterBtn.title = 'Take Photo';
+      shutterBtn.className = 'custom-shutter-btn';
+      shutterBtn.style.position = 'absolute';
+      shutterBtn.style.left = '50%';
+      shutterBtn.style.bottom = '20px';
+      shutterBtn.style.transform = 'translateX(-50%)';
+      shutterBtn.style.width = '64px';
+      shutterBtn.style.height = '64px';
+      shutterBtn.style.background = 'white';
+      shutterBtn.style.border = '4px solid #ccc';
+      shutterBtn.style.borderRadius = '50%';
+      shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+      shutterBtn.style.display = 'flex';
+      shutterBtn.style.alignItems = 'center';
+      shutterBtn.style.justifyContent = 'center';
+      shutterBtn.style.cursor = 'pointer';
+      shutterBtn.style.zIndex = 12;
+      shutterBtn.style.outline = 'none';
+      shutterBtn.style.transition = 'box-shadow 0.1s';
+
+      // inner circle for shutter effect
+      const innerCircle = document.createElement('div');
+      innerCircle.style.width = '44px';
+      innerCircle.style.height = '44px';
+      innerCircle.style.background = '#fff';
+      innerCircle.style.borderRadius = '50%';
+      innerCircle.style.boxShadow = '0 0 0 2px #eee';
+      shutterBtn.appendChild(innerCircle);
+
+      posterContainer.appendChild(shutterBtn);
+
+      let imgPreview = null,
+        downloadBtn = null,
+        cancelBtn = null;
+
+      async function startCameraStream() {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
             video: {
               facingMode: 'environment',
-              aspectRatio: 9 / 16,
+              aspectRatio: 9 / 16, // <-- Request 9:16 aspect ratio
               width: { ideal: 720 },
-              height: { ideal: 1280 },
-            },
-          })
-            .then((stream) => {
-              cameraVideo.srcObject = stream;
-              wrapper._stream = stream;
-            })
-            .catch(() => {
-              let msg = document.createElement('div');
-              msg.innerHTML =
-                '<p style="color:#9b4dca;font-weight:bold;">Could not access camera.</p>';
-              wrapper.appendChild(msg);
+              height: { ideal: 1280 }
+            }
+          });
+          cameraVideo.srcObject = cameraStream;
+        } catch (err) {
+          // fallback to default camera
+          try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+              video: true,
             });
+            cameraVideo.srcObject = cameraStream;
+          } catch (err2) {
+            alert('Could not access camera: ' + err2.message);
+          }
         }
-      };
-      wrapper._deactivate = function () {
-        if (wrapper._stream) {
-          wrapper._stream.getTracks().forEach((t) => t.stop());
-          cameraVideo.srcObject = null;
-          wrapper._stream = null;
-        }
-      };
-    }
-
-    return wrapper;
-  });
-
-  // Position boards: show only currentIndex board
-  function updateBoardPositions() {
-    boardWrappers.forEach((board, i) => {
-      board.style.display = i === currentIndex ? 'block' : 'none';
-    });
-  }
-  updateBoardPositions();
-
-  // Navigation Arrows
-  const navRight = document.createElement('button');
-  navRight.textContent = '›';
-  navRight.className = 'peek-carousel-nav-btn';
-  navRight.style.position = 'fixed';
-  navRight.style.right = '10vw';
-  navRight.style.top = '50%';
-  navRight.style.transform = 'translateY(-50%)';
-  navRight.style.background = '#fff';
-  navRight.style.border = 'none';
-  navRight.style.borderRadius = '50%';
-  navRight.style.width = '40px';
-  navRight.style.height = '40px';
-  navRight.style.fontSize = '2.1em';
-  navRight.style.color = '#9b4dca';
-  navRight.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
-  navRight.style.cursor = 'pointer';
-  navRight.style.zIndex = 100002;
-
-  const navLeft = document.createElement('button');
-  navLeft.textContent = '‹';
-  navLeft.className = 'peek-carousel-nav-btn';
-  navLeft.style.position = 'fixed';
-  navLeft.style.left = '10vw';
-  navLeft.style.top = '50%';
-  navLeft.style.transform = 'translateY(-50%)';
-  navLeft.style.background = '#fff';
-  navLeft.style.border = 'none';
-  navLeft.style.borderRadius = '50%';
-  navLeft.style.width = '40px';
-  navLeft.style.height = '40px';
-  navLeft.style.fontSize = '2.1em';
-  navLeft.style.color = '#9b4dca';
-  navLeft.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
-  navLeft.style.cursor = 'pointer';
-  navLeft.style.zIndex = 100002;
-
-  function updateNavButtons() {
-    navLeft.style.display = currentIndex === 0 ? 'none' : 'block';
-    navRight.style.display = currentIndex === boards.length - 1 ? 'none' : 'block';
-  }
-  updateNavButtons();
-
-  navRight.onclick = () => {
-    if (currentIndex < boards.length - 1) {
-      currentIndex++;
-      updateBoardPositions();
-      updateNavButtons();
-    }
-  };
-  navLeft.onclick = () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      updateBoardPositions();
-      updateNavButtons();
-    }
-  };
-
-  // Close button
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = '❌';
-  closeBtn.className = 'peek-carousel-close-btn';
-  closeBtn.style.position = 'fixed';
-  closeBtn.style.top = '10vh';
-  closeBtn.style.right = '10vw';
-  closeBtn.style.width = '32px';
-  closeBtn.style.height = '32px';
-  closeBtn.style.background = '#000';
-  closeBtn.style.color = '#fff';
-  closeBtn.style.border = '1.5px solid #E9E8E0';
-  closeBtn.style.borderRadius = '50%';
-  closeBtn.style.cursor = 'pointer';
-  closeBtn.style.fontSize = '1rem';
-  closeBtn.style.zIndex = 100003;
-  closeBtn.style.display = 'flex';
-  closeBtn.style.alignItems = 'center';
-  closeBtn.style.justifyContent = 'center';
-
-  closeBtn.onclick = () => {
-    overlay.remove();
-    setBlur(false);
-    boardWrappers.forEach((w) => w._deactivate && w._deactivate());
-  };
-
-  // Append controls to overlay
-  overlay.appendChild(navLeft);
-  overlay.appendChild(navRight);
-  overlay.appendChild(closeBtn);
-
-  // Append boards to overlay
-  boardWrappers.forEach((w) => overlay.appendChild(w));
-
-  document.body.appendChild(overlay);
-
-  // Overlay click to close if clicked outside boards
-  overlay.addEventListener('mousedown', (e) => {
-    if (e.target === overlay) {
-      closeBtn.onclick();
-    }
-  });
-
-  // Swipe support for lists and nav
-  let dragStartX = null;
-  overlay.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) dragStartX = e.touches[0].clientX;
-  });
-  overlay.addEventListener('touchmove', (e) => {
-    if (dragStartX !== null && e.touches.length === 1) {
-      const dx = e.touches[0].clientX - dragStartX;
-      if (Math.abs(dx) > 50) {
-        if (dx < 0 && currentIndex < boards.length - 1) {
-          currentIndex++;
-          updateBoardPositions();
-          updateNavButtons();
-        } else if (dx > 0 && currentIndex > 0) {
-          currentIndex--;
-          updateBoardPositions();
-          updateNavButtons();
-        }
-        dragStartX = null;
       }
-    }
+
+      await startCameraStream();
+
+      shutterBtn.onclick = function () {
+        cameraVideo.pause();
+
+        if (imgPreview) imgPreview.remove();
+        if (downloadBtn) downloadBtn.remove();
+        if (cancelBtn) cancelBtn.remove();
+
+        // --- CROP TO 9:16 and DRAW TEXT ---
+        const videoW = cameraVideo.videoWidth;
+        const videoH = cameraVideo.videoHeight;
+        let outW = videoW, outH = videoH;
+        let sx = 0, sy = 0;
+
+        // Portrait crop calculation for 9:16
+        if (videoW / videoH > 9 / 16) {
+          // Video is wider than 9:16, crop width
+          outH = videoH;
+          outW = videoH * 9 / 16;
+          sx = (videoW - outW) / 2;
+        } else {
+          // Video is taller than 9:16, crop height
+          outW = videoW;
+          outH = videoW * 16 / 9;
+          sy = (videoH - outH) / 2;
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = outW;
+        canvas.height = outH;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(cameraVideo, sx, sy, outW, outH, 0, 0, outW, outH);
+
+        // --- Draw text overlay ---
+        if (markerText) {
+          ctx.font = "bold 36px 'Poppins', sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "top";
+          ctx.fillStyle = "rgba(0,0,0,0.4)";
+          ctx.fillRect(0, 0, canvas.width, 60);
+          ctx.fillStyle = "#fff";
+          ctx.fillText(markerText, canvas.width / 2, 14);
+        }
+
+        imgPreview = document.createElement('img');
+        imgPreview.src = canvas.toDataURL('image/png');
+        imgPreview.style.display = 'block';
+        imgPreview.style.margin = '16px auto 8px auto';
+        imgPreview.style.maxWidth = '90vw';
+        imgPreview.style.maxHeight = '60vh';
+        imgPreview.style.borderRadius = '12px';
+        imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+        posterContainer.appendChild(imgPreview);
+
+        downloadBtn = document.createElement('a');
+        downloadBtn.textContent = 'Download Photo';
+        downloadBtn.className = 'custom-button';
+        downloadBtn.href = imgPreview.src;
+        downloadBtn.download = 'photo.png';
+        downloadBtn.style.display = 'block';
+        downloadBtn.style.margin = '10px auto 0 auto';
+        downloadBtn.style.background = '#9b4dca';
+        downloadBtn.style.color = '#fff';
+        posterContainer.appendChild(downloadBtn);
+
+        cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.className = 'custom-button';
+        cancelBtn.style.display = 'block';
+        cancelBtn.style.margin = '10px auto 0 auto';
+        cancelBtn.style.background = '#e0e0e0';
+        cancelBtn.style.color = '#333';
+        posterContainer.appendChild(cancelBtn);
+
+        // Hide video and shutter button and text overlay
+        videoWrapper.style.display = 'none';
+        shutterBtn.style.display = 'none';
+        textOverlay.style.display = 'none';
+
+        cancelBtn.onclick = function () {
+          if (imgPreview) imgPreview.remove();
+          if (downloadBtn) downloadBtn.remove();
+          if (cancelBtn) cancelBtn.remove();
+
+          videoWrapper.style.display = 'flex';
+          shutterBtn.style.display = 'flex';
+          textOverlay.style.display = 'block';
+
+          cameraVideo.play();
+        };
+      };
+    };
+
+
+    playBtn.onclick = () => {
+      playBtn.style.display = 'none';
+      spinner.style.display = 'block';
+      videoElement = document.createElement('video');
+      videoElement.src = videoUrl;
+      if (posterUrl) videoElement.poster = posterUrl;
+      videoElement.style.border = '1.5px solid #E9E8E0';
+      videoElement.style.maxWidth = '88vw';
+      videoElement.style.maxHeight = '80vh';
+      videoElement.style.borderRadius = '14px';
+      videoElement.controls = false;
+      videoElement.preload = 'auto';
+      videoElement.autoplay = true;
+      videoElement.setAttribute('playsinline', '');
+      videoElement.setAttribute('webkit-playsinline', '');
+      videoElement.playsInline = true;
+      showFirstVideoWaitMessage(videoElement);
+      let hasStarted = false;
+
+      function showVideo() {
+        if (!hasStarted) {
+          hasStarted = true;
+          posterContainer.replaceChild(videoElement, posterImg);
+          spinner.style.display = 'none';
+        }
+      }
+
+      function onProgress() {
+        if (videoElement.duration && videoElement.buffered.length) {
+          const bufferedEnd =
+            videoElement.buffered.end(videoElement.buffered.length - 1);
+          const percentBuffered = bufferedEnd / videoElement.duration;
+          if (percentBuffered >= 0.25 && !hasStarted) {
+            videoElement.play();
+          }
+        }
+      }
+
+      videoElement.addEventListener('play', showVideo);
+      videoElement.addEventListener('progress', onProgress);
+      videoElement.addEventListener('click', () => {
+        videoElement.controls = true;
+      });
+      videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
+      videoElement.addEventListener('error', () => {
+        spinner.style.display = 'none';
+        playBtn.style.display = 'block';
+        alert('Video failed to load.');
+      });
+      videoElement.load();
+    };
   });
-  overlay.addEventListener('touchend', () => {
-    dragStartX = null;
-  });
-}
-
-
-  // Close button
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = '❌';
-  closeBtn.className = 'peek-carousel-close-btn';
-  closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '-16px';
-  closeBtn.style.right = '-16px';
-  closeBtn.style.width = '32px';
-  closeBtn.style.height = '32px';
-  closeBtn.style.background = '#000';
-  closeBtn.style.color = '#fff';
-  closeBtn.style.border = '1.5px solid #E9E8E0';
-  closeBtn.style.borderRadius = '50%';
-  closeBtn.style.cursor = 'pointer';
-  closeBtn.style.fontSize = '1rem';
-  closeBtn.style.zIndex = '100002';
-  closeBtn.style.display = 'flex';
-  closeBtn.style.alignItems = 'center';
-  closeBtn.style.justifyContent = 'center';
-  closeBtn.onclick = () => {
-    overlay.remove();
-    setBlur(false);
-    // Stop camera stream
-    boardWrappers.forEach(w => w._deactivate && w._deactivate());
-  };
-
-  // Add boards to container
-  boardWrappers.forEach(w => modalContainer.appendChild(w));
-  modalContainer.appendChild(navLeft);
-  modalContainer.appendChild(navRight);
-  overlay.appendChild(modalContainer);
-  overlay.appendChild(closeBtn);
-  document.body.appendChild(overlay);
-
-  overlay.addEventListener('mousedown', function (e) {
-    if (e.target === overlay) {
-      closeBtn.onclick();
-    }
-  });
-
-
+});
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
   const markerSize = zoomLevel - 13;
   const markerWidth = markerSize + 'em';
   const markerHeight = markerSize + 'em';
   const borderWidth = markerSize * 0.075 + 'em';
+
   document.querySelectorAll('.location-marker, .building-marker').forEach((marker) => {
     marker.style.width = markerWidth;
     marker.style.height = markerHeight;
     marker.style.borderWidth = borderWidth;
+
+    // Scale the bump if present
     const bump = marker.querySelector('.marker-bump');
     if (bump) {
       const bumpWidth = markerSize * 0.4 + 'em';
       const bumpHeight = markerSize * 0.25 + 'em';
       bump.style.width = bumpWidth;
       bump.style.height = bumpHeight;
+      // No border scaling needed for solid color
     }
   });
 }
 scaleMarkersBasedOnZoom();
 
+// Map event listeners immediately
 map.on('click', (e) => {
   const currentLat = e.lngLat.lat;
   const currentLng = e.lngLat.lng;
@@ -468,14 +568,17 @@ map.on('click', (e) => {
   const mapLink = generateMapLink(currentLat, currentLng, currentZoom);
   console.log('Map Link:', mapLink);
 });
-
 map.on('zoom', () => scaleMarkersBasedOnZoom());
 
+// Only what requires style load
 map.on('load', () => {
   geolocate.trigger();
+
+  // Hide the loading screen after at least 5 seconds
   const loadingScreen = document.getElementById('loading-screen');
   const elapsed = Date.now() - loadingScreenStart;
-  const minDuration = 5000;
+  const minDuration = 5000; // 5 seconds
+
   if (loadingScreen) {
     if (elapsed >= minDuration) {
       loadingScreen.style.display = 'none';
@@ -486,7 +589,7 @@ map.on('load', () => {
     }
   }
 });
-
+// Function to parse URL parameters
 function getUrlParameter(name) {
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
   var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -494,45 +597,53 @@ function getUrlParameter(name) {
   return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
 
+// Get parameters from URL
 const lat = getUrlParameter('lat');
 const lng = getUrlParameter('lng');
 const zoom = getUrlParameter('zoom');
+
+// Default York coordinates and zoom
 const defaultCenter = [-1.0835104081554843, 53.95838745239521];
 const defaultZoom = 15;
+
+// Use URL parameters if available, otherwise use default values
 const initialCenter = lat && lng ? [parseFloat(lng), parseFloat(lat)] : defaultCenter;
 const initialZoom = zoom ? parseFloat(zoom) : defaultZoom;
 
+// Create a bottom sheet container
 const bottomSheet = document.createElement('div');
 bottomSheet.id = 'bottom-sheet';
 bottomSheet.style.position = 'fixed';
-bottomSheet.style.bottom = '-100%';
-bottomSheet.style.left = '50%';
-bottomSheet.style.transform = 'translate(-50%)';
+bottomSheet.style.bottom = '-100%'; // Initially hidden
+bottomSheet.style.left = '50%'; // Align to the left
+bottomSheet.style.transform = 'translate(-50%)'; // Adjust position to align center both ways
 bottomSheet.style.right = '50%';
 bottomSheet.style.width = '96%';
-bottomSheet.style.height = '40%';
+bottomSheet.style.height = '40%'; // Adjust height as needed
 bottomSheet.style.backgroundColor = '#fff';
 bottomSheet.style.borderTop = '2px solid #ccc';
 bottomSheet.style.boxShadow = '0 -6px 15px rgba(0, 0, 0, 0.3)';
 bottomSheet.style.zIndex = '10000';
 bottomSheet.style.transition = 'bottom 0.3s ease';
-bottomSheet.style.borderRadius = '12px 12px 0 0';
-bottomSheet.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
-bottomSheet.style.backgroundColor = '#E9E8E0';
-bottomSheet.style.border = '2px solid #f0f0f0';
-bottomSheet.style.fontFamily = "'Poppins', sans-serif";
-bottomSheet.style.fontSize = '14px';
-bottomSheet.style.lineHeight = '1.05';
-bottomSheet.style.padding = '5px';
-bottomSheet.style.overflowY = 'auto';
+bottomSheet.style.borderRadius = '12px 12px 0 0'; // Matches the popup's border-radius
+bottomSheet.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)'; // Matches the popup's shadow
+bottomSheet.style.backgroundColor = '#E9E8E0'; // Matches popup background color
+bottomSheet.style.border = '2px solid #f0f0f0'; // Matches popup border
+bottomSheet.style.fontFamily = "'Poppins', sans-serif"; // Matches popup font-family
+bottomSheet.style.fontSize = '14px'; // Matches popup font size
+bottomSheet.style.lineHeight = '1.05'; // Matches popup line height
+bottomSheet.style.padding = '5px'; // Matches popup padding
+bottomSheet.style.overflowY = 'auto'; // Make it scrollable
 document.body.appendChild(bottomSheet);
 
+// Function to generate a URL with given coordinates and zoom
 function generateMapLink(latitude, longitude, zoomLevel) {
   const baseUrl = window.location.origin + window.location.pathname;
   const params = `?lat=${latitude}&lng=${longitude}&zoom=${zoomLevel}`;
   return baseUrl + params;
 }
 
+// Container for both buttons
 const buttonGroup = document.createElement('div');
 buttonGroup.id = 'button-group';
 buttonGroup.style.position = 'fixed';
@@ -544,12 +655,16 @@ buttonGroup.style.display = 'flex';
 buttonGroup.style.gap = '10px';
 document.body.appendChild(buttonGroup);
 
+// Create a <style> element to add the CSS
 const stylePopup = document.createElement('style');
+
+// Add the link to Google Fonts for Poppins
 const link = document.createElement('link');
 link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap';
 link.rel = 'stylesheet';
 document.head.appendChild(link);
 
+// Style for the popup and markers
 stylePopup.innerHTML = `
   .mapboxgl-popup-content {
     border-radius: 12px !important;
@@ -563,65 +678,7 @@ stylePopup.innerHTML = `
     padding-bottom: 0 !important;
     margin-left: 3px;
     margin-right: 5px;
-    margin-bottom: 10px;
-  }
-  .video-modal-overlay {
-    animation: fadeIn 0.21s cubic-bezier(.77,.2,.64,1.09);
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  .peek-carousel-modal-container {
-    position: relative;
-    width: 380px;
-    max-width: 98vw;
-    height: 464px;
-    background: #fff;
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.22);
-    display: block;
-    overflow: visible;
-  }
-  .peek-carousel-board {
-    position: absolute;
-    top: 0;
-    width: 380px;
-    height: 464px;
-    border-radius: 16px;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-    transition: left 0.3s cubic-bezier(.77,.2,.64,1.09), opacity 0.3s;
-    will-change: left, opacity;
-    overflow: hidden;
-  }
-  .peek-carousel-nav-btn {
-    font-size: 2.1em;
-    background: #fff;
-    color: #9b4dca;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
-    cursor: pointer;
-    z-index: 101;
-    position: absolute;
-  }
-  .peek-carousel-close-btn {
-    background: #000;
-    color: #fff;
-    border: 1.5px solid #E9E8E0;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    font-size: 1rem;
-    z-index: 100001;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
+    margin-bottom: 10px; /* Add this line */
   }
   .mapboxgl-popup-content img {
     border: 2px solid #f0f0f0 !important;
@@ -699,13 +756,14 @@ stylePopup.innerHTML = `
   #bottom-sheet p {
     margin-bottom: 10px;
   }
-  .marker-list-grid {
+  /* Social media image grid */
+.marker-list-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 4px;
     margin-bottom: 8px;
-    justify-items: center;
-  }
+    justify-items: center; /* Center grid items horizontally */
+}
   .marker-list-grid-btn {
     background: none;
     border: none;
@@ -715,17 +773,17 @@ stylePopup.innerHTML = `
     flex-direction: column;
     align-items: center;
   }
-  .marker-list-grid-img {
-    width: 100px;
-    height: 178px;
-    object-fit: cover;
+.marker-list-grid-img {
+    width: 100px;              /* Adjust as needed for your layout */
+    height: 178px;             /* 100 * 16 / 9 ≈ 178 for a 9:16 aspect ratio */
+    object-fit: cover;         /* Ensures image fills the box, cropping as needed */
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     border: 1.5px solid #E9E8E0;
     background: #fff;
     display: block;
     margin-bottom: 0;
-  }
+}
   .marker-list-grid-label {
     font-size: 11px;
     font-weight: bold;
@@ -736,6 +794,7 @@ stylePopup.innerHTML = `
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  /* iPhone-style camera shutter */
   .custom-shutter-btn {
     background: white;
     border: 4px solid #ccc;
@@ -751,9 +810,8 @@ stylePopup.innerHTML = `
     transition: box-shadow 0.1s;
   }
  `;
-document.head.appendChild(stylePopup);
 
-// ... rest unchanged (support buttons, marker list, etc.) ...
+document.head.appendChild(stylePopup);
 
 function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
@@ -764,7 +822,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   markerDiv.style.borderRadius = '50%';
   markerDiv.style.border = `0.05em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
-  markerDiv.style.overflow = 'visible';
+  markerDiv.style.overflow = 'visible'; // allow the bump to overflow
   markerDiv.style.background = 'white';
   markerDiv.style.display = 'flex';
   markerDiv.style.alignItems = 'center';
@@ -777,6 +835,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
 
+  // Create the "bump" at the bottom as a smooth upside-down triangle (teardrop)
   const bump = document.createElement('div');
   bump.className = 'marker-bump';
   bump.style.position = 'absolute';
@@ -785,7 +844,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   bump.style.transform = 'translateX(-50%)';
   bump.style.width = '5em';
   bump.style.height = '0.5em';
-  bump.style.background = color;
+  bump.style.background = color; // Or 'white' for a hollow pyramid with border
   bump.style.clipPath =
     'polygon(0% 0%, 100% 0%, 55% 96%, 56% 100%, 44% 100%, 45% 96%)';
   bump.style.zIndex = '1';
@@ -799,11 +858,14 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   };
 }
 
+// Toggle functionality for the bottom sheet
 let isBottomSheetOpen = false;
+
 function toggleBottomSheet(contentHTML) {
   if (isBottomSheetOpen) {
-    bottomSheet.style.bottom = '-100%';
+    bottomSheet.style.bottom = '-100%'; // Hide
   } else {
+    // Add a close button to the top-right corner of the content
     const closeButtonHTML = `
             <button id="close-bottom-sheet" style="
                 position: absolute;
@@ -818,15 +880,19 @@ function toggleBottomSheet(contentHTML) {
                 font-size: 10px;
             ">❌</button>
         `;
-    bottomSheet.innerHTML = closeButtonHTML + contentHTML;
-    bottomSheet.style.bottom = '0';
+
+    bottomSheet.innerHTML = closeButtonHTML + contentHTML; // Add close button + content
+    bottomSheet.style.bottom = '0'; // Show
+
+    // Attach event listener to the close button
     document.getElementById('close-bottom-sheet').addEventListener('click', () => {
-      const videoElement = document.querySelector('video');
+      // Stop video playback
+      const videoElement = document.querySelector('video'); // Adjust selector as needed
       if (videoElement) {
         videoElement.pause();
-        videoElement.currentTime = 0;
+        videoElement.currentTime = 0; // Optional: Reset video to start
       }
-      toggleBottomSheet();
+      toggleBottomSheet(); // Close the popup
     });
   }
   isBottomSheetOpen = !isBottomSheetOpen;
@@ -842,6 +908,7 @@ function createPopupContent(location, isFirebase = false) {
   const imageContent = !videoUrl
     ? `<img src="${data.image || data.imageUrl}" alt="${data.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" />`
     : '';
+
   return `
         <div style="text-align: center; padding: 0; margin: 0;">
             <p style="font-size: 15px; font-weight: bold; margin-bottom: 10px;">${data.description}</p>
@@ -881,12 +948,15 @@ function createPopupContent(location, isFirebase = false) {
 }
 
 // ========== Support Button + Marker List Button & Popup =============
+
 document.addEventListener('DOMContentLoaded', () => {
+  // === SUPPORT BUTTON ===
   const button = document.createElement('button');
   button.id = 'custom-bmc-button';
   button.className = 'custom-button';
   button.textContent = '❤️ This site costs - please support it ❤️';
 
+  // Create the dropdown content
   const dropdownContent = document.createElement('div');
   dropdownContent.style.display = 'none';
   dropdownContent.style.position = 'fixed';
@@ -905,48 +975,50 @@ document.addEventListener('DOMContentLoaded', () => {
   dropdownContent.style.textAlign = 'center';
   dropdownContent.style.maxHeight = 'calc(100vh - 200px)';
   dropdownContent.style.overflowY = 'auto';
+
   dropdownContent.innerHTML = `
       <div style="display: flex; flex-direction: column; align-items: center;">
-        <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jp" 
-             alt="Profile Photo" 
-             style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;"/>
-      </div>
-      <div class="project-info" style="margin-bottom: 15px;">
-        <b>If this site was free for you to use, it means someone else paid forward.</b>
-      </div>
-      <div class="project-info" style="margin-bottom: 15px;">
-        My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no[...]
-      </div>
-      <div class="project-info" style="margin-bottom: 15px;">
-        I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic imag[...]
-      </div>
-      <button 
-          class="support-button" 
-          style="
-              background-color: #9b4dca; 
-              color: white; 
-              padding: 10px 20px; 
-              font-size: 16px; 
-              font-weight: bold; 
-              border: none; 
-              border-radius: 8px; 
-              cursor: pointer; 
-              text-align: center;
-              box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-              margin-bottom: 15px;
-          "
-          onclick="window.open('https://www.buymeacoffee.com/britmap', '_blank')"
-      >
-          Support
-      </button>
-      <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 16px; font-weight: bold;">
-        <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
-        Our Donors ❤️
-        <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
-      </div>
-      <div id="donor-list" style="margin-top: 10px;"></div>
-  `;
+    <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jp" 
+         alt="Profile Photo" 
+         style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 15px;"/>
+  </div>
+        <div class="project-info" style="margin-bottom: 15px;">
+            <b>If this site was free for you to use, it means someone else paid forward.</b>
+        </div>
+           <div class="project-info" style="margin-bottom: 15px;">
+            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no[...]
+        </div>
+        <div class="project-info" style="margin-bottom: 15px;">
+             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic imag[...]
+        </div>
+        <button 
+            class="support-button" 
+            style="
+                background-color: #9b4dca; 
+                color: white; 
+                padding: 10px 20px; 
+                font-size: 16px; 
+                font-weight: bold; 
+                border: none; 
+                border-radius: 8px; 
+                cursor: pointer; 
+                text-align: center;
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+                margin-bottom: 15px;
+            "
+            onclick="window.open('https://www.buymeacoffee.com/britmap', '_blank')"
+        >
+            Support
+        </button>
+ <div style="display: flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 16px; font-weight: bold;">
+    <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
+    Our Donors ❤️
+    <hr style="flex: 1; border: 1px solid #ccc; margin: 0 10px;">
+</div>
+<div id="donor-list" style="margin-top: 10px;"></div>
+    `;
 
+  // Wrap the button and dropdown in a container
   const dropdownContainer = document.createElement('div');
   dropdownContainer.className = 'dropdown';
   dropdownContainer.style.position = 'fixed';
@@ -959,6 +1031,8 @@ document.addEventListener('DOMContentLoaded', () => {
   dropdownContainer.style.alignItems = 'center';
   dropdownContainer.appendChild(button);
 
+  // === MARKER LIST BUTTON & POPUP ===
+  // Create the marker list button
   const markerListButton = document.createElement('button');
   markerListButton.textContent = '🔍 Search Locations';
   markerListButton.className = 'custom-button';
@@ -967,6 +1041,7 @@ document.addEventListener('DOMContentLoaded', () => {
   markerListButton.style.marginRight = 'auto';
   markerListButton.style.display = 'block';
 
+  // Marker list popup
   const markerListPopup = document.createElement('div');
   markerListPopup.style.display = 'none';
   markerListPopup.style.position = 'fixed';
@@ -986,6 +1061,7 @@ document.addEventListener('DOMContentLoaded', () => {
   markerListPopup.style.fontSize = '15px';
   markerListPopup.style.lineHeight = '1.28';
 
+  // Mode toggle UI
   const popupModeContainer = document.createElement('div');
   popupModeContainer.style.display = 'flex';
   popupModeContainer.style.justifyContent = 'center';
@@ -1027,6 +1103,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateModeButtons();
     popupContentDiv.innerHTML = '';
     if (popupMode === 'list') {
+      // Alphabetical order
       const allMarkers = [
         ...locations.map((l) => ({ name: l.name, coords: l.coords })),
         ...buildings.map((b) => ({ name: b.name, coords: b.coords })),
@@ -1046,6 +1123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         popupContentDiv.appendChild(item);
       });
     } else {
+      // Social media mode
       const socialBuildings = buildings.filter((b) => b['social media'] === 'yes');
       if (!socialBuildings.length) {
         popupContentDiv.innerHTML +=
@@ -1070,6 +1148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         popupContentDiv.appendChild(grid);
       }
     }
+    // Add close button at the end (always)
     const close = document.createElement('button');
     close.textContent = 'Close';
     close.className = 'custom-button';
@@ -1079,7 +1158,6 @@ document.addEventListener('DOMContentLoaded', () => {
     close.onclick = () => (markerListPopup.style.display = 'none');
     popupContentDiv.appendChild(close);
   }
-
   listModeBtn.onclick = () => {
     popupMode = 'list';
     populateMarkerList();
@@ -1088,6 +1166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     popupMode = 'social';
     populateMarkerList();
   };
+
   markerListButton.onclick = () => {
     if (markerListPopup.style.display === 'block') {
       markerListPopup.style.display = 'none';
@@ -1097,15 +1176,17 @@ document.addEventListener('DOMContentLoaded', () => {
       markerListPopup.style.display = 'block';
     }
   };
-
   markerListPopup.innerHTML = '';
   markerListPopup.appendChild(popupModeContainer);
   markerListPopup.appendChild(popupContentDiv);
+
+  // Center the button below the support button
   dropdownContainer.appendChild(markerListButton);
-  dropdownContainer.appendChild(dropdownContent);
+  dropdownContainer.appendChild(dropdownContent); // keep donors popup functional
   document.body.appendChild(dropdownContainer);
   document.body.appendChild(markerListPopup);
 
+  // Function to add donors
   function addDonor(name, amount, subtext) {
     const donorList = document.getElementById('donor-list');
     const donorDiv = document.createElement('div');
@@ -1118,7 +1199,6 @@ document.addEventListener('DOMContentLoaded', () => {
     donorDiv.style.marginBottom = '12px';
     donorList.appendChild(donorDiv);
   }
-
   addDonor('Anonymous', '15', ' ');
   addDonor(
     'Matt Hall',
@@ -1139,6 +1219,7 @@ document.addEventListener('DOMContentLoaded', () => {
       dropdownContent.style.display === 'block' ? 'none' : 'block';
   });
 
+  // Close popups when clicking outside
   document.addEventListener('click', (event) => {
     if (
       !dropdownContainer.contains(event.target) &&
@@ -1150,5 +1231,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Set the dropdown width to match the button width
   dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
 });
