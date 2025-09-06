@@ -333,16 +333,19 @@ cameraVideo.style.objectFit = 'cover'; // crop/fill container
 cameraStream = await navigator.mediaDevices.getUserMedia({
   video: { 
     facingMode: 'environment',
-    aspectRatio: 9/16      // <- Enforce portrait 9:16 ratio
+    width: { ideal: 720 },
+    height: { ideal: 1280 }
   },
 });
+
           cameraVideo.srcObject = cameraStream;
         } catch (err) {
           // fallback to default camera
           try {
 cameraStream = await navigator.mediaDevices.getUserMedia({
   video: { 
-    aspectRatio: 9/16 
+        width: { ideal: 720 },
+    height: { ideal: 1280 }
   },
 });
 
