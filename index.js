@@ -146,9 +146,9 @@ function showPeekCarouselModal(building) {
   const modalContainer = document.createElement('div');
   modalContainer.className = 'peek-carousel-modal-container';
   modalContainer.style.position = 'relative';
-  modalContainer.style.width = '225px';
+  modalContainer.style.width = '380px';
   modalContainer.style.maxWidth = '98vw';
-  modalContainer.style.height = '400px';
+  modalContainer.style.height = '464px';
   modalContainer.style.background = '#fff';
   modalContainer.style.borderRadius = '16px';
   modalContainer.style.boxShadow = '0 8px 32px rgba(0,0,0,0.22)';
