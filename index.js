@@ -107,434 +107,460 @@ buildings.forEach((building) => {
 
   marker.getElement().addEventListener('click', () => {
     map.getCanvas().style.cursor = 'pointer';
+    // === CAROUSEL POPUP START ===
+    showCarouselModal(building);
+    // === CAROUSEL POPUP END ===
+  });
+});
+
+// ======== CAROUSEL MODAL FUNCTION ========
+function showCarouselModal(building) {
+  document.querySelectorAll('.carousel-modal-overlay').forEach((el) => el.remove());
+
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'carousel-modal-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.top = 0;
+  overlay.style.left = 0;
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.background = 'rgba(0,0,0,0.75)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = 100000;
+  overlay.style.overflow = 'hidden';
+
+  // BLUR PATCH
+  function setBlur(enabled) {
+    const targets = [
+      document.getElementById('map'),
+      document.getElementById('bottom-sheet'),
+      document.getElementById('button-group')
+    ];
+    targets.forEach(el => {
+      if (el) el.style.filter = enabled ? 'blur(12px)' : '';
+    });
+    Array.from(document.body.children).forEach(child => {
+      if (child !== overlay && child.style) {
+        child.style.filter = enabled ? 'blur(12px)' : '';
+      }
+    });
+  }
+  setBlur(true);
+
+  // Carousel container
+  const carouselContainer = document.createElement('div');
+  carouselContainer.className = 'carousel-container';
+  carouselContainer.style.display = 'flex';
+  carouselContainer.style.flexDirection = 'row';
+  carouselContainer.style.alignItems = 'center';
+  carouselContainer.style.justifyContent = 'center';
+  carouselContainer.style.width = '680px';
+  carouselContainer.style.maxWidth = '98vw';
+  carouselContainer.style.height = '480px';
+  carouselContainer.style.background = '#E9E8E0';
+  carouselContainer.style.borderRadius = '20px';
+  carouselContainer.style.boxShadow = '0 6px 24px rgba(0,0,0,0.22)';
+  carouselContainer.style.position = 'relative';
+  carouselContainer.style.overflow = 'visible';
+
+  // Carousel items
+  const items = ['video', 'textboard', 'camera'];
+  let currentIndex = 0;
+
+  // Helper to create each carousel item
+  // 1. Video Element
+  function createVideoItem() {
+    const container = document.createElement('div');
+    container.className = 'carousel-item';
+    container.style.width = '380px';
+    container.style.height = '464px';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.alignItems = 'center';
+    container.style.justifyContent = 'center';
+    container.style.background = '#fff';
+    container.style.borderRadius = '16px';
+    container.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    container.style.position = 'relative';
+
     const videoUrl = building.videoUrl;
     const posterUrl = building.posterUrl;
-    const markerText = building.text || ""; // <- text for overlay and photo
-
-    if (!videoUrl) {
-      console.error('Video URL not available for this building.');
-      return;
-    }
-    document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
-    const overlay = document.createElement('div');
-    overlay.className = 'video-modal-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = 0;
-    overlay.style.left = 0;
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.background = 'rgba(0,0,0,0.75)';
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    overlay.style.zIndex = 100000;
-    const posterContainer = document.createElement('div');
-    posterContainer.style.position = 'relative';
-    posterContainer.style.marginTop = '-60px';
-
-    // Camera icon button
-    const cameraIcon = document.createElement('button');
-    cameraIcon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" fill="black" viewBox="0 0 24 24"><path d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm6-3h-1.171l-1.414-1.414a2 2 0 0 0-1.415-.586H9a2 2 0 0 0-1.414.586L6.172 6H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h13a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2zm0 11H6v-9h12v9z"/></svg>';
-    cameraIcon.title = 'Open Camera';
-cameraIcon.style.position = 'absolute';
-cameraIcon.style.top = '0';
-cameraIcon.style.left = '50%';
-cameraIcon.style.transform = 'translate(-50%, -50%)';  // horizontal center; vertical middle aligned to top edge
-    cameraIcon.style.background = 'white';
-    cameraIcon.style.border = 'none';
-    cameraIcon.style.borderRadius = '50%';
-    cameraIcon.style.fontSize = '2.1rem';
-    cameraIcon.style.width = '48px';
-    cameraIcon.style.height = '48px';
-    cameraIcon.style.display = 'flex';
-    cameraIcon.style.alignItems = 'center';
-    cameraIcon.style.justifyContent = 'center';
-    cameraIcon.style.cursor = 'pointer';
-    cameraIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
-    cameraIcon.style.zIndex = 10;
-
-    posterContainer.appendChild(cameraIcon);
-
-    const posterImg = document.createElement('img');
-    posterImg.src = posterUrl || '';
-    posterImg.alt = 'Video cover';
-    posterImg.style.maxWidth = '88vw';
-    posterImg.style.maxHeight = '80vh';
-    posterImg.style.borderRadius = '14px';
-    posterImg.style.display = 'block';
-    posterImg.addEventListener('load', () => {
-      posterImg.style.border = '1.5px solid #E9E8E0';
-    });
-
-    const playBtn = document.createElement('button');
-    playBtn.innerHTML = '▶';
-    playBtn.style.position = 'absolute';
-    playBtn.style.top = '50%';
-    playBtn.style.left = '50%';
-    playBtn.style.transform = 'translate(-50%, -50%)';
-    playBtn.style.background = 'rgba(0,0,0,0.6)';
-    playBtn.style.border = 'none';
-    playBtn.style.borderRadius = '50%';
-    playBtn.style.width = '64px';
-    playBtn.style.height = '64px';
-    playBtn.style.color = '#fff';
-    playBtn.style.fontSize = '2.5rem';
-    playBtn.style.cursor = 'pointer';
-    playBtn.style.display = 'flex';
-    playBtn.style.alignItems = 'center';
-    playBtn.style.justifyContent = 'center';
-    playBtn.style.zIndex = 2;
-
-    const spinner = document.createElement('div');
-    spinner.style.position = 'absolute';
-    spinner.style.top = '50%';
-    spinner.style.left = '50%';
-    spinner.style.transform = 'translate(-50%, -50%)';
-    spinner.style.width = '48px';
-    spinner.style.height = '48px';
-    spinner.style.border = '6px solid #eee';
-    spinner.style.borderTop = '6px solid #9b4dca';
-    spinner.style.borderRadius = '50%';
-    spinner.style.animation = 'spin 1s linear infinite';
-    spinner.style.display = 'none';
-    spinner.style.zIndex = 3;
-
-    const spinnerStyle = document.createElement('style');
-    spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
-    document.head.appendChild(spinnerStyle);
-
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = '❌';
-    closeBtn.style.position = 'absolute';
-    closeBtn.style.top = '-8px';
-    closeBtn.style.right = '-8px';
-    closeBtn.style.width = '25px';
-    closeBtn.style.height = '25px';
-    closeBtn.style.background = '#000';
-    closeBtn.style.color = '#fff';
-    closeBtn.style.border = '1.5px solid #E9E8E0';
-    closeBtn.style.borderRadius = '50%';
-    closeBtn.style.cursor = 'pointer';
-    closeBtn.style.fontSize = '0.7rem';
-    closeBtn.style.zIndex = '100001';
-    closeBtn.style.display = 'flex';
-    closeBtn.style.alignItems = 'center';
-    closeBtn.style.justifyContent = 'center';
-
-    let videoElement = null;
-    let cameraStream = null;
-
-    function removeOverlayAndPauseVideo() {
-      if (videoElement) {
-        videoElement.pause();
-        videoElement.currentTime = 0;
-      }
-      if (cameraStream) {
-        cameraStream.getTracks().forEach((track) => track.stop());
-      }
-      overlay.remove();
-    }
-
-    closeBtn.onclick = () => removeOverlayAndPauseVideo();
-    let startY;
-    overlay.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) startY = e.touches[0].clientY;
-    });
-    overlay.addEventListener('touchmove', (e) => {
-      if (startY !== undefined && e.touches.length === 1) {
-        const dy = e.touches[0].clientY - startY;
-        if (dy > 70) {
-          removeOverlayAndPauseVideo();
-          startY = undefined;
-        }
-      }
-    });
-    overlay.addEventListener('touchend', () => {
-      startY = undefined;
-    });
-    playBtn.style.display = 'none';
-    closeBtn.style.display = 'none';
-    posterImg.onload = function () {
-      playBtn.style.display = 'flex';
-      closeBtn.style.display = 'flex';
-    };
-    posterContainer.appendChild(posterImg);
-    posterContainer.appendChild(playBtn);
-    posterContainer.appendChild(spinner);
-    posterContainer.appendChild(closeBtn);
-    overlay.appendChild(posterContainer);
-    document.body.appendChild(overlay);
-    overlay.addEventListener('mousedown', function (e) {
-      if (e.target === overlay) removeOverlayAndPauseVideo();
-    });
-
-    // CAMERA ICON FUNCTIONALITY
-    cameraIcon.onclick = async function () {
-      if (
-        !(
-          navigator.mediaDevices &&
-          typeof navigator.mediaDevices.getUserMedia === 'function'
-        )
-      ) {
-        alert(
-          "Camera access is not supported on this browser/device. If you're on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date."
-        );
-        return;
-      }
-
-      posterContainer.innerHTML = '';
-      posterContainer.appendChild(cameraIcon);
-      posterContainer.appendChild(closeBtn);
-
-      //--- ADD TEXT OVERLAY DIV ---
-      const textOverlay = document.createElement('div');
-      textOverlay.textContent = markerText;
-      textOverlay.style.position = 'absolute';
-      textOverlay.style.top = '16px';
-      textOverlay.style.left = '50%';
-      textOverlay.style.transform = 'translateX(-50%)';
-      textOverlay.style.background = 'rgba(0,0,0,0.4)';
-      textOverlay.style.color = '#fff';
-      textOverlay.style.padding = '6px 18px';
-      textOverlay.style.borderRadius = '8px';
-      textOverlay.style.fontSize = '18px';
-      textOverlay.style.fontWeight = 'bold';
-      textOverlay.style.pointerEvents = 'none';
-      textOverlay.style.zIndex = 20;
-      posterContainer.appendChild(textOverlay);
-
-      // --- FORCE 9:16 VIDEO RATIO ---
-      const videoWrapper = document.createElement('div');
-      videoWrapper.style.width = '88vw'; // for portrait, narrower width
-      videoWrapper.style.maxHeight = '80vh';
-      videoWrapper.style.aspectRatio = '9/16'; // modern browsers, portrait
-      videoWrapper.style.overflow = 'hidden';
-      videoWrapper.style.display = 'flex';
-      videoWrapper.style.alignItems = 'center';
-      videoWrapper.style.justifyContent = 'center';
-
-      const cameraVideo = document.createElement('video');
-      cameraVideo.autoplay = true;
-      cameraVideo.playsInline = true;
-      cameraVideo.style.width = '100%';
-      cameraVideo.style.height = '100%';
-      cameraVideo.style.objectFit = 'contain';
-      cameraVideo.style.borderRadius = '14px';
-      cameraVideo.style.display = 'block';
-      cameraVideo.style.margin = '0 auto';
-
-      videoWrapper.appendChild(cameraVideo);
-      posterContainer.appendChild(videoWrapper);
-
-      // iPhone-style shutter button
-      const shutterBtn = document.createElement('button');
-      shutterBtn.title = 'Take Photo';
-      shutterBtn.className = 'custom-shutter-btn';
-      shutterBtn.style.position = 'absolute';
-      shutterBtn.style.left = '50%';
-      shutterBtn.style.bottom = '20px';
-      shutterBtn.style.transform = 'translateX(-50%)';
-      shutterBtn.style.width = '64px';
-      shutterBtn.style.height = '64px';
-      shutterBtn.style.background = 'white';
-      shutterBtn.style.border = '4px solid #ccc';
-      shutterBtn.style.borderRadius = '50%';
-      shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-      shutterBtn.style.display = 'flex';
-      shutterBtn.style.alignItems = 'center';
-      shutterBtn.style.justifyContent = 'center';
-      shutterBtn.style.cursor = 'pointer';
-      shutterBtn.style.zIndex = 12;
-      shutterBtn.style.outline = 'none';
-      shutterBtn.style.transition = 'box-shadow 0.1s';
-
-      // inner circle for shutter effect
-      const innerCircle = document.createElement('div');
-      innerCircle.style.width = '44px';
-      innerCircle.style.height = '44px';
-      innerCircle.style.background = '#fff';
-      innerCircle.style.borderRadius = '50%';
-      innerCircle.style.boxShadow = '0 0 0 2px #eee';
-      shutterBtn.appendChild(innerCircle);
-
-      posterContainer.appendChild(shutterBtn);
-
-      let imgPreview = null,
-        downloadBtn = null,
-        cancelBtn = null;
-
-      async function startCameraStream() {
-        try {
-          cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              facingMode: 'environment',
-              aspectRatio: 9 / 16, // <-- Request 9:16 aspect ratio
-              width: { ideal: 720 },
-              height: { ideal: 1280 }
-            }
-          });
-          cameraVideo.srcObject = cameraStream;
-        } catch (err) {
-          // fallback to default camera
-          try {
-            cameraStream = await navigator.mediaDevices.getUserMedia({
-              video: true,
-            });
-            cameraVideo.srcObject = cameraStream;
-          } catch (err2) {
-            alert('Could not access camera: ' + err2.message);
-          }
-        }
-      }
-
-      await startCameraStream();
-
-      shutterBtn.onclick = function () {
-        cameraVideo.pause();
-
-        if (imgPreview) imgPreview.remove();
-        if (downloadBtn) downloadBtn.remove();
-        if (cancelBtn) cancelBtn.remove();
-
-        // --- CROP TO 9:16 and DRAW TEXT ---
-        const videoW = cameraVideo.videoWidth;
-        const videoH = cameraVideo.videoHeight;
-        let outW = videoW, outH = videoH;
-        let sx = 0, sy = 0;
-
-        // Portrait crop calculation for 9:16
-        if (videoW / videoH > 9 / 16) {
-          // Video is wider than 9:16, crop width
-          outH = videoH;
-          outW = videoH * 9 / 16;
-          sx = (videoW - outW) / 2;
-        } else {
-          // Video is taller than 9:16, crop height
-          outW = videoW;
-          outH = videoW * 16 / 9;
-          sy = (videoH - outH) / 2;
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = outW;
-        canvas.height = outH;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(cameraVideo, sx, sy, outW, outH, 0, 0, outW, outH);
-
-        // --- Draw text overlay ---
-        if (markerText) {
-          ctx.font = "bold 36px 'Poppins', sans-serif";
-          ctx.textAlign = "center";
-          ctx.textBaseline = "top";
-          ctx.fillStyle = "rgba(0,0,0,0.4)";
-          ctx.fillRect(0, 0, canvas.width, 60);
-          ctx.fillStyle = "#fff";
-          ctx.fillText(markerText, canvas.width / 2, 14);
-        }
-
-        imgPreview = document.createElement('img');
-        imgPreview.src = canvas.toDataURL('image/png');
-        imgPreview.style.display = 'block';
-        imgPreview.style.margin = '16px auto 8px auto';
-        imgPreview.style.maxWidth = '90vw';
-        imgPreview.style.maxHeight = '60vh';
-        imgPreview.style.borderRadius = '12px';
-        imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-        posterContainer.appendChild(imgPreview);
-
-        downloadBtn = document.createElement('a');
-        downloadBtn.textContent = 'Download Photo';
-        downloadBtn.className = 'custom-button';
-        downloadBtn.href = imgPreview.src;
-        downloadBtn.download = 'photo.png';
-        downloadBtn.style.display = 'block';
-        downloadBtn.style.margin = '10px auto 0 auto';
-        downloadBtn.style.background = '#9b4dca';
-        downloadBtn.style.color = '#fff';
-        posterContainer.appendChild(downloadBtn);
-
-        cancelBtn = document.createElement('button');
-        cancelBtn.textContent = 'Cancel';
-        cancelBtn.className = 'custom-button';
-        cancelBtn.style.display = 'block';
-        cancelBtn.style.margin = '10px auto 0 auto';
-        cancelBtn.style.background = '#e0e0e0';
-        cancelBtn.style.color = '#333';
-        posterContainer.appendChild(cancelBtn);
-
-        // Hide video and shutter button and text overlay
-        videoWrapper.style.display = 'none';
-        shutterBtn.style.display = 'none';
-        textOverlay.style.display = 'none';
-
-        cancelBtn.onclick = function () {
-          if (imgPreview) imgPreview.remove();
-          if (downloadBtn) downloadBtn.remove();
-          if (cancelBtn) cancelBtn.remove();
-
-          videoWrapper.style.display = 'flex';
-          shutterBtn.style.display = 'flex';
-          textOverlay.style.display = 'block';
-
-          cameraVideo.play();
-        };
-      };
-    };
-
-
-    playBtn.onclick = () => {
-      playBtn.style.display = 'none';
-      spinner.style.display = 'block';
-      videoElement = document.createElement('video');
+    if (videoUrl) {
+      const videoElement = document.createElement('video');
       videoElement.src = videoUrl;
       if (posterUrl) videoElement.poster = posterUrl;
-      videoElement.style.border = '1.5px solid #E9E8E0';
-      videoElement.style.maxWidth = '88vw';
-      videoElement.style.maxHeight = '80vh';
+      videoElement.width = 300;
+      videoElement.height = 464;
       videoElement.style.borderRadius = '14px';
-      videoElement.controls = false;
-      videoElement.preload = 'auto';
+      videoElement.style.border = '1.5px solid #E9E8E0';
+      videoElement.controls = true;
       videoElement.autoplay = true;
       videoElement.setAttribute('playsinline', '');
       videoElement.setAttribute('webkit-playsinline', '');
       videoElement.playsInline = true;
-      showFirstVideoWaitMessage(videoElement);
-      let hasStarted = false;
+      container.appendChild(videoElement);
+    } else {
+      const msg = document.createElement('div');
+      msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">No video available.</p>';
+      container.appendChild(msg);
+    }
+    return container;
+  }
 
-      function showVideo() {
-        if (!hasStarted) {
-          hasStarted = true;
-          posterContainer.replaceChild(videoElement, posterImg);
-          spinner.style.display = 'none';
-        }
-      }
+  // 2. Text Board
+  function createTextboardItem() {
+    const container = document.createElement('div');
+    container.className = 'carousel-item';
+    container.style.width = '380px';
+    container.style.height = '464px';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.alignItems = 'center';
+    container.style.justifyContent = 'center';
+    container.style.background = '#fff';
+    container.style.borderRadius = '16px';
+    container.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    container.style.position = 'relative';
+    container.style.fontFamily = "'Poppins', sans-serif";
+    container.style.padding = '32px 18px';
 
-      function onProgress() {
-        if (videoElement.duration && videoElement.buffered.length) {
-          const bufferedEnd =
-            videoElement.buffered.end(videoElement.buffered.length - 1);
-          const percentBuffered = bufferedEnd / videoElement.duration;
-          if (percentBuffered >= 0.25 && !hasStarted) {
-            videoElement.play();
+    // Use building.textboard (user must add this to buildings.js)
+    const textboardContent = building.textboard || 'No board content yet.';
+    const title = document.createElement('div');
+    title.textContent = building.name || '';
+    title.style.fontSize = '1.2em';
+    title.style.fontWeight = 'bold';
+    title.style.marginBottom = '12px';
+    title.style.color = '#9b4dca';
+
+    const board = document.createElement('div');
+    board.textContent = textboardContent;
+    board.style.fontSize = '1.08em';
+    board.style.fontWeight = 'normal';
+    board.style.color = '#333';
+    board.style.textAlign = 'center';
+    board.style.lineHeight = '1.32';
+    board.style.marginBottom = '8px';
+
+    container.appendChild(title);
+    container.appendChild(board);
+    return container;
+  }
+
+  // 3. Camera Stream
+  function createCameraItem() {
+    const container = document.createElement('div');
+    container.className = 'carousel-item';
+    container.style.width = '380px';
+    container.style.height = '464px';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.alignItems = 'center';
+    container.style.justifyContent = 'center';
+    container.style.background = '#fff';
+    container.style.borderRadius = '16px';
+    container.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    container.style.position = 'relative';
+
+    // Camera Stream
+    const videoWrapper = document.createElement('div');
+    videoWrapper.style.width = '100%';
+    videoWrapper.style.height = '100%';
+    videoWrapper.style.display = 'flex';
+    videoWrapper.style.alignItems = 'center';
+    videoWrapper.style.justifyContent = 'center';
+
+    const cameraVideo = document.createElement('video');
+    cameraVideo.autoplay = true;
+    cameraVideo.playsInline = true;
+    cameraVideo.style.width = '100%';
+    cameraVideo.style.height = '100%';
+    cameraVideo.style.objectFit = 'contain';
+    cameraVideo.style.borderRadius = '14px';
+    cameraVideo.style.display = 'block';
+    cameraVideo.style.margin = '0 auto';
+
+    videoWrapper.appendChild(cameraVideo);
+    container.appendChild(videoWrapper);
+
+    // Camera and shutter controls
+    let cameraStream = null;
+    async function startCameraStream() {
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'environment',
+            aspectRatio: 9 / 16,
+            width: { ideal: 720 },
+            height: { ideal: 1280 }
           }
+        });
+        cameraVideo.srcObject = cameraStream;
+      } catch (err) {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+          cameraVideo.srcObject = cameraStream;
+        } catch (err2) {
+          let msg = document.createElement('div');
+          msg.innerHTML = '<p style="color:#9b4dca;font-weight:bold;">Could not access camera.</p>';
+          container.appendChild(msg);
         }
       }
+    }
+    startCameraStream();
 
-      videoElement.addEventListener('play', showVideo);
-      videoElement.addEventListener('progress', onProgress);
-      videoElement.addEventListener('click', () => {
-        videoElement.controls = true;
-      });
-      videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
-      videoElement.addEventListener('error', () => {
-        spinner.style.display = 'none';
-        playBtn.style.display = 'block';
-        alert('Video failed to load.');
-      });
-      videoElement.load();
-    };
+    // Shutter button
+    const shutterBtn = document.createElement('button');
+    shutterBtn.title = 'Take Photo';
+    shutterBtn.className = 'custom-shutter-btn';
+    shutterBtn.style.position = 'absolute';
+    shutterBtn.style.left = '50%';
+    shutterBtn.style.bottom = '20px';
+    shutterBtn.style.transform = 'translateX(-50%)';
+    shutterBtn.style.width = '64px';
+    shutterBtn.style.height = '64px';
+    shutterBtn.style.background = 'white';
+    shutterBtn.style.border = '4px solid #ccc';
+    shutterBtn.style.borderRadius = '50%';
+    shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+    shutterBtn.style.display = 'flex';
+    shutterBtn.style.alignItems = 'center';
+    shutterBtn.style.justifyContent = 'center';
+    shutterBtn.style.cursor = 'pointer';
+    shutterBtn.style.zIndex = 12;
+    shutterBtn.style.outline = 'none';
+    shutterBtn.style.transition = 'box-shadow 0.1s';
+
+    const innerCircle = document.createElement('div');
+    innerCircle.style.width = '44px';
+    innerCircle.style.height = '44px';
+    innerCircle.style.background = '#fff';
+    innerCircle.style.borderRadius = '50%';
+    innerCircle.style.boxShadow = '0 0 0 2px #eee';
+    shutterBtn.appendChild(innerCircle);
+    container.appendChild(shutterBtn);
+
+    let imgPreview = null, downloadBtn = null, cancelBtn = null;
+    shutterBtn.onclick = function () {
+      cameraVideo.pause();
+      if (imgPreview) imgPreview.remove();
+      if (downloadBtn) downloadBtn.remove();
+      if (cancelBtn) cancelBtn.remove();
+
+      // Crop and draw to canvas
+      const videoW = cameraVideo.videoWidth;
+      const videoH = cameraVideo.videoHeight;
+      let outW = videoW, outH = videoH;
+      let sx = 0, sy = 0;
+      if (videoW / videoH > 9 / 16) {
+        outH = videoH;
+        outW = videoH * 9 / 16;
+        sx = (videoW - outW) / 2;
+      } else {
+        outW = videoW;
+        outH = videoW * 16 / 9;
+        sy = (videoH - outH) / 2;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = outW;
+      canvas.height = outH;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(cameraVideo, sx, sy, outW, outH, 0, 0, outW, outH);
+
+      imgPreview = document.createElement('img');
+      imgPreview.src = canvas.toDataURL('image/png');
+      imgPreview.style.display = 'block';
+      imgPreview.style.margin = '16px auto 8px auto';
+      imgPreview.style.maxWidth = '90vw';
+      imgPreview.style.maxHeight = '60vh';
+      imgPreview.style.borderRadius = '12px';
+      imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+      container.appendChild(imgPreview);
+
+      downloadBtn = document.createElement('a');
+      downloadBtn.textContent = 'Download Photo';
+      downloadBtn.className = 'custom-button';
+      downloadBtn.href = imgPreview.src;
+      downloadBtn.download = 'photo.png';
+      downloadBtn.style.display = 'block';
+      downloadBtn.style.margin = '10px auto 0 auto';
+      downloadBtn.style.background = '#9b4dca';
+      downloadBtn.style.color = '#fff';
+      container.appendChild(downloadBtn);
+
+      cancelBtn = document.createElement('button');
+      cancelBtn.textContent = 'Cancel';
+      cancelBtn.className = 'custom-button';
+      cancelBtn.style.display = 'block';
+      cancelBtn.style.margin = '10px auto 0 auto';
+      cancelBtn.style.background = '#e0e0e0';
+      cancelBtn.style.color = '#333';
+      container.appendChild(cancelBtn);
+
+      cancelBtn.onclick = function () {
+        if (imgPreview) imgPreview.remove();
+        if (downloadBtn) downloadBtn.remove();
+        if (cancelBtn) cancelBtn.remove();
+        cameraVideo.play();
+      };
+    }
+    return container;
+  }
+
+  // Carousel item elements
+  const carouselItems = [
+    createVideoItem(),
+    createTextboardItem(),
+    createCameraItem()
+  ];
+  carouselItems.forEach((el, i) => {
+    el.style.transition = 'transform 0.33s cubic-bezier(.77,.2,.64,1.09), opacity 0.33s';
+    el.style.position = 'absolute';
+    el.style.top = '8px';
+    el.style.left = `${150 + 230 * i}px`; // initial positioning, will be updated
+    el.style.opacity = i === currentIndex ? '1' : '0.6';
+    carouselContainer.appendChild(el);
   });
-});
+
+  // Navigation Buttons
+  const prevBtn = document.createElement('button');
+  prevBtn.textContent = '‹';
+  prevBtn.className = 'carousel-nav-btn';
+  prevBtn.style.position = 'absolute';
+  prevBtn.style.left = '0px';
+  prevBtn.style.top = '50%';
+  prevBtn.style.transform = 'translateY(-50%)';
+  prevBtn.style.background = '#fff';
+  prevBtn.style.border = 'none';
+  prevBtn.style.borderRadius = '50%';
+  prevBtn.style.width = '48px';
+  prevBtn.style.height = '48px';
+  prevBtn.style.fontSize = '2.3em';
+  prevBtn.style.color = '#9b4dca';
+  prevBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+  prevBtn.style.cursor = 'pointer';
+  prevBtn.style.zIndex = 100;
+
+  const nextBtn = document.createElement('button');
+  nextBtn.textContent = '›';
+  nextBtn.className = 'carousel-nav-btn';
+  nextBtn.style.position = 'absolute';
+  nextBtn.style.right = '0px';
+  nextBtn.style.top = '50%';
+  nextBtn.style.transform = 'translateY(-50%)';
+  nextBtn.style.background = '#fff';
+  nextBtn.style.border = 'none';
+  nextBtn.style.borderRadius = '50%';
+  nextBtn.style.width = '48px';
+  nextBtn.style.height = '48px';
+  nextBtn.style.fontSize = '2.3em';
+  nextBtn.style.color = '#9b4dca';
+  nextBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+  nextBtn.style.cursor = 'pointer';
+  nextBtn.style.zIndex = 100;
+
+  carouselContainer.appendChild(prevBtn);
+  carouselContainer.appendChild(nextBtn);
+
+  function updateCarousel() {
+    // Each item is left: 30px (offscreen left), 150px (center), 370px (offscreen right)
+    for (let i = 0; i < carouselItems.length; ++i) {
+      const offset = i - currentIndex;
+      carouselItems[i].style.left = `${150 + offset * 230}px`;
+      carouselItems[i].style.opacity = (offset === 0) ? '1' : '0.6';
+      carouselItems[i].style.zIndex = offset === 0 ? '2' : '1';
+      carouselItems[i].style.filter = offset === 0 ? '' : 'scale(0.95) blur(2px)';
+      carouselItems[i].style.pointerEvents = offset === 0 ? 'auto' : 'none';
+    }
+    prevBtn.style.display = currentIndex === 0 ? 'none' : 'block';
+    nextBtn.style.display = currentIndex === carouselItems.length - 1 ? 'none' : 'block';
+  }
+  updateCarousel();
+
+  prevBtn.onclick = () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      updateCarousel();
+    }
+  };
+  nextBtn.onclick = () => {
+    if (currentIndex < carouselItems.length - 1) {
+      currentIndex++;
+      updateCarousel();
+    }
+  };
+
+  // Touch/drag swipe support
+  let dragStartX = null;
+  carouselContainer.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) dragStartX = e.touches[0].clientX;
+  });
+  carouselContainer.addEventListener('touchmove', (e) => {
+    if (dragStartX !== null && e.touches.length === 1) {
+      const dx = e.touches[0].clientX - dragStartX;
+      if (Math.abs(dx) > 60) {
+        if (dx > 0 && currentIndex > 0) {
+          currentIndex--;
+          updateCarousel();
+        } else if (dx < 0 && currentIndex < carouselItems.length - 1) {
+          currentIndex++;
+          updateCarousel();
+        }
+        dragStartX = null;
+      }
+    }
+  });
+  carouselContainer.addEventListener('touchend', () => {
+    dragStartX = null;
+  });
+
+  // Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '❌';
+  closeBtn.className = 'carousel-close-btn';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '-16px';
+  closeBtn.style.right = '-16px';
+  closeBtn.style.width = '32px';
+  closeBtn.style.height = '32px';
+  closeBtn.style.background = '#000';
+  closeBtn.style.color = '#fff';
+  closeBtn.style.border = '1.5px solid #E9E8E0';
+  closeBtn.style.borderRadius = '50%';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.fontSize = '1rem';
+  closeBtn.style.zIndex = '100001';
+  closeBtn.style.display = 'flex';
+  closeBtn.style.alignItems = 'center';
+  closeBtn.style.justifyContent = 'center';
+
+  closeBtn.onclick = () => {
+    overlay.remove();
+    setBlur(false);
+    // Stop camera stream
+    if (carouselItems[2] && carouselItems[2].querySelector('video') && carouselItems[2].querySelector('video').srcObject) {
+      let tracks = carouselItems[2].querySelector('video').srcObject.getTracks();
+      tracks.forEach(t => t.stop());
+    }
+  };
+
+  overlay.appendChild(carouselContainer);
+  overlay.appendChild(closeBtn);
+  document.body.appendChild(overlay);
+
+  // Click outside to close
+  overlay.addEventListener('mousedown', function (e) {
+    if (e.target === overlay) {
+      closeBtn.onclick();
+    }
+  });
+}
+
+// ======== END CAROUSEL MODAL FUNCTION ========
+
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
   const markerSize = zoomLevel - 13;
@@ -546,15 +572,12 @@ function scaleMarkersBasedOnZoom() {
     marker.style.width = markerWidth;
     marker.style.height = markerHeight;
     marker.style.borderWidth = borderWidth;
-
-    // Scale the bump if present
     const bump = marker.querySelector('.marker-bump');
     if (bump) {
       const bumpWidth = markerSize * 0.4 + 'em';
       const bumpHeight = markerSize * 0.25 + 'em';
       bump.style.width = bumpWidth;
       bump.style.height = bumpHeight;
-      // No border scaling needed for solid color
     }
   });
 }
@@ -570,15 +593,11 @@ map.on('click', (e) => {
 });
 map.on('zoom', () => scaleMarkersBasedOnZoom());
 
-// Only what requires style load
 map.on('load', () => {
   geolocate.trigger();
-
-  // Hide the loading screen after at least 5 seconds
   const loadingScreen = document.getElementById('loading-screen');
   const elapsed = Date.now() - loadingScreenStart;
-  const minDuration = 5000; // 5 seconds
-
+  const minDuration = 5000;
   if (loadingScreen) {
     if (elapsed >= minDuration) {
       loadingScreen.style.display = 'none';
@@ -589,7 +608,6 @@ map.on('load', () => {
     }
   }
 });
-// Function to parse URL parameters
 function getUrlParameter(name) {
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
   var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -597,53 +615,47 @@ function getUrlParameter(name) {
   return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
 
-// Get parameters from URL
 const lat = getUrlParameter('lat');
 const lng = getUrlParameter('lng');
 const zoom = getUrlParameter('zoom');
 
-// Default York coordinates and zoom
 const defaultCenter = [-1.0835104081554843, 53.95838745239521];
 const defaultZoom = 15;
 
-// Use URL parameters if available, otherwise use default values
 const initialCenter = lat && lng ? [parseFloat(lng), parseFloat(lat)] : defaultCenter;
 const initialZoom = zoom ? parseFloat(zoom) : defaultZoom;
 
-// Create a bottom sheet container
 const bottomSheet = document.createElement('div');
 bottomSheet.id = 'bottom-sheet';
 bottomSheet.style.position = 'fixed';
-bottomSheet.style.bottom = '-100%'; // Initially hidden
-bottomSheet.style.left = '50%'; // Align to the left
-bottomSheet.style.transform = 'translate(-50%)'; // Adjust position to align center both ways
+bottomSheet.style.bottom = '-100%';
+bottomSheet.style.left = '50%';
+bottomSheet.style.transform = 'translate(-50%)';
 bottomSheet.style.right = '50%';
 bottomSheet.style.width = '96%';
-bottomSheet.style.height = '40%'; // Adjust height as needed
+bottomSheet.style.height = '40%';
 bottomSheet.style.backgroundColor = '#fff';
 bottomSheet.style.borderTop = '2px solid #ccc';
 bottomSheet.style.boxShadow = '0 -6px 15px rgba(0, 0, 0, 0.3)';
 bottomSheet.style.zIndex = '10000';
 bottomSheet.style.transition = 'bottom 0.3s ease';
-bottomSheet.style.borderRadius = '12px 12px 0 0'; // Matches the popup's border-radius
-bottomSheet.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)'; // Matches the popup's shadow
-bottomSheet.style.backgroundColor = '#E9E8E0'; // Matches popup background color
-bottomSheet.style.border = '2px solid #f0f0f0'; // Matches popup border
-bottomSheet.style.fontFamily = "'Poppins', sans-serif"; // Matches popup font-family
-bottomSheet.style.fontSize = '14px'; // Matches popup font size
-bottomSheet.style.lineHeight = '1.05'; // Matches popup line height
-bottomSheet.style.padding = '5px'; // Matches popup padding
-bottomSheet.style.overflowY = 'auto'; // Make it scrollable
+bottomSheet.style.borderRadius = '12px 12px 0 0';
+bottomSheet.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
+bottomSheet.style.backgroundColor = '#E9E8E0';
+bottomSheet.style.border = '2px solid #f0f0f0';
+bottomSheet.style.fontFamily = "'Poppins', sans-serif";
+bottomSheet.style.fontSize = '14px';
+bottomSheet.style.lineHeight = '1.05';
+bottomSheet.style.padding = '5px';
+bottomSheet.style.overflowY = 'auto';
 document.body.appendChild(bottomSheet);
 
-// Function to generate a URL with given coordinates and zoom
 function generateMapLink(latitude, longitude, zoomLevel) {
   const baseUrl = window.location.origin + window.location.pathname;
   const params = `?lat=${latitude}&lng=${longitude}&zoom=${zoomLevel}`;
   return baseUrl + params;
 }
 
-// Container for both buttons
 const buttonGroup = document.createElement('div');
 buttonGroup.id = 'button-group';
 buttonGroup.style.position = 'fixed';
@@ -655,16 +667,13 @@ buttonGroup.style.display = 'flex';
 buttonGroup.style.gap = '10px';
 document.body.appendChild(buttonGroup);
 
-// Create a <style> element to add the CSS
 const stylePopup = document.createElement('style');
 
-// Add the link to Google Fonts for Poppins
 const link = document.createElement('link');
 link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap';
 link.rel = 'stylesheet';
 document.head.appendChild(link);
 
-// Style for the popup and markers
 stylePopup.innerHTML = `
   .mapboxgl-popup-content {
     border-radius: 12px !important;
@@ -678,7 +687,52 @@ stylePopup.innerHTML = `
     padding-bottom: 0 !important;
     margin-left: 3px;
     margin-right: 5px;
-    margin-bottom: 10px; /* Add this line */
+    margin-bottom: 10px;
+  }
+  .carousel-modal-overlay {
+    animation: fadeIn 0.21s cubic-bezier(.77,.2,.64,1.09);
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .carousel-container {
+    /* see JS for sizing */
+  }
+  .carousel-item {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    border-radius: 16px;
+    background: #fff;
+    transition: transform 0.33s cubic-bezier(.77,.2,.64,1.09), opacity 0.33s;
+    will-change: transform, opacity;
+  }
+  .carousel-nav-btn {
+    font-size: 2.3em;
+    background: #fff;
+    color: #9b4dca;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    cursor: pointer;
+    z-index: 100;
+    position: absolute;
+  }
+  .carousel-close-btn {
+    background: #000;
+    color: #fff;
+    border: 1.5px solid #E9E8E0;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 1rem;
+    z-index: 100001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
   }
   .mapboxgl-popup-content img {
     border: 2px solid #f0f0f0 !important;
@@ -756,14 +810,13 @@ stylePopup.innerHTML = `
   #bottom-sheet p {
     margin-bottom: 10px;
   }
-  /* Social media image grid */
-.marker-list-grid {
+  .marker-list-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 4px;
     margin-bottom: 8px;
-    justify-items: center; /* Center grid items horizontally */
-}
+    justify-items: center;
+  }
   .marker-list-grid-btn {
     background: none;
     border: none;
@@ -773,17 +826,17 @@ stylePopup.innerHTML = `
     flex-direction: column;
     align-items: center;
   }
-.marker-list-grid-img {
-    width: 100px;              /* Adjust as needed for your layout */
-    height: 178px;             /* 100 * 16 / 9 ≈ 178 for a 9:16 aspect ratio */
-    object-fit: cover;         /* Ensures image fills the box, cropping as needed */
+  .marker-list-grid-img {
+    width: 100px;
+    height: 178px;
+    object-fit: cover;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     border: 1.5px solid #E9E8E0;
     background: #fff;
     display: block;
     margin-bottom: 0;
-}
+  }
   .marker-list-grid-label {
     font-size: 11px;
     font-weight: bold;
@@ -794,7 +847,6 @@ stylePopup.innerHTML = `
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  /* iPhone-style camera shutter */
   .custom-shutter-btn {
     background: white;
     border: 4px solid #ccc;
@@ -822,7 +874,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   markerDiv.style.borderRadius = '50%';
   markerDiv.style.border = `0.05em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
-  markerDiv.style.overflow = 'visible'; // allow the bump to overflow
+  markerDiv.style.overflow = 'visible';
   markerDiv.style.background = 'white';
   markerDiv.style.display = 'flex';
   markerDiv.style.alignItems = 'center';
@@ -835,7 +887,6 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
 
-  // Create the "bump" at the bottom as a smooth upside-down triangle (teardrop)
   const bump = document.createElement('div');
   bump.className = 'marker-bump';
   bump.style.position = 'absolute';
@@ -844,7 +895,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   bump.style.transform = 'translateX(-50%)';
   bump.style.width = '5em';
   bump.style.height = '0.5em';
-  bump.style.background = color; // Or 'white' for a hollow pyramid with border
+  bump.style.background = color;
   bump.style.clipPath =
     'polygon(0% 0%, 100% 0%, 55% 96%, 56% 100%, 44% 100%, 45% 96%)';
   bump.style.zIndex = '1';
@@ -858,14 +909,12 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   };
 }
 
-// Toggle functionality for the bottom sheet
 let isBottomSheetOpen = false;
 
 function toggleBottomSheet(contentHTML) {
   if (isBottomSheetOpen) {
-    bottomSheet.style.bottom = '-100%'; // Hide
+    bottomSheet.style.bottom = '-100%';
   } else {
-    // Add a close button to the top-right corner of the content
     const closeButtonHTML = `
             <button id="close-bottom-sheet" style="
                 position: absolute;
@@ -881,18 +930,16 @@ function toggleBottomSheet(contentHTML) {
             ">❌</button>
         `;
 
-    bottomSheet.innerHTML = closeButtonHTML + contentHTML; // Add close button + content
-    bottomSheet.style.bottom = '0'; // Show
+    bottomSheet.innerHTML = closeButtonHTML + contentHTML;
+    bottomSheet.style.bottom = '0';
 
-    // Attach event listener to the close button
     document.getElementById('close-bottom-sheet').addEventListener('click', () => {
-      // Stop video playback
-      const videoElement = document.querySelector('video'); // Adjust selector as needed
+      const videoElement = document.querySelector('video');
       if (videoElement) {
         videoElement.pause();
-        videoElement.currentTime = 0; // Optional: Reset video to start
+        videoElement.currentTime = 0;
       }
-      toggleBottomSheet(); // Close the popup
+      toggleBottomSheet();
     });
   }
   isBottomSheetOpen = !isBottomSheetOpen;
@@ -950,13 +997,11 @@ function createPopupContent(location, isFirebase = false) {
 // ========== Support Button + Marker List Button & Popup =============
 
 document.addEventListener('DOMContentLoaded', () => {
-  // === SUPPORT BUTTON ===
   const button = document.createElement('button');
   button.id = 'custom-bmc-button';
   button.className = 'custom-button';
   button.textContent = '❤️ This site costs - please support it ❤️';
 
-  // Create the dropdown content
   const dropdownContent = document.createElement('div');
   dropdownContent.style.display = 'none';
   dropdownContent.style.position = 'fixed';
@@ -1018,7 +1063,6 @@ document.addEventListener('DOMContentLoaded', () => {
 <div id="donor-list" style="margin-top: 10px;"></div>
     `;
 
-  // Wrap the button and dropdown in a container
   const dropdownContainer = document.createElement('div');
   dropdownContainer.className = 'dropdown';
   dropdownContainer.style.position = 'fixed';
@@ -1031,8 +1075,6 @@ document.addEventListener('DOMContentLoaded', () => {
   dropdownContainer.style.alignItems = 'center';
   dropdownContainer.appendChild(button);
 
-  // === MARKER LIST BUTTON & POPUP ===
-  // Create the marker list button
   const markerListButton = document.createElement('button');
   markerListButton.textContent = '🔍 Search Locations';
   markerListButton.className = 'custom-button';
@@ -1041,7 +1083,6 @@ document.addEventListener('DOMContentLoaded', () => {
   markerListButton.style.marginRight = 'auto';
   markerListButton.style.display = 'block';
 
-  // Marker list popup
   const markerListPopup = document.createElement('div');
   markerListPopup.style.display = 'none';
   markerListPopup.style.position = 'fixed';
@@ -1061,7 +1102,6 @@ document.addEventListener('DOMContentLoaded', () => {
   markerListPopup.style.fontSize = '15px';
   markerListPopup.style.lineHeight = '1.28';
 
-  // Mode toggle UI
   const popupModeContainer = document.createElement('div');
   popupModeContainer.style.display = 'flex';
   popupModeContainer.style.justifyContent = 'center';
@@ -1103,7 +1143,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateModeButtons();
     popupContentDiv.innerHTML = '';
     if (popupMode === 'list') {
-      // Alphabetical order
       const allMarkers = [
         ...locations.map((l) => ({ name: l.name, coords: l.coords })),
         ...buildings.map((b) => ({ name: b.name, coords: b.coords })),
@@ -1123,7 +1162,6 @@ document.addEventListener('DOMContentLoaded', () => {
         popupContentDiv.appendChild(item);
       });
     } else {
-      // Social media mode
       const socialBuildings = buildings.filter((b) => b['social media'] === 'yes');
       if (!socialBuildings.length) {
         popupContentDiv.innerHTML +=
@@ -1148,7 +1186,6 @@ document.addEventListener('DOMContentLoaded', () => {
         popupContentDiv.appendChild(grid);
       }
     }
-    // Add close button at the end (always)
     const close = document.createElement('button');
     close.textContent = 'Close';
     close.className = 'custom-button';
@@ -1180,13 +1217,11 @@ document.addEventListener('DOMContentLoaded', () => {
   markerListPopup.appendChild(popupModeContainer);
   markerListPopup.appendChild(popupContentDiv);
 
-  // Center the button below the support button
   dropdownContainer.appendChild(markerListButton);
-  dropdownContainer.appendChild(dropdownContent); // keep donors popup functional
+  dropdownContainer.appendChild(dropdownContent);
   document.body.appendChild(dropdownContainer);
   document.body.appendChild(markerListPopup);
 
-  // Function to add donors
   function addDonor(name, amount, subtext) {
     const donorList = document.getElementById('donor-list');
     const donorDiv = document.createElement('div');
@@ -1219,7 +1254,6 @@ document.addEventListener('DOMContentLoaded', () => {
       dropdownContent.style.display === 'block' ? 'none' : 'block';
   });
 
-  // Close popups when clicking outside
   document.addEventListener('click', (event) => {
     if (
       !dropdownContainer.contains(event.target) &&
@@ -1231,6 +1265,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Set the dropdown width to match the button width
   dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
 });
