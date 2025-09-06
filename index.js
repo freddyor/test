@@ -152,9 +152,6 @@ function showPeekCarouselModal(building) {
   modalContainer.style.top = '50%';
   modalContainer.style.left = '50%';
   modalContainer.style.transform = 'translate(-50%, -50%)';
-  modalContainer.style.background = '#fff';
-  modalContainer.style.borderRadius = '16px';
-  modalContainer.style.boxShadow = '0 8px 32px rgba(0,0,0,0.22)';
   modalContainer.style.display = 'block';
   modalContainer.style.overflow = 'visible';
   modalContainer.style.zIndex = '100001';
