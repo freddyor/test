@@ -306,8 +306,9 @@ buildings.forEach((building) => {
       const cameraVideo = document.createElement('video');
       cameraVideo.autoplay = true;
       cameraVideo.playsInline = true;
-      cameraVideo.style.maxWidth = '88vw';
-      cameraVideo.style.maxHeight = '80vh';
+      cameraVideo.style.width = '90vw';
+cameraVideo.style.height = '160vw';    // 16/9 * width → portrait
+cameraVideo.style.objectFit = 'cover'; // crop/fill container
       cameraVideo.style.borderRadius = '14px';
       cameraVideo.style.display = 'block';
       cameraVideo.style.margin = '0 auto';
@@ -329,16 +330,22 @@ buildings.forEach((building) => {
 
       async function startCameraStream() {
         try {
-          cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment' },
-          });
+cameraStream = await navigator.mediaDevices.getUserMedia({
+  video: { 
+    facingMode: 'environment',
+    aspectRatio: 9/16      // <- Enforce portrait 9:16 ratio
+  },
+});
           cameraVideo.srcObject = cameraStream;
         } catch (err) {
           // fallback to default camera
           try {
-            cameraStream = await navigator.mediaDevices.getUserMedia({
-              video: true,
-            });
+cameraStream = await navigator.mediaDevices.getUserMedia({
+  video: { 
+    aspectRatio: 9/16 
+  },
+});
+
             cameraVideo.srcObject = cameraStream;
           } catch (err2) {
             alert('Could not access camera: ' + err2.message);
@@ -357,11 +364,16 @@ buildings.forEach((building) => {
         if (downloadBtn) downloadBtn.remove();
         if (cancelBtn) cancelBtn.remove();
 
-        const canvas = document.createElement('canvas');
-        canvas.width = cameraVideo.videoWidth;
-        canvas.height = cameraVideo.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+const canvas = document.createElement('canvas');
+const targetWidth = 720;    // you can pick 720, 1080 etc.
+const targetHeight = 1280;  // ensures 9:16 aspect
+canvas.width = targetWidth;
+canvas.height = targetHeight;
+
+const ctx = canvas.getContext('2d');
+// Center/crop the video feed into 9:16 canvas
+ctx.drawImage(cameraVideo, 0, 0, targetWidth, targetHeight);
+
 
         // --- DRAW TEXT OVERLAY ON IMAGE ---
         if (markerText) {
