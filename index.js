@@ -136,9 +136,12 @@ overlay.style.webkitBackdropFilter = 'blur(10px)'; // For Safari
 
     // Camera icon button
     const cameraIcon = document.createElement('button');
-    cameraIcon.innerHTML = `
-  <svg xmlns="http://www.w3.org/2000/svg" fill="#333" width="32" height="32" viewBox="0 0 24 24">
-    <path d="M20 7h-1.586l-1.707-1.707A.996.996 0 0 0 16 5h-2V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v1H4c-1.104 0-2 .896-2 2v11c0 1.104.896 2 2 2h16c1.104 0 2-.896 2-2V9c0-1.104-.896-2-2-2ZM8 4h4v1H8V4Zm12 15c0 .552-.448 1-1 1H4c-.552 0-1-.448-1-1V9c0-.552.448-1 1-1h16c.552 0 1 .448 1 1v10ZM12 8c-2.761 0-5 2.239-5 5s2.239 5 5 5 5-2.239 5-5-2.239-5-5-5Zm0 8c-1.654 0-3-1.346-3-3s1.346-3 3-3 3 1.346 3 3-1.346 3-3 3Z"/>
+cameraIcon.innerHTML = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="7" width="18" height="14" rx="4" ry="4"></rect>
+    <circle cx="12" cy="14" r="3.5"></circle>
+    <circle cx="17.5" cy="10.5" r="1"></circle>
+    <rect x="8" y="3" width="8" height="4" rx="2" ry="2"></rect>
   </svg>
 `;
     cameraIcon.title = 'Open Camera';
