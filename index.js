@@ -521,6 +521,8 @@ cameraIcon.onclick = async function () {
     }
     ctx.restore();
 
+    // ... previous code (unchanged) ...
+
     imgPreview = document.createElement('img');
     imgPreview.src = canvas.toDataURL('image/png');
     imgPreview.style.display = 'block';
@@ -531,15 +533,19 @@ cameraIcon.onclick = async function () {
     imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
     posterContainer.appendChild(imgPreview);
 
-    downloadBtn = document.createElement('a');
-    downloadBtn.textContent = 'Download Photo';
+    // Replace download button with informational button
+    downloadBtn = document.createElement('button');
+    downloadBtn.textContent = 'Hold photo to share or save to photos';
     downloadBtn.className = 'custom-button';
-    downloadBtn.href = imgPreview.src;
-    downloadBtn.download = 'photo.png';
     downloadBtn.style.display = 'block';
     downloadBtn.style.margin = '10px auto 0 auto';
     downloadBtn.style.background = '#9b4dca';
     downloadBtn.style.color = '#fff';
+    // Disable any click action
+    downloadBtn.onclick = function (e) {
+      e.preventDefault();
+      return false;
+    };
     posterContainer.appendChild(downloadBtn);
 
     cancelBtn = document.createElement('button');
@@ -570,6 +576,8 @@ cameraIcon.onclick = async function () {
     };
   };
 };
+
+// --- the rest is the same ---
 
 
     playBtn.onclick = () => {
