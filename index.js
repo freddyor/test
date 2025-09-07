@@ -1179,11 +1179,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
- dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
-  }); 
-}
+  dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
 
-  // This was previously outside the handler!
+  // This block should be inside the handler
   if (auth.currentUser) {
     updateUI(auth.currentUser);
     if (!window.mapInitDone) {
@@ -1191,3 +1189,4 @@ document.addEventListener('DOMContentLoaded', () => {
       initMapLogic();
     }
   }
+});
