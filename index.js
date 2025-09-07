@@ -276,10 +276,6 @@ buildings.forEach((building) => {
       if (e.target === overlay) removeOverlayAndPauseVideo();
     });
 
-   // ... previous code (unchanged) ...
-
-// ... previous code (unchanged) ...
-
 // ... previous code (unchanged) ...
 
 cameraIcon.onclick = async function () {
@@ -302,7 +298,7 @@ cameraIcon.onclick = async function () {
   const textOverlay = document.createElement('div');
   textOverlay.textContent = markerText;
   textOverlay.style.position = 'absolute';
-  textOverlay.style.top = '16px';
+  textOverlay.style.top = '38px'; // Moved further down (was 16px)
   textOverlay.style.left = '50%';
   textOverlay.style.transform = 'translateX(-50%)';
   textOverlay.style.background = 'rgba(0,0,0,0.4)';
@@ -316,6 +312,7 @@ cameraIcon.onclick = async function () {
   textOverlay.style.fontFamily = "'Poppins', sans-serif";
   textOverlay.style.textAlign = "center"; // Center align
   textOverlay.style.lineHeight = "0.8"; // Reduce line spacing by 50%
+  textOverlay.style.width = "calc(100vw - 24px)"; // Wider overlay, 12px margin each side
   posterContainer.appendChild(textOverlay);
 
   const cameraVideo = document.createElement('video');
@@ -426,7 +423,7 @@ cameraIcon.onclick = async function () {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
-    // --- Match overlay styling ---
+    // --- Match overlay styling and make it wider, and lower ---
     // Get computed styles and bounding box from the textOverlay div
     const overlayRect = textOverlay.getBoundingClientRect();
     const videoRect = cameraVideo.getBoundingClientRect();
@@ -441,7 +438,7 @@ cameraIcon.onclick = async function () {
     let textBoxWidth = overlayWidth * scaleX;
     let textBoxHeight = overlayHeight * scaleY;
 
-    // Draw background rectangle
+    // Draw background rectangle, wider, lower
     ctx.save();
     ctx.globalAlpha = 0.4;
     ctx.fillStyle = "#000";
@@ -449,20 +446,17 @@ cameraIcon.onclick = async function () {
     if (ctx.roundRect) {
       ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
     } else {
-      // fallback for Safari
       ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
     }
     ctx.fill();
     ctx.restore();
 
-    // Draw the text
+    // Draw the text, center aligned, smaller, with reduced line spacing
     ctx.save();
     ctx.font = `bold ${12 * scaleY}px 'Poppins', sans-serif`; // Smaller text
     ctx.fillStyle = "#fff";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-
-    // Reduce line spacing: split lines and manually draw
     const lines = markerText.split("\n");
     const lineHeight = 0.8 * 12 * scaleY; // 0.8 times font size
     const midY = textBoxY + textBoxHeight / 2;
