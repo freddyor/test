@@ -261,7 +261,7 @@ function initMapLogic() {
       posterContainer.style.position = 'relative';
       posterContainer.style.marginTop = '-60px';
 
-            const cameraIcon = document.createElement('button');
+      const cameraIcon = document.createElement('button');
       cameraIcon.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="7" width="18" height="14" rx="4" ry="4"></rect>
@@ -1181,7 +1181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Set the dropdown width to match the button width
   dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
-}); // <--- THIS closes the DOMContentLoaded event listener
+}); // <-- THIS closes the DOMContentLoaded event handler
 
 if (auth.currentUser) {
   updateUI(auth.currentUser);
