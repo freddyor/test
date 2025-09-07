@@ -457,7 +457,6 @@ function showFirebaseLoginModal(onSuccess) {
   modalWrapper.onclick = (e) => {
     if (e.target === modalWrapper) modalWrapper.remove();
   };
-  }
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
