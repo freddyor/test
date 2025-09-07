@@ -253,7 +253,7 @@ function showVideoOverlayWithFirebase(building) {
   likeCountSpan.className = 'like-count';
   likeCountSpan.style.marginLeft = '6px';
   likeCountSpan.style.fontWeight = 'bold';
-  likeButton.appendChild(document.createTextNode('👍 Like'));
+  likeButton.appendChild(document.createTextNode('❤️'));
   likeButton.appendChild(likeCountSpan);
   posterContainer.appendChild(likeButton);
 
