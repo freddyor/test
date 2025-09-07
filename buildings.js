@@ -6,7 +6,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_9EE65B51-E028-4B53-9CBC-6BD4CD9C9621 - VEED Export.mp4",          
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8721.webp",
     "social media": "yes",
-    "text": "The heart of medieval York",
+    "text": "The site of the first recorded lesbian marriage in history 💍",
   },
                                             {
      'name': 'Grays Court',
