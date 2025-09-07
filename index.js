@@ -276,8 +276,6 @@ buildings.forEach((building) => {
       if (e.target === overlay) removeOverlayAndPauseVideo();
     });
 
-    // ... previous code (unchanged) ...
-
 // ... previous code (unchanged) ...
 
 cameraIcon.onclick = async function () {
@@ -296,29 +294,31 @@ cameraIcon.onclick = async function () {
   cameraIcon.remove();
   posterContainer.innerHTML = '';
 
-  // --- TEXT OVERLAY: bring sides in to match top/bottom, increase line gap ---
+  // --- TEXT OVERLAY: bring in overlay sides, so it's inset from the video/photo edges ---
   const overlayPaddingY = 6;   // px - vertical padding (top/bottom)
-  const overlayPaddingX = 12;  // px - horizontal padding (left/right, now matches vertical!)
+  const overlayPaddingX = 12;  // px - horizontal padding (left/right)
+  const overlayInset = 16;     // px - overlay inset from left/right of video/photo
   const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
 
   const textOverlay = document.createElement('div');
   textOverlay.textContent = markerText;
   textOverlay.style.position = 'absolute';
-  textOverlay.style.top = '38px'; // Lower down the page
+  textOverlay.style.top = '38px';
   textOverlay.style.left = '50%';
   textOverlay.style.transform = 'translateX(-50%)';
   textOverlay.style.background = 'rgba(0,0,0,0.4)';
   textOverlay.style.color = '#fff';
   textOverlay.style.padding = overlayInnerPadding;
   textOverlay.style.borderRadius = '8px';
-  textOverlay.style.fontSize = '12px'; // Smaller text
+  textOverlay.style.fontSize = '12px';
   textOverlay.style.fontWeight = 'bold';
   textOverlay.style.pointerEvents = 'none';
   textOverlay.style.zIndex = 20;
   textOverlay.style.fontFamily = "'Poppins', sans-serif";
-  textOverlay.style.textAlign = "center"; // Center align
-  textOverlay.style.lineHeight = "1"; // Slightly increased from 0.8 (was 0.8, now 1)
-  textOverlay.style.width = "calc(90vw - 2 * 12px)"; // Match video width, side padding now same as vertical
+  textOverlay.style.textAlign = "center";
+  textOverlay.style.lineHeight = "1"; // Slightly increased
+  // Make overlay width slightly less than video width, inset by overlayInset on both sides
+  textOverlay.style.width = `calc(90vw - ${2 * overlayInset}px)`;
   posterContainer.appendChild(textOverlay);
 
   const cameraVideo = document.createElement('video');
@@ -571,7 +571,6 @@ cameraIcon.onclick = async function () {
   };
 };
 
-// --- the rest is the same ---
 
     playBtn.onclick = () => {
       playBtn.style.display = 'none';
