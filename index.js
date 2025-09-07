@@ -1179,14 +1179,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Set the dropdown width to match the button width
-  dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
-}); // <-- THIS closes the DOMContentLoaded event handler
+ dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
 
-if (auth.currentUser) {
-  updateUI(auth.currentUser);
-  if (!window.mapInitDone) {
-    window.mapInitDone = true;
-    initMapLogic();
+  // This was previously outside the handler!
+  if (auth.currentUser) {
+    updateUI(auth.currentUser);
+    if (!window.mapInitDone) {
+      window.mapInitDone = true;
+      initMapLogic();
+    }
   }
-}
+}); 
