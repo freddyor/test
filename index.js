@@ -248,13 +248,40 @@ function showVideoOverlayWithFirebase(building) {
   const likeButton = document.createElement('button');
   likeButton.className = 'custom-button like-btn';
   likeButton.style.marginTop = '10px';
-  likeButton.textContent = '👍 Like';
+  // Like count span
+  const likeCountSpan = document.createElement('span');
+  likeCountSpan.className = 'like-count';
+  likeCountSpan.style.marginLeft = '6px';
+  likeCountSpan.style.fontWeight = 'bold';
+  likeButton.appendChild(document.createTextNode('👍 Like'));
+  likeButton.appendChild(likeCountSpan);
   posterContainer.appendChild(likeButton);
+
+  // Helper to get likes count
+  async function getLikesCount(videoId) {
+    try {
+      const countDocRef = doc(db, "videoLikes", videoId);
+      const countDocSnap = await getDoc(countDocRef);
+      if (countDocSnap.exists()) {
+        return countDocSnap.data().count || 1;
+      }
+    } catch (e) {
+      // ignore errors, fallback below
+    }
+    return '?';
+  }
+
+  // Update like count
+  async function updateLikeCount(videoId) {
+    const count = await getLikesCount(videoId);
+    likeCountSpan.textContent = count;
+  }
 
   async function updateLikeButtonState() {
     const user = auth.currentUser;
+    await updateLikeCount(videoUrl);
     if (!user) {
-      likeButton.textContent = '👍 Like';
+      likeButton.childNodes[0].textContent = '👍 Like';
       likeButton.disabled = false;
       likeButton.classList.remove('liked');
       return;
@@ -262,11 +289,11 @@ function showVideoOverlayWithFirebase(building) {
     const likeDocRef = doc(db, "likes", `${videoUrl}_${user.uid}`);
     const likeDocSnap = await getDoc(likeDocRef);
     if (likeDocSnap.exists()) {
-      likeButton.textContent = '👍 Liked';
+      likeButton.childNodes[0].textContent = '👍 Liked';
       likeButton.disabled = true;
       likeButton.classList.add('liked');
     } else {
-      likeButton.textContent = '👍 Like';
+      likeButton.childNodes[0].textContent = '👍 Like';
       likeButton.disabled = false;
       likeButton.classList.remove('liked');
     }
@@ -277,10 +304,12 @@ function showVideoOverlayWithFirebase(building) {
     if (!user) {
       showFirebaseLoginModal(async () => {
         await handleFirebaseLike(videoUrl);
+        await incrementLikeCount(videoUrl);
         updateLikeButtonState();
       });
     } else {
       await handleFirebaseLike(videoUrl);
+      await incrementLikeCount(videoUrl);
       updateLikeButtonState();
     }
   };
@@ -299,6 +328,21 @@ function showVideoOverlayWithFirebase(building) {
       userId: user.uid,
       timestamp: new Date().toISOString()
     });
+  }
+
+  async function incrementLikeCount(videoId) {
+    try {
+      const countDocRef = doc(db, "videoLikes", videoId);
+      const countDocSnap = await getDoc(countDocRef);
+      if (countDocSnap.exists()) {
+        const currentCount = countDocSnap.data().count || 1;
+        await setDoc(countDocRef, { count: currentCount + 1 }, { merge: true });
+      } else {
+        await setDoc(countDocRef, { count: 1 });
+      }
+    } catch (e) {
+      // ignore errors
+    }
   }
 
   posterContainer.appendChild(posterImg);
@@ -364,6 +408,9 @@ function showVideoOverlayWithFirebase(building) {
     videoElement.load();
   };
 }
+
+// --- LOGIN MODAL ---
+// ... (rest of the file unchanged, see your original for rest)
 
 // --- LOGIN MODAL ---
 function showFirebaseLoginModal(onSuccess) {
