@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -253,7 +253,8 @@ function showVideoOverlayWithFirebase(building) {
   likeCountSpan.className = 'like-count';
   likeCountSpan.style.marginLeft = '6px';
   likeCountSpan.style.fontWeight = 'bold';
-  likeButton.appendChild(document.createTextNode('❤️'));
+  // Default: show unliked
+  likeButton.appendChild(document.createTextNode('🖤'));
   likeButton.appendChild(likeCountSpan);
   posterContainer.appendChild(likeButton);
 
@@ -263,12 +264,12 @@ function showVideoOverlayWithFirebase(building) {
       const countDocRef = doc(db, "videoLikes", videoId);
       const countDocSnap = await getDoc(countDocRef);
       if (countDocSnap.exists()) {
-        return countDocSnap.data().count || 1;
+        return countDocSnap.data().count || 0;
       }
     } catch (e) {
       // ignore errors, fallback below
     }
-    return '?';
+    return 0;
   }
 
   // Update like count
@@ -281,7 +282,7 @@ function showVideoOverlayWithFirebase(building) {
     const user = auth.currentUser;
     await updateLikeCount(videoUrl);
     if (!user) {
-      likeButton.childNodes[0].textContent = '👍 Like';
+      likeButton.childNodes[0].textContent = '🖤';
       likeButton.disabled = false;
       likeButton.classList.remove('liked');
       return;
@@ -289,59 +290,51 @@ function showVideoOverlayWithFirebase(building) {
     const likeDocRef = doc(db, "likes", `${videoUrl}_${user.uid}`);
     const likeDocSnap = await getDoc(likeDocRef);
     if (likeDocSnap.exists()) {
-      likeButton.childNodes[0].textContent = '👍 Liked';
-      likeButton.disabled = true;
+      likeButton.childNodes[0].textContent = '❤️';
+      likeButton.disabled = false;
       likeButton.classList.add('liked');
     } else {
-      likeButton.childNodes[0].textContent = '👍 Like';
+      likeButton.childNodes[0].textContent = '🖤';
       likeButton.disabled = false;
       likeButton.classList.remove('liked');
     }
   }
 
+  // Like/Unlike logic
   likeButton.onclick = async () => {
     const user = auth.currentUser;
     if (!user) {
       showFirebaseLoginModal(async () => {
-        await handleFirebaseLike(videoUrl);
-        await incrementLikeCount(videoUrl);
+        await toggleFirebaseLike(videoUrl);
         updateLikeButtonState();
       });
     } else {
-      await handleFirebaseLike(videoUrl);
-      await incrementLikeCount(videoUrl);
+      await toggleFirebaseLike(videoUrl, user.uid);
       updateLikeButtonState();
     }
   };
 
-  async function handleFirebaseLike(videoId) {
+  async function toggleFirebaseLike(videoId, userId) {
     const user = auth.currentUser;
     if (!user) return;
     const likeRef = doc(db, "likes", `${videoId}_${user.uid}`);
+    const countDocRef = doc(db, "videoLikes", videoId);
     const likeDoc = await getDoc(likeRef);
-    if (likeDoc.exists()) {
-      alert('You already liked this video!');
-      return;
-    }
-    await setDoc(likeRef, {
-      videoId,
-      userId: user.uid,
-      timestamp: new Date().toISOString()
-    });
-  }
+    const countDocSnap = await getDoc(countDocRef);
+    let currentCount = (countDocSnap.exists() ? countDocSnap.data().count : 0) || 0;
 
-  async function incrementLikeCount(videoId) {
-    try {
-      const countDocRef = doc(db, "videoLikes", videoId);
-      const countDocSnap = await getDoc(countDocRef);
-      if (countDocSnap.exists()) {
-        const currentCount = countDocSnap.data().count || 1;
-        await setDoc(countDocRef, { count: currentCount + 1 }, { merge: true });
-      } else {
-        await setDoc(countDocRef, { count: 1 });
-      }
-    } catch (e) {
-      // ignore errors
+    if (likeDoc.exists()) {
+      // Unlike: remove like, decrement count
+      await setDoc(countDocRef, { count: Math.max(0, currentCount - 1) }, { merge: true });
+      await deleteDoc(likeRef);
+    } else {
+      // Like: add like, increment count
+      await setDoc(likeRef, {
+        videoId,
+        userId: user.uid,
+        timestamp: new Date().toISOString()
+      });
+      await setDoc(countDocRef, { count: currentCount + 1 }, { merge: true });
     }
   }
 
@@ -923,10 +916,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <b>If this site was free for you to use, it means someone else paid forward.</b>
         </div>
            <div class="project-info" style="margin-bottom: 15px;">
-            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no other city has before.
+            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no[...]
         </div>
         <div class="project-info" style="margin-bottom: 15px;">
-             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic images from York Archives to use) ❤️
+             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic imag[...]
         </div>
         <button 
             class="support-button" 
