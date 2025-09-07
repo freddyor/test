@@ -552,7 +552,7 @@ cameraIcon.onclick = async function () {
 
     // Cancel button (was grey, now purple)
     cancelBtn = document.createElement('button');
-    cancelBtn.textContent = 'Cancel';
+    cancelBtn.textContent = 'Take again';
     cancelBtn.className = 'custom-button';
     cancelBtn.style.display = 'block';
     cancelBtn.style.margin = '10px auto 0 auto';
