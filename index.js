@@ -278,6 +278,8 @@ buildings.forEach((building) => {
 
     // ... previous code (unchanged) ...
 
+// ... previous code (unchanged) ...
+
 cameraIcon.onclick = async function () {
   if (
     !(
@@ -294,7 +296,11 @@ cameraIcon.onclick = async function () {
   cameraIcon.remove();
   posterContainer.innerHTML = '';
 
-  // --- TEXT OVERLAY: width matches video, stays inside by some padding ---
+  // --- TEXT OVERLAY: bring sides in to match top/bottom, increase line gap ---
+  const overlayPaddingY = 6;   // px - vertical padding (top/bottom)
+  const overlayPaddingX = 12;  // px - horizontal padding (left/right, now matches vertical!)
+  const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
+
   const textOverlay = document.createElement('div');
   textOverlay.textContent = markerText;
   textOverlay.style.position = 'absolute';
@@ -303,7 +309,7 @@ cameraIcon.onclick = async function () {
   textOverlay.style.transform = 'translateX(-50%)';
   textOverlay.style.background = 'rgba(0,0,0,0.4)';
   textOverlay.style.color = '#fff';
-  textOverlay.style.padding = '6px 18px';
+  textOverlay.style.padding = overlayInnerPadding;
   textOverlay.style.borderRadius = '8px';
   textOverlay.style.fontSize = '12px'; // Smaller text
   textOverlay.style.fontWeight = 'bold';
@@ -311,8 +317,8 @@ cameraIcon.onclick = async function () {
   textOverlay.style.zIndex = 20;
   textOverlay.style.fontFamily = "'Poppins', sans-serif";
   textOverlay.style.textAlign = "center"; // Center align
-  textOverlay.style.lineHeight = "0.8"; // Reduce line spacing by 50%
-  textOverlay.style.width = "calc(90vw - 32px)"; // Match video width, 16px padding each side
+  textOverlay.style.lineHeight = "1"; // Slightly increased from 0.8 (was 0.8, now 1)
+  textOverlay.style.width = "calc(90vw - 2 * 12px)"; // Match video width, side padding now same as vertical
   posterContainer.appendChild(textOverlay);
 
   const cameraVideo = document.createElement('video');
@@ -457,7 +463,7 @@ cameraIcon.onclick = async function () {
     let fontSizePx = parseFloat(computedStyle.fontSize);
     let fontFamily = computedStyle.fontFamily;
     let fontWeight = computedStyle.fontWeight;
-    let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx * 0.8);
+    let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
 
     // Map screen pixels to canvas pixels
     let scaleX = canvas.width / videoRect.width;
@@ -467,6 +473,10 @@ cameraIcon.onclick = async function () {
     let textBoxY = topPx * scaleY;
     let textBoxWidth = overlayWidthPx * scaleX;
     let textBoxHeight = overlayHeightPx * scaleY;
+
+    // Padding for text inside the overlay
+    const canvasPaddingY = overlayPaddingY * scaleY;
+    const canvasPaddingX = overlayPaddingX * scaleX;
 
     // Draw background rectangle
     ctx.save();
@@ -483,20 +493,24 @@ cameraIcon.onclick = async function () {
 
     // Prepare font and wrapping
     const canvasFontSize = fontSizePx * scaleY;
-    const canvasLineHeight = lineHeightPx * scaleY;
+    // Slightly increased line gap (was 0.8, now 1.1)
+    const canvasLineHeight = canvasFontSize * 1.1;
     ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "#fff";
 
-    // Wrap text as per overlay width in canvas, but add padding so text doesn't touch sides
-    const horizontalTextPadding = 18 * scaleX;
-    const wrappedLines = wrapCanvasText(ctx, markerText, textBoxWidth - 2 * horizontalTextPadding);
+    // Wrap text as per overlay width in canvas, with matching padding
+    const wrappedLines = wrapCanvasText(
+      ctx,
+      markerText,
+      textBoxWidth - 2 * canvasPaddingX
+    );
 
-    // Vertically center lines in the box
+    // Vertically center lines in the box (account for padding top/bottom)
     const totalLines = wrappedLines.length;
     const totalTextHeight = totalLines * canvasLineHeight;
-    let y = textBoxY + (textBoxHeight - totalTextHeight) / 2 + canvasLineHeight / 2;
+    let y = textBoxY + canvasPaddingY + (textBoxHeight - 2 * canvasPaddingY - totalTextHeight) / 2 + canvasLineHeight / 2;
 
     for (let i = 0; i < wrappedLines.length; i++) {
       ctx.fillText(
