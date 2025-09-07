@@ -278,6 +278,8 @@ buildings.forEach((building) => {
 
    // ... previous code (unchanged) ...
 
+// ... previous code (unchanged) ...
+
 cameraIcon.onclick = async function () {
   if (
     !(
@@ -294,7 +296,7 @@ cameraIcon.onclick = async function () {
   cameraIcon.remove();
   posterContainer.innerHTML = '';
 
-  //--- ADD TEXT OVERLAY DIV ---
+  // --- ADD TEXT OVERLAY DIV (used for both stream and photo) ---
   const textOverlay = document.createElement('div');
   textOverlay.textContent = markerText;
   textOverlay.style.position = 'absolute';
@@ -321,6 +323,7 @@ cameraIcon.onclick = async function () {
   cameraVideo.style.borderRadius = '14px';
   cameraVideo.style.display = 'block';
   cameraVideo.style.margin = '0 auto';
+  cameraVideo.style.position = 'relative';
   posterContainer.appendChild(cameraVideo);
 
   const shutterBtn = document.createElement('button');
@@ -403,7 +406,6 @@ cameraIcon.onclick = async function () {
   await startCameraStream();
 
   shutterBtn.onclick = function () {
-    // Pause video for effect, but not strictly needed
     cameraVideo.pause();
 
     if (imgPreview) imgPreview.remove();
@@ -420,13 +422,48 @@ cameraIcon.onclick = async function () {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
-    // Draw text overlay, centered horizontally near the top
-    ctx.font = "bold 40px 'Poppins', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillStyle = "rgba(0,0,0,0.4)";
-    ctx.fillRect(canvas.width/2 - ctx.measureText(markerText).width/2 - 20, 20, ctx.measureText(markerText).width + 40, 50);
+    // --- Make text overlay on photo match the stream exactly ---
+    // Compute overlay position and styles from textOverlay
+    // Get computed styles and bounding box from the textOverlay div
+    const overlayRect = textOverlay.getBoundingClientRect();
+    const videoRect = cameraVideo.getBoundingClientRect();
+
+    // Compute position relative to video
+    let topPx = overlayRect.top - videoRect.top;
+    let leftPx = overlayRect.left - videoRect.left;
+    let overlayWidth = overlayRect.width;
+    let overlayHeight = overlayRect.height;
+
+    // Scale from screen pixels to video pixels
+    let scaleX = canvas.width / videoRect.width;
+    let scaleY = canvas.height / videoRect.height;
+
+    let textBoxX = leftPx * scaleX;
+    let textBoxY = topPx * scaleY;
+    let textBoxWidth = overlayWidth * scaleX;
+    let textBoxHeight = overlayHeight * scaleY;
+
+    // Draw background rectangle
+    ctx.save();
+    ctx.globalAlpha = 0.4;
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
+    ctx.fill();
+    ctx.restore();
+
+    // Draw the text
+    ctx.save();
+    ctx.font = `bold ${18 * scaleY}px 'Poppins', sans-serif`;
     ctx.fillStyle = "#fff";
-    ctx.fillText(markerText, canvas.width / 2, 55);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(
+      markerText,
+      textBoxX + textBoxWidth / 2,
+      textBoxY + textBoxHeight / 2
+    );
+    ctx.restore();
 
     imgPreview = document.createElement('img');
     imgPreview.src = canvas.toDataURL('image/png');
@@ -477,6 +514,8 @@ cameraIcon.onclick = async function () {
     };
   };
 };
+
+// --- the rest is the same ---
 
 // --- the rest is the same ---
 
