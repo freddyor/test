@@ -15,6 +15,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_EE407AFE-E57F-48D2-B56B-8C44440AC880 - VEED Export.mp4",          
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8720.webp",
     "social media": "yes",
+     "text": "One of the oldest continually inhabited houses in Britain",
   },
                                           {
    'name': 'King Streets',
@@ -31,6 +32,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_2F4D4513-2688-483A-AE6C-77AC91EC71BA - VEED Export.mp4",          
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8715.webp",
     "social media": "yes",
+   "text": "A gift from York's godchild - New York ",
   },
     {
     "name": "Sarah Booth",
@@ -40,6 +42,7 @@ export const buildings = [
     "subtitle": "The first woman to vote in York",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8719.webp",
       "social media": "yes",
+      "text": "The first woman to vote in York",
   },
     {
     "name": "Lendal Bridge",
@@ -47,6 +50,7 @@ export const buildings = [
     "image": "https://freddyor.github.io/british-map/videos/IMG_5569.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_8DEC0202-6A62-4A28-B994-2535A0F9C316 - VEED Export.mp4", 
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8723.webp",
+      "text": "York's own Westminster Bridge",
   },
                               {
     name: "Anne Frank Memorial",
@@ -64,6 +68,7 @@ export const buildings = [
     subtitle: "The site of ancient tax collection",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8716.webp",
       "social media": "yes",
+        "text": "Mediaeval tax collection doors",
   },
     {'name': 'Stuart Feather',
    'coords': [-1.0828678455724547, 53.9578982808366],
@@ -71,6 +76,7 @@ export const buildings = [
    "videoUrl": "https://freddyor.github.io/british-map/videos/copy_89EDFAFF-5BBC-4B13-821B-E655D37B4244.mp4",
    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8725.webp",
      "social media": "yes",
+     "text": "The founders of the first Gay Pride march met in this alleyway in 1956",
   },
                                           {
    'name': 'Grape Lane',
@@ -79,6 +85,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_F60226.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8726.webp",
                                             "social media": "yes",
+    "text": "Grape Lane was originally named Grope Lane as this was the heart of York's red light district 300 yers ago",
   },
                                         {
    'name': 'Stonegate',
@@ -100,6 +107,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_8118.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_05D5C0.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8109.webp",
+   "text": "In 1572, Sir Thomas Percy was hung here after he led the failed Rising of the North against Queen Elizabeth",
   },
                                         {
    'name': 'Swinegate',
