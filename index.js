@@ -297,7 +297,7 @@ cameraIcon.onclick = async function () {
   // --- TEXT OVERLAY: bring in overlay sides, so it's inset from the video/photo edges ---
   const overlayPaddingY = 6;   // px - vertical padding (top/bottom)
   const overlayPaddingX = 12;  // px - horizontal padding (left/right)
-  const overlayInset = 16;     // px - overlay inset from left/right of video/photo
+  const overlayInset = 32;     // px - overlay inset from left/right of video/photo
   const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
 
   const textOverlay = document.createElement('div');
