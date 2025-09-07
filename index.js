@@ -368,26 +368,52 @@ function showVideoOverlayWithFirebase(building) {
 // --- LOGIN MODAL ---
 function showFirebaseLoginModal(onSuccess) {
   document.querySelectorAll('.login-modal').forEach(m => m.remove());
+
+  // Create modal wrapper for backdrop
+  const modalWrapper = document.createElement('div');
+  modalWrapper.className = 'login-modal-wrapper';
+  modalWrapper.style.position = 'fixed';
+  modalWrapper.style.top = 0;
+  modalWrapper.style.left = 0;
+  modalWrapper.style.width = '100vw';
+  modalWrapper.style.height = '100vh';
+  modalWrapper.style.background = 'rgba(0,0,0,0.35)';
+  modalWrapper.style.zIndex = '100002';
+  modalWrapper.style.display = 'flex';
+  modalWrapper.style.alignItems = 'center';
+  modalWrapper.style.justifyContent = 'center';
+
+  // Create actual modal
   const modal = document.createElement('div');
   modal.className = 'login-modal';
+  modal.style.background = '#fff';
+  modal.style.padding = '24px 20px';
+  modal.style.borderRadius = '10px';
+  modal.style.boxShadow = '0 0 32px #0004';
+  modal.style.zIndex = '100003';
+  modal.style.position = 'relative';
+  modal.style.minWidth = '250px';
+  modal.style.maxWidth = '90vw';
+  modal.style.fontFamily = 'Poppins,sans-serif';
+
   modal.innerHTML = `
-    <div style="background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 20px #0003;">
-      <h3>Login to like videos</h3>
-      <input id="login-email" type="email" placeholder="Email" style="margin-bottom:10px;width:100%;" />
-      <input id="login-password" type="password" placeholder="Password" style="margin-bottom:10px;width:100%;" />
-      <button id="login-submit" class="custom-button">Login</button>
-      <button id="login-signup" class="custom-button" style="margin-top:8px;">Sign Up</button>
-      <button id="login-cancel" class="custom-button" style="margin-top:8px;background:#eee;color:#222;">Cancel</button>
-    </div>
+    <h3 style="margin-top:0;">Login to like videos</h3>
+    <input id="login-email" type="email" placeholder="Email" style="margin-bottom:10px;width:100%;border-radius:6px;padding:7px 9px;border:1.5px solid #eee;" />
+    <input id="login-password" type="password" placeholder="Password" style="margin-bottom:10px;width:100%;border-radius:6px;padding:7px 9px;border:1.5px solid #eee;" />
+    <button id="login-submit" class="custom-button" style="width:100%;margin-bottom:7px;">Login</button>
+    <button id="login-signup" class="custom-button" style="width:100%;margin-bottom:7px;">Sign Up</button>
+    <button id="login-cancel" class="custom-button" style="width:100%;background:#eee;color:#222;">Cancel</button>
   `;
-  document.body.appendChild(modal);
+
+  modalWrapper.appendChild(modal);
+  document.body.appendChild(modalWrapper);
 
   modal.querySelector('#login-submit').onclick = () => {
     const email = modal.querySelector('#login-email').value;
     const password = modal.querySelector('#login-password').value;
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        modal.remove();
+        modalWrapper.remove();
         if (onSuccess) onSuccess();
       })
       .catch(e => alert(e.message));
@@ -398,14 +424,19 @@ function showFirebaseLoginModal(onSuccess) {
     const password = modal.querySelector('#login-password').value;
     createUserWithEmailAndPassword(auth, email, password)
       .then(() => {
-        modal.remove();
+        modalWrapper.remove();
         if (onSuccess) onSuccess();
       })
       .catch(e => alert(e.message));
   };
 
   modal.querySelector('#login-cancel').onclick = () => {
-    modal.remove();
+    modalWrapper.remove();
+  };
+
+  // Optional: close when clicking on the backdrop outside modal
+  modalWrapper.onclick = (e) => {
+    if (e.target === modalWrapper) modalWrapper.remove();
   };
 }
 
