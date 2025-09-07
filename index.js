@@ -1,3 +1,5 @@
+// PART 1: Initialization, Firebase Auth, Firestore Likes, Main Map Setup
+
 import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
@@ -45,6 +47,7 @@ const authError = document.getElementById("auth-error");
 const authUI = document.getElementById("auth-ui");
 const mapDiv = document.getElementById("map");
 
+// Always hide login UI on start
 if (authUI) authUI.style.display = "none";
 
 function updateUI(user) {
@@ -61,7 +64,8 @@ function updateUI(user) {
     logoutBtn.classList.add("hide");
     signupForm.classList.remove("hide");
     loginForm.classList.remove("hide");
-    if (!window.forceShowAuthUI) authUI.style.display = "none";
+    mapDiv.style.display = ""; // Always show map, even if not logged in
+    authUI.style.display = "none"; // Always hide login UI unless explicitly requested
   }
 }
 
@@ -117,382 +121,383 @@ if (logoutBtn) {
 
 // Main Map Logic
 function initMapLogic() {
-const loadingScreenStart = Date.now();
+  const loadingScreenStart = Date.now();
+  let firstVideoLoadedThisSession = false;
+  function showFirstVideoWaitMessage(videoElement) {}
 
-let firstVideoLoadedThisSession = false;
-function showFirstVideoWaitMessage(videoElement) {}
+  const yorkBounds = [
+    [-1.170, 53.930],
+    [-1.010, 54.010]
+  ];
 
-const yorkBounds = [
-  [-1.170, 53.930],
-  [-1.010, 54.010]
-];
+  mapboxgl.accessToken =
+    'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
-mapboxgl.accessToken =
-  'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
-
-var map = new mapboxgl.Map({
-  container: 'map',
-  style: 'mapbox://styles/freddomate/cm8q8wtwx00a801qzdayccnvz',
-  center: [-1.0812025894431188, 53.958916884514004],
-  zoom: 15,
-  pitch: 45,
-  bearing: -17.6,
-  maxBounds: yorkBounds,
-  minZoom: 11,
-  maxZoom: 19,
-});
-
-const geolocate = new mapboxgl.GeolocateControl({
-  positionOptions: {
-    enableHighAccuracy: true,
-  },
-  trackUserLocation: true,
-  showUserHeading: true,
-  showAccuracyCircle: false,
-  fitBoundsOptions: {
-    maxZoom: 15,
-  },
-  showUserLocation: false,
-});
-map.addControl(geolocate);
-
-const userLocationEl = document.createElement('div');
-userLocationEl.className = 'user-location-marker';
-const textEl = document.createElement('div');
-textEl.style.position = 'absolute';
-textEl.style.top = '50%';
-textEl.style.left = '50%';
-textEl.style.transform = 'translate(-50%, -50%)';
-textEl.style.fontFamily = 'Poppins, sans-serif';
-textEl.style.fontWeight = 'bold';
-textEl.style.fontSize = '10px';
-textEl.style.color = '#87CEFA';
-textEl.textContent = 'me';
-userLocationEl.appendChild(textEl);
-
-const userLocationMarker = new mapboxgl.Marker({ element: userLocationEl })
-  .setLngLat([0, 0])
-  .addTo(map);
-
-geolocate.on('error', (e) => {
-  if (e.code === 1) console.log('Location access denied by user');
-});
-geolocate.on('geolocate', (e) => {
-  userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
-});
-
-locations.forEach((location) => {
-  const { element: markerElement } = createCustomMarker(
-    location.image,
-    '#FFFFFF',
-    true
-  );
-  markerElement.className += ' location-marker';
-  const marker = new mapboxgl.Marker({
-    element: markerElement,
-  })
-    .setLngLat(location.coords)
-    .addTo(map);
-
-  marker.getElement().addEventListener('click', () => {
-    map.getCanvas().style.cursor = 'pointer';
-    const contentHTML = createPopupContent(location);
-    toggleBottomSheet(contentHTML);
+  var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/freddomate/cm8q8wtwx00a801qzdayccnvz',
+    center: [-1.0812025894431188, 53.958916884514004],
+    zoom: 15,
+    pitch: 45,
+    bearing: -17.6,
+    maxBounds: yorkBounds,
+    minZoom: 11,
+    maxZoom: 19,
   });
-});
 
-// --- Firestore Likes Helper ---
-async function userHasLiked(buildingId) {
-  if (!auth.currentUser) return false;
-  const likeDoc = await getDoc(doc(db, "likes", `${buildingId}_${auth.currentUser.uid}`));
-  return likeDoc.exists();
-}
-async function getLikesCount(buildingId) {
-  const q = query(collection(db, "likes"), where("buildingId", "==", buildingId));
-  const snapshot = await getDocs(q);
-  return snapshot.size;
-}
+  const geolocate = new mapboxgl.GeolocateControl({
+    positionOptions: {
+      enableHighAccuracy: true,
+    },
+    trackUserLocation: true,
+    showUserHeading: true,
+    showAccuracyCircle: false,
+    fitBoundsOptions: {
+      maxZoom: 15,
+    },
+    showUserLocation: false,
+  });
+  map.addControl(geolocate);
 
-// --- Buildings Markers ---
-buildings.forEach((building) => {
-  const outlineColor = building.colour === 'yes' ? '#FF69B4' : '#FFFFFF';
-  const { element: markerElement } = createCustomMarker(
-    building.image,
-    outlineColor,
-    false
-  );
-  markerElement.className += ' building-marker';
+  const userLocationEl = document.createElement('div');
+  userLocationEl.className = 'user-location-marker';
+  const textEl = document.createElement('div');
+  textEl.style.position = 'absolute';
+  textEl.style.top = '50%';
+  textEl.style.left = '50%';
+  textEl.style.transform = 'translate(-50%, -50%)';
+  textEl.style.fontFamily = 'Poppins, sans-serif';
+  textEl.style.fontWeight = 'bold';
+  textEl.style.fontSize = '10px';
+  textEl.style.color = '#87CEFA';
+  textEl.textContent = 'me';
+  userLocationEl.appendChild(textEl);
 
-  if (building.colour === 'yes') markerElement.style.zIndex = '3';
-
-  const marker = new mapboxgl.Marker({ element: markerElement })
-    .setLngLat(building.coords)
+  const userLocationMarker = new mapboxgl.Marker({ element: userLocationEl })
+    .setLngLat([0, 0])
     .addTo(map);
 
-  marker.getElement().addEventListener('click', async () => {
-    map.getCanvas().style.cursor = 'pointer';
-    const videoUrl = building.videoUrl;
-    const posterUrl = building.posterUrl;
-    const markerText = building.text || "";
+  geolocate.on('error', (e) => {
+    if (e.code === 1) console.log('Location access denied by user');
+  });
+  geolocate.on('geolocate', (e) => {
+    userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
+  });
 
-    if (!videoUrl) {
-      console.error('Video URL not available for this building.');
-      return;
-    }
-    document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
-    const overlay = document.createElement('div');
-    overlay.className = 'video-modal-overlay';
-    overlay.style.position = 'fixed';
-    overlay.style.top = 0;
-    overlay.style.left = 0;
-    overlay.style.width = '100vw';
-    overlay.style.height = '100vh';
-    overlay.style.background = 'rgba(0,0,0,0.2)';
-    overlay.style.backdropFilter = 'blur(10px)';
-    overlay.style.webkitBackdropFilter = 'blur(10px)';
-    overlay.style.display = 'flex';
-    overlay.style.alignItems = 'center';
-    overlay.style.justifyContent = 'center';
-    overlay.style.zIndex = 100000;
-    const posterContainer = document.createElement('div');
-    posterContainer.style.position = 'relative';
-    posterContainer.style.marginTop = '-60px';
+  locations.forEach((location) => {
+    const { element: markerElement } = createCustomMarker(
+      location.image,
+      '#FFFFFF',
+      true
+    );
+    markerElement.className += ' location-marker';
+    const marker = new mapboxgl.Marker({
+      element: markerElement,
+    })
+      .setLngLat(location.coords)
+      .addTo(map);
 
-    const cameraIcon = document.createElement('button');
-    cameraIcon.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="7" width="18" height="14" rx="4" ry="4"></rect>
-        <circle cx="12" cy="14" r="3.5"></circle>
-        <circle cx="17.5" cy="10.5" r="1"></circle>
-        <rect x="8" y="3" width="8" height="4" rx="2" ry="2"></rect>
-      </svg>
-    `;
-    cameraIcon.title = 'Open Camera';
-    cameraIcon.style.position = 'absolute';
-    cameraIcon.style.left = '50%';
-    cameraIcon.style.top = '0';
-    cameraIcon.style.transform = 'translate(-50%, -50%)';
-    cameraIcon.style.background = 'white';
-    cameraIcon.style.border = 'none';
-    cameraIcon.style.borderRadius = '50%';
-    cameraIcon.style.width = '48px';
-    cameraIcon.style.height = '48px';
-    cameraIcon.style.display = 'flex';
-    cameraIcon.style.alignItems = 'center';
-    cameraIcon.style.justifyContent = 'center';
-    cameraIcon.style.cursor = 'pointer';
-    cameraIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
-    cameraIcon.style.zIndex = 10;
-
-    posterContainer.appendChild(cameraIcon);
-
-    const posterImg = document.createElement('img');
-    posterImg.src = posterUrl || '';
-    posterImg.alt = 'Video cover';
-    posterImg.style.maxWidth = '88vw';
-    posterImg.style.maxHeight = '80vh';
-    posterImg.style.borderRadius = '14px';
-    posterImg.style.display = 'block';
-    posterImg.addEventListener('load', () => {
-      posterImg.style.border = '1.5px solid #E9E8E0';
+    marker.getElement().addEventListener('click', () => {
+      map.getCanvas().style.cursor = 'pointer';
+      const contentHTML = createPopupContent(location);
+      toggleBottomSheet(contentHTML);
     });
+  });
 
-    const playBtn = document.createElement('button');
-    playBtn.innerHTML = '▶';
-    playBtn.style.position = 'absolute';
-    playBtn.style.top = '50%';
-    playBtn.style.left = '50%';
-    playBtn.style.transform = 'translate(-50%, -50%)';
-    playBtn.style.background = 'rgba(0,0,0,0.6)';
-    playBtn.style.border = 'none';
-    playBtn.style.borderRadius = '50%';
-    playBtn.style.width = '64px';
-    playBtn.style.height = '64px';
-    playBtn.style.color = '#fff';
-    playBtn.style.fontSize = '2.5rem';
-    playBtn.style.cursor = 'pointer';
-    playBtn.style.display = 'flex';
-    playBtn.style.alignItems = 'center';
-    playBtn.style.justifyContent = 'center';
-    playBtn.style.zIndex = 2;
+  // --- Firestore Likes Helper ---
+  async function userHasLiked(buildingId) {
+    if (!auth.currentUser) return false;
+    const likeDoc = await getDoc(doc(db, "likes", `${buildingId}_${auth.currentUser.uid}`));
+    return likeDoc.exists();
+  }
+  async function getLikesCount(buildingId) {
+    const q = query(collection(db, "likes"), where("buildingId", "==", buildingId));
+    const snapshot = await getDocs(q);
+    return snapshot.size;
+  }
 
-    const spinner = document.createElement('div');
-    spinner.style.position = 'absolute';
-    spinner.style.top = '50%';
-    spinner.style.left = '50%';
-    spinner.style.transform = 'translate(-50%, -50%)';
-    spinner.style.width = '48px';
-    spinner.style.height = '48px';
-    spinner.style.border = '6px solid #eee';
-    spinner.style.borderTop = '6px solid #9b4dca';
-    spinner.style.borderRadius = '50%';
-    spinner.style.animation = 'spin 1s linear infinite';
-    spinner.style.display = 'none';
-    spinner.style.zIndex = 3;
+  // --- Buildings Markers ---
+  buildings.forEach((building) => {
+    const outlineColor = building.colour === 'yes' ? '#FF69B4' : '#FFFFFF';
+    const { element: markerElement } = createCustomMarker(
+      building.image,
+      outlineColor,
+      false
+    );
+    markerElement.className += ' building-marker';
 
-    const spinnerStyle = document.createElement('style');
-    spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
-    document.head.appendChild(spinnerStyle);
+    if (building.colour === 'yes') markerElement.style.zIndex = '3';
 
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = '❌';
-    closeBtn.style.position = 'absolute';
-    closeBtn.style.top = '-8px';
-    closeBtn.style.right = '-8px';
-    closeBtn.style.width = '25px';
-    closeBtn.style.height = '25px';
-    closeBtn.style.background = '#000';
-    closeBtn.style.color = '#fff';
-    closeBtn.style.border = '1.5px solid #E9E8E0';
-    closeBtn.style.borderRadius = '50%';
-    closeBtn.style.cursor = 'pointer';
-    closeBtn.style.fontSize = '0.7rem';
-    closeBtn.style.zIndex = '100001';
-    closeBtn.style.display = 'flex';
-    closeBtn.style.alignItems = 'center';
-    closeBtn.style.justifyContent = 'center';
+    const marker = new mapboxgl.Marker({ element: markerElement })
+      .setLngLat(building.coords)
+      .addTo(map);
 
-    let videoElement = null;
-    let cameraStream = null;
+    marker.getElement().addEventListener('click', async () => {
+      map.getCanvas().style.cursor = 'pointer';
+      const videoUrl = building.videoUrl;
+      const posterUrl = building.posterUrl;
+      const markerText = building.text || "";
 
-    function removeOverlayAndPauseVideo() {
-      if (videoElement) {
-        videoElement.pause();
-        videoElement.currentTime = 0;
+      if (!videoUrl) {
+        console.error('Video URL not available for this building.');
+        return;
       }
-      if (cameraStream) {
-        cameraStream.getTracks().forEach((track) => track.stop());
-      }
-      overlay.remove();
-    }
+      document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
+      const overlay = document.createElement('div');
+      overlay.className = 'video-modal-overlay';
+      overlay.style.position = 'fixed';
+      overlay.style.top = 0;
+      overlay.style.left = 0;
+      overlay.style.width = '100vw';
+      overlay.style.height = '100vh';
+      overlay.style.background = 'rgba(0,0,0,0.2)';
+      overlay.style.backdropFilter = 'blur(10px)';
+      overlay.style.webkitBackdropFilter = 'blur(10px)';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.zIndex = 100000;
+      const posterContainer = document.createElement('div');
+      posterContainer.style.position = 'relative';
+      posterContainer.style.marginTop = '-60px';
 
-    closeBtn.onclick = () => removeOverlayAndPauseVideo();
-    let startY;
-    overlay.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) startY = e.touches[0].clientY;
-    });
-    overlay.addEventListener('touchmove', (e) => {
-      if (startY !== undefined && e.touches.length === 1) {
-        const dy = e.touches[0].clientY - startY;
-        if (dy > 70) {
-          removeOverlayAndPauseVideo();
-          startY = undefined;
-        }
-      }
-    });
-    overlay.addEventListener('touchend', () => {
-      startY = undefined;
-    });
-    playBtn.style.display = 'none';
-    closeBtn.style.display = 'none';
-    posterImg.onload = function () {
+            const cameraIcon = document.createElement('button');
+      cameraIcon.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="7" width="18" height="14" rx="4" ry="4"></rect>
+          <circle cx="12" cy="14" r="3.5"></circle>
+          <circle cx="17.5" cy="10.5" r="1"></circle>
+          <rect x="8" y="3" width="8" height="4" rx="2" ry="2"></rect>
+        </svg>
+      `;
+      cameraIcon.title = 'Open Camera';
+      cameraIcon.style.position = 'absolute';
+      cameraIcon.style.left = '50%';
+      cameraIcon.style.top = '0';
+      cameraIcon.style.transform = 'translate(-50%, -50%)';
+      cameraIcon.style.background = 'white';
+      cameraIcon.style.border = 'none';
+      cameraIcon.style.borderRadius = '50%';
+      cameraIcon.style.width = '48px';
+      cameraIcon.style.height = '48px';
+      cameraIcon.style.display = 'flex';
+      cameraIcon.style.alignItems = 'center';
+      cameraIcon.style.justifyContent = 'center';
+      cameraIcon.style.cursor = 'pointer';
+      cameraIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+      cameraIcon.style.zIndex = 10;
+
+      posterContainer.appendChild(cameraIcon);
+
+      const posterImg = document.createElement('img');
+      posterImg.src = posterUrl || '';
+      posterImg.alt = 'Video cover';
+      posterImg.style.maxWidth = '88vw';
+      posterImg.style.maxHeight = '80vh';
+      posterImg.style.borderRadius = '14px';
+      posterImg.style.display = 'block';
+      posterImg.addEventListener('load', () => {
+        posterImg.style.border = '1.5px solid #E9E8E0';
+      });
+
+      const playBtn = document.createElement('button');
+      playBtn.innerHTML = '▶';
+      playBtn.style.position = 'absolute';
+      playBtn.style.top = '50%';
+      playBtn.style.left = '50%';
+      playBtn.style.transform = 'translate(-50%, -50%)';
+      playBtn.style.background = 'rgba(0,0,0,0.6)';
+      playBtn.style.border = 'none';
+      playBtn.style.borderRadius = '50%';
+      playBtn.style.width = '64px';
+      playBtn.style.height = '64px';
+      playBtn.style.color = '#fff';
+      playBtn.style.fontSize = '2.5rem';
+      playBtn.style.cursor = 'pointer';
       playBtn.style.display = 'flex';
+      playBtn.style.alignItems = 'center';
+      playBtn.style.justifyContent = 'center';
+      playBtn.style.zIndex = 2;
+
+      const spinner = document.createElement('div');
+      spinner.style.position = 'absolute';
+      spinner.style.top = '50%';
+      spinner.style.left = '50%';
+      spinner.style.transform = 'translate(-50%, -50%)';
+      spinner.style.width = '48px';
+      spinner.style.height = '48px';
+      spinner.style.border = '6px solid #eee';
+      spinner.style.borderTop = '6px solid #9b4dca';
+      spinner.style.borderRadius = '50%';
+      spinner.style.animation = 'spin 1s linear infinite';
+      spinner.style.display = 'none';
+      spinner.style.zIndex = 3;
+
+      const spinnerStyle = document.createElement('style');
+      spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
+      document.head.appendChild(spinnerStyle);
+
+      const closeBtn = document.createElement('button');
+      closeBtn.textContent = '❌';
+      closeBtn.style.position = 'absolute';
+      closeBtn.style.top = '-8px';
+      closeBtn.style.right = '-8px';
+      closeBtn.style.width = '25px';
+      closeBtn.style.height = '25px';
+      closeBtn.style.background = '#000';
+      closeBtn.style.color = '#fff';
+      closeBtn.style.border = '1.5px solid #E9E8E0';
+      closeBtn.style.borderRadius = '50%';
+      closeBtn.style.cursor = 'pointer';
+      closeBtn.style.fontSize = '0.7rem';
+      closeBtn.style.zIndex = '100001';
       closeBtn.style.display = 'flex';
-    };
-    posterContainer.appendChild(posterImg);
-    posterContainer.appendChild(playBtn);
-    posterContainer.appendChild(spinner);
-    posterContainer.appendChild(closeBtn);
-    overlay.appendChild(posterContainer);
-    document.body.appendChild(overlay);
-    overlay.addEventListener('mousedown', function (e) {
-      if (e.target === overlay) removeOverlayAndPauseVideo();
-    });
+      closeBtn.style.alignItems = 'center';
+      closeBtn.style.justifyContent = 'center';
 
+      let videoElement = null;
+      let cameraStream = null;
 
-    // --- LIKE BUTTON FIRESTORE LOGIC ---
-    const likeBtn = document.createElement("button");
-    likeBtn.className = "custom-button";
-    likeBtn.style.marginTop = "16px";
-    posterContainer.appendChild(likeBtn);
-
-    let likesCount = await getLikesCount(building.id || building.name);
-    let hasLiked = await userHasLiked(building.id || building.name);
-
-    function updateLikeBtn() {
-      if (hasLiked) {
-        likeBtn.disabled = true;
-        likeBtn.textContent = `❤️ Liked! (${likesCount})`;
-      } else {
-        likeBtn.disabled = false;
-        likeBtn.textContent = `👍 Like (${likesCount})`;
-      }
-    }
-    updateLikeBtn();
-
-    likeBtn.onclick = async function () {
-      if (auth.currentUser) {
-        hasLiked = await userHasLiked(building.id || building.name);
-        if (hasLiked) {
-          updateLikeBtn();
-          return;
+      function removeOverlayAndPauseVideo() {
+        if (videoElement) {
+          videoElement.pause();
+          videoElement.currentTime = 0;
         }
-        await setDoc(doc(db, "likes", `${building.id || building.name}_${auth.currentUser.uid}`), {
-          buildingId: building.id || building.name,
-          userId: auth.currentUser.uid,
-          timestamp: Date.now()
-        });
-        likesCount++;
-        hasLiked = true;
-        updateLikeBtn();
-      } else {
-        window.forceShowAuthUI = true;
-        authUI.style.display = "";
-        window.pendingLikeAction = () => likeBtn.onclick();
-        alert("Please sign in to like videos!");
-      }
-    };
-
-    playBtn.onclick = () => {
-      playBtn.style.display = 'none';
-      spinner.style.display = 'block';
-      videoElement = document.createElement('video');
-      videoElement.src = videoUrl;
-      if (posterUrl) videoElement.poster = posterUrl;
-      videoElement.style.border = '1.5px solid #E9E8E0';
-      videoElement.style.maxWidth = '88vw';
-      videoElement.style.maxHeight = '80vh';
-      videoElement.style.borderRadius = '14px';
-      videoElement.controls = false;
-      videoElement.preload = 'auto';
-      videoElement.autoplay = true;
-      videoElement.setAttribute('playsinline', '');
-      videoElement.setAttribute('webkit-playsinline', '');
-      videoElement.playsInline = true;
-      showFirstVideoWaitMessage(videoElement);
-      let hasStarted = false;
-      function showVideo() {
-        if (!hasStarted) {
-          hasStarted = true;
-          posterContainer.replaceChild(videoElement, posterImg);
-          spinner.style.display = 'none';
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((track) => track.stop());
         }
+        overlay.remove();
       }
-      function onProgress() {
-        if (videoElement.duration && videoElement.buffered.length) {
-          const bufferedEnd =
-            videoElement.buffered.end(videoElement.buffered.length - 1);
-          const percentBuffered = bufferedEnd / videoElement.duration;
-          if (percentBuffered >= 0.25 && !hasStarted) {
-            videoElement.play();
+
+      closeBtn.onclick = () => removeOverlayAndPauseVideo();
+
+      let startY;
+      overlay.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) startY = e.touches[0].clientY;
+      });
+      overlay.addEventListener('touchmove', (e) => {
+        if (startY !== undefined && e.touches.length === 1) {
+          const dy = e.touches[0].clientY - startY;
+          if (dy > 70) {
+            removeOverlayAndPauseVideo();
+            startY = undefined;
           }
         }
+      });
+      overlay.addEventListener('touchend', () => {
+        startY = undefined;
+      });
+
+      playBtn.style.display = 'none';
+      closeBtn.style.display = 'none';
+      posterImg.onload = function () {
+        playBtn.style.display = 'flex';
+        closeBtn.style.display = 'flex';
+      };
+
+      posterContainer.appendChild(posterImg);
+      posterContainer.appendChild(playBtn);
+      posterContainer.appendChild(spinner);
+      posterContainer.appendChild(closeBtn);
+      overlay.appendChild(posterContainer);
+      document.body.appendChild(overlay);
+      overlay.addEventListener('mousedown', function (e) {
+        if (e.target === overlay) removeOverlayAndPauseVideo();
+      });
+
+      // --- LIKE BUTTON FIRESTORE LOGIC ---
+      const likeBtn = document.createElement("button");
+      likeBtn.className = "custom-button";
+      likeBtn.style.marginTop = "16px";
+      posterContainer.appendChild(likeBtn);
+
+      let likesCount = await getLikesCount(building.id || building.name);
+      let hasLiked = await userHasLiked(building.id || building.name);
+
+      function updateLikeBtn() {
+        if (hasLiked) {
+          likeBtn.disabled = true;
+          likeBtn.textContent = `❤️ Liked! (${likesCount})`;
+        } else {
+          likeBtn.disabled = false;
+          likeBtn.textContent = `👍 Like (${likesCount})`;
+        }
       }
-      videoElement.addEventListener('play', showVideo);
-      videoElement.addEventListener('progress', onProgress);
-      videoElement.addEventListener('click', () => {
-        videoElement.controls = true;
-      });
-      videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
-      videoElement.addEventListener('error', () => {
-        spinner.style.display = 'none';
-        playBtn.style.display = 'block';
-        alert('Video failed to load.');
-      });
-      videoElement.load();
-    };
+      updateLikeBtn();
+
+      likeBtn.onclick = async function () {
+        if (auth.currentUser) {
+          hasLiked = await userHasLiked(building.id || building.name);
+          if (hasLiked) {
+            updateLikeBtn();
+            return;
+          }
+          await setDoc(doc(db, "likes", `${building.id || building.name}_${auth.currentUser.uid}`), {
+            buildingId: building.id || building.name,
+            userId: auth.currentUser.uid,
+            timestamp: Date.now()
+          });
+          likesCount++;
+          hasLiked = true;
+          updateLikeBtn();
+        } else {
+          authUI.style.display = ""; // Only show login UI now!
+          window.pendingLikeAction = () => likeBtn.onclick();
+          alert("Please sign in to like videos!");
+        }
+      };
+
+      playBtn.onclick = () => {
+        playBtn.style.display = 'none';
+        spinner.style.display = 'block';
+        videoElement = document.createElement('video');
+        videoElement.src = videoUrl;
+        if (posterUrl) videoElement.poster = posterUrl;
+        videoElement.style.border = '1.5px solid #E9E8E0';
+        videoElement.style.maxWidth = '88vw';
+        videoElement.style.maxHeight = '80vh';
+        videoElement.style.borderRadius = '14px';
+        videoElement.controls = false;
+        videoElement.preload = 'auto';
+        videoElement.autoplay = true;
+        videoElement.setAttribute('playsinline', '');
+        videoElement.setAttribute('webkit-playsinline', '');
+        videoElement.playsInline = true;
+        showFirstVideoWaitMessage(videoElement);
+        let hasStarted = false;
+        function showVideo() {
+          if (!hasStarted) {
+            hasStarted = true;
+            posterContainer.replaceChild(videoElement, posterImg);
+            spinner.style.display = 'none';
+          }
+        }
+        function onProgress() {
+          if (videoElement.duration && videoElement.buffered.length) {
+            const bufferedEnd =
+              videoElement.buffered.end(videoElement.buffered.length - 1);
+            const percentBuffered = bufferedEnd / videoElement.duration;
+            if (percentBuffered >= 0.25 && !hasStarted) {
+              videoElement.play();
+            }
+          }
+        }
+        videoElement.addEventListener('play', showVideo);
+        videoElement.addEventListener('progress', onProgress);
+        videoElement.addEventListener('click', () => {
+          videoElement.controls = true;
+        });
+        videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
+        videoElement.addEventListener('error', () => {
+          spinner.style.display = 'none';
+          playBtn.style.display = 'block';
+          alert('Video failed to load.');
+        });
+        videoElement.load();
+      };
+    });
   });
-});
+
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
   const markerSize = zoomLevel - 13;
