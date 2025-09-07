@@ -1,7 +1,7 @@
 import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
-// ---- Firebase Auth Integration ----
+// Firebase integration
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
 import {
@@ -11,12 +11,22 @@ import {
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  collection,
+  query,
+  where
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDjv5uUNOx86FvYsXdKSMkl8vui2Jynt7M",
   authDomain: "britmap-64cb3.firebaseapp.com",
   projectId: "britmap-64cb3",
-  storageBucket: "britmap-64cb3.firebasestorage.app",
+  storageBucket: "britmap-64cb3.appspot.com",
   messagingSenderId: "821384262397",
   appId: "1:821384262397:web:ca81d64ab6a8dea562c494",
   measurementId: "G-03E2BB7BQH"
@@ -25,6 +35,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 const signupForm = document.getElementById("signup-form");
 const loginForm = document.getElementById("login-form");
@@ -33,6 +44,8 @@ const userInfo = document.getElementById("user-info");
 const authError = document.getElementById("auth-error");
 const authUI = document.getElementById("auth-ui");
 const mapDiv = document.getElementById("map");
+
+if (authUI) authUI.style.display = "none";
 
 function updateUI(user) {
   if (user) {
@@ -48,8 +61,7 @@ function updateUI(user) {
     logoutBtn.classList.add("hide");
     signupForm.classList.remove("hide");
     loginForm.classList.remove("hide");
-    authUI.style.display = "";
-    mapDiv.style.display = "none";
+    if (!window.forceShowAuthUI) authUI.style.display = "none";
   }
 }
 
@@ -59,6 +71,12 @@ onAuthStateChanged(auth, (user) => {
     if (!window.mapInitDone) {
       window.mapInitDone = true;
       initMapLogic();
+    }
+    if (window.pendingLikeAction) {
+      window.pendingLikeAction();
+      window.pendingLikeAction = null;
+      window.forceShowAuthUI = false;
+      authUI.style.display = "none";
     }
   }
 });
@@ -97,13 +115,10 @@ if (logoutBtn) {
   };
 }
 
-// ---- Main Map Logic ----
+// Main Map Logic
 function initMapLogic() {
-
-// Track when the loading screen is first shown
 const loadingScreenStart = Date.now();
 
-// --- First Video Popup additions START ---
 let firstVideoLoadedThisSession = false;
 function showFirstVideoWaitMessage(videoElement) {}
 
@@ -112,7 +127,6 @@ const yorkBounds = [
   [-1.010, 54.010]
 ];
 
-// Set Mapbox access token
 mapboxgl.accessToken =
   'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
@@ -128,7 +142,6 @@ var map = new mapboxgl.Map({
   maxZoom: 19,
 });
 
-// Geolocate control and user location marker
 const geolocate = new mapboxgl.GeolocateControl({
   positionOptions: {
     enableHighAccuracy: true,
@@ -168,7 +181,6 @@ geolocate.on('geolocate', (e) => {
   userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
 });
 
-// --- Marker and helper functions ---
 locations.forEach((location) => {
   const { element: markerElement } = createCustomMarker(
     location.image,
@@ -189,6 +201,19 @@ locations.forEach((location) => {
   });
 });
 
+// --- Firestore Likes Helper ---
+async function userHasLiked(buildingId) {
+  if (!auth.currentUser) return false;
+  const likeDoc = await getDoc(doc(db, "likes", `${buildingId}_${auth.currentUser.uid}`));
+  return likeDoc.exists();
+}
+async function getLikesCount(buildingId) {
+  const q = query(collection(db, "likes"), where("buildingId", "==", buildingId));
+  const snapshot = await getDocs(q);
+  return snapshot.size;
+}
+
+// --- Buildings Markers ---
 buildings.forEach((building) => {
   const outlineColor = building.colour === 'yes' ? '#FF69B4' : '#FFFFFF';
   const { element: markerElement } = createCustomMarker(
@@ -204,11 +229,11 @@ buildings.forEach((building) => {
     .setLngLat(building.coords)
     .addTo(map);
 
-  marker.getElement().addEventListener('click', () => {
+  marker.getElement().addEventListener('click', async () => {
     map.getCanvas().style.cursor = 'pointer';
     const videoUrl = building.videoUrl;
     const posterUrl = building.posterUrl;
-    const markerText = building.text || ""; // <- text for overlay and photo
+    const markerText = building.text || "";
 
     if (!videoUrl) {
       console.error('Video URL not available for this building.');
@@ -224,7 +249,7 @@ buildings.forEach((building) => {
     overlay.style.height = '100vh';
     overlay.style.background = 'rgba(0,0,0,0.2)';
     overlay.style.backdropFilter = 'blur(10px)';
-    overlay.style.webkitBackdropFilter = 'blur(10px)'; // For Safari
+    overlay.style.webkitBackdropFilter = 'blur(10px)';
     overlay.style.display = 'flex';
     overlay.style.alignItems = 'center';
     overlay.style.justifyContent = 'center';
@@ -233,7 +258,6 @@ buildings.forEach((building) => {
     posterContainer.style.position = 'relative';
     posterContainer.style.marginTop = '-60px';
 
-    // Camera icon button (Instagram-style simple camera)
     const cameraIcon = document.createElement('button');
     cameraIcon.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -375,309 +399,49 @@ buildings.forEach((building) => {
       if (e.target === overlay) removeOverlayAndPauseVideo();
     });
 
-cameraIcon.onclick = async function () {
-  if (
-    !(
-      navigator.mediaDevices &&
-      typeof navigator.mediaDevices.getUserMedia === 'function'
-    )
-  ) {
-    alert(
-      "Camera access is not supported on this browser/device. If you're on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date."
-    );
-    return;
-  }
 
-  cameraIcon.remove();
-  posterContainer.innerHTML = '';
+    // --- LIKE BUTTON FIRESTORE LOGIC ---
+    const likeBtn = document.createElement("button");
+    likeBtn.className = "custom-button";
+    likeBtn.style.marginTop = "16px";
+    posterContainer.appendChild(likeBtn);
 
-  // --- TEXT OVERLAY: bring in overlay sides, so it's inset from the video/photo edges ---
-  const overlayPaddingY = 6;   // px - vertical padding (top/bottom)
-  const overlayPaddingX = 12;  // px - horizontal padding (left/right)
-  const overlayInset = 32;     // px - overlay inset from left/right of video/photo
-  const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
+    let likesCount = await getLikesCount(building.id || building.name);
+    let hasLiked = await userHasLiked(building.id || building.name);
 
-  const textOverlay = document.createElement('div');
-  textOverlay.textContent = markerText;
-  textOverlay.style.position = 'absolute';
-  textOverlay.style.top = '50px';
-  textOverlay.style.left = '50%';
-  textOverlay.style.transform = 'translateX(-50%)';
-  textOverlay.style.background = 'rgba(0,0,0,0.4)';
-  textOverlay.style.color = '#fff';
-  textOverlay.style.padding = overlayInnerPadding;
-  textOverlay.style.borderRadius = '8px';
-  textOverlay.style.fontSize = '12px';
-  textOverlay.style.fontWeight = 'bold';
-  textOverlay.style.pointerEvents = 'none';
-  textOverlay.style.zIndex = 20;
-  textOverlay.style.fontFamily = "'Poppins', sans-serif";
-  textOverlay.style.textAlign = "center";
-  textOverlay.style.lineHeight = "1"; // Slightly increased
-  // Make overlay width slightly less than video width, inset by overlayInset on both sides
-  textOverlay.style.width = `calc(90vw - ${2 * overlayInset}px)`;
-  posterContainer.appendChild(textOverlay);
-
-  const cameraVideo = document.createElement('video');
-  cameraVideo.autoplay = true;
-  cameraVideo.playsInline = true;
-  cameraVideo.style.width = '90vw';
-  cameraVideo.style.height = '160vw'; // portrait
-  cameraVideo.style.objectFit = 'contain';
-  cameraVideo.style.borderRadius = '14px';
-  cameraVideo.style.display = 'block';
-  cameraVideo.style.margin = '0 auto';
-  cameraVideo.style.position = 'relative';
-  posterContainer.appendChild(cameraVideo);
-
-  const shutterBtn = document.createElement('button');
-  shutterBtn.title = 'Take Photo';
-  shutterBtn.className = 'custom-shutter-btn';
-  shutterBtn.style.position = 'absolute';
-  shutterBtn.style.left = '50%';
-  shutterBtn.style.bottom = '20px';
-  shutterBtn.style.transform = 'translateX(-50%)';
-  shutterBtn.style.width = '64px';
-  shutterBtn.style.height = '64px';
-  shutterBtn.style.background = 'white';
-  shutterBtn.style.border = '4px solid #ccc';
-  shutterBtn.style.borderRadius = '50%';
-  shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-  shutterBtn.style.display = 'flex';
-  shutterBtn.style.alignItems = 'center';
-  shutterBtn.style.justifyContent = 'center';
-  shutterBtn.style.cursor = 'pointer';
-  shutterBtn.style.zIndex = 12;
-  shutterBtn.style.outline = 'none';
-  shutterBtn.style.transition = 'box-shadow 0.1s';
-  // inner circle for shutter effect
-  const innerCircle = document.createElement('div');
-  innerCircle.style.width = '44px';
-  innerCircle.style.height = '44px';
-  innerCircle.style.background = '#fff';
-  innerCircle.style.borderRadius = '50%';
-  innerCircle.style.boxShadow = '0 0 0 2px #eee';
-  shutterBtn.appendChild(innerCircle);
-  posterContainer.appendChild(shutterBtn);
-
-  const cameraCloseBtn = document.createElement('button');
-  cameraCloseBtn.textContent = '❌';
-  cameraCloseBtn.style.position = 'absolute';
-  cameraCloseBtn.style.top = '-8px';
-  cameraCloseBtn.style.right = '-8px';
-  cameraCloseBtn.style.width = '25px';
-  cameraCloseBtn.style.height = '25px';
-  cameraCloseBtn.style.background = '#000';
-  cameraCloseBtn.style.color = '#fff';
-  cameraCloseBtn.style.border = '1.5px solid #E9E8E0';
-  cameraCloseBtn.style.borderRadius = '50%';
-  cameraCloseBtn.style.cursor = 'pointer';
-  cameraCloseBtn.style.fontSize = '0.7rem';
-  cameraCloseBtn.style.zIndex = '100001';
-  cameraCloseBtn.style.display = 'flex';
-  cameraCloseBtn.style.alignItems = 'center';
-  cameraCloseBtn.style.justifyContent = 'center';
-  cameraCloseBtn.onclick = () => {
-    if (cameraStream) {
-      cameraStream.getTracks().forEach((track) => track.stop());
-    }
-    overlay.remove();
-  };
-  posterContainer.appendChild(cameraCloseBtn);
-
-  let imgPreview = null, downloadBtn = null, cancelBtn = null;
-  let cameraStream = null;
-
-  async function startCameraStream() {
-    try {
-      cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 }
-        }
-      });
-      cameraVideo.srcObject = cameraStream;
-    } catch (err) {
-      try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-        cameraVideo.srcObject = cameraStream;
-      } catch (err2) {
-        alert('Could not access camera: ' + err2.message);
-      }
-    }
-  }
-  await startCameraStream();
-
-  // --- Text wrapping function for canvas ---
-  function wrapCanvasText(ctx, text, maxWidth) {
-    const words = text.split(' ');
-    let lines = [];
-    let line = '';
-    for (let n = 0; n < words.length; n++) {
-      const testLine = line + (line ? ' ' : '') + words[n];
-      const metrics = ctx.measureText(testLine);
-      if (metrics.width > maxWidth && line) {
-        lines.push(line);
-        line = words[n];
+    function updateLikeBtn() {
+      if (hasLiked) {
+        likeBtn.disabled = true;
+        likeBtn.textContent = `❤️ Liked! (${likesCount})`;
       } else {
-        line = testLine;
+        likeBtn.disabled = false;
+        likeBtn.textContent = `👍 Like (${likesCount})`;
       }
     }
-    lines.push(line);
-    return lines;
-  }
+    updateLikeBtn();
 
-  shutterBtn.onclick = function () {
-    cameraVideo.pause();
-
-    if (imgPreview) imgPreview.remove();
-    if (downloadBtn) downloadBtn.remove();
-    if (cancelBtn) cancelBtn.remove();
-
-    shutterBtn.style.display = 'none';
-    cameraCloseBtn.style.display = 'none';
-
-    // --- Use canvas to capture video frame at full resolution ---
-    const canvas = document.createElement('canvas');
-    canvas.width = cameraVideo.videoWidth;
-    canvas.height = cameraVideo.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-
-    // --- Get computed style from HTML overlay ---
-    const overlayRect = textOverlay.getBoundingClientRect();
-    const videoRect = cameraVideo.getBoundingClientRect();
-    const computedStyle = window.getComputedStyle(textOverlay);
-
-    // Screen pixel values
-    let topPx = overlayRect.top - videoRect.top;
-    let leftPx = overlayRect.left - videoRect.left;
-    let overlayWidthPx = overlayRect.width;
-    let overlayHeightPx = overlayRect.height;
-
-    // Font size and line height in px
-    let fontSizePx = parseFloat(computedStyle.fontSize);
-    let fontFamily = computedStyle.fontFamily;
-    let fontWeight = computedStyle.fontWeight;
-    let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
-
-    // Map screen pixels to canvas pixels
-    let scaleX = canvas.width / videoRect.width;
-    let scaleY = canvas.height / videoRect.height;
-
-    let textBoxX = leftPx * scaleX;
-    let textBoxY = topPx * scaleY;
-    let textBoxWidth = overlayWidthPx * scaleX;
-    let textBoxHeight = overlayHeightPx * scaleY;
-
-    // Padding for text inside the overlay
-    const canvasPaddingY = overlayPaddingY * scaleY;
-    const canvasPaddingX = overlayPaddingX * scaleX;
-
-    // Draw background rectangle
-    ctx.save();
-    ctx.globalAlpha = 0.4;
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    if (ctx.roundRect) {
-      ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
-    } else {
-      ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
-    }
-    ctx.fill();
-    ctx.restore();
-
-    // Prepare font and wrapping
-    const canvasFontSize = fontSizePx * scaleY;
-    // Slightly increased line gap (was 0.8, now 1.1)
-    const canvasLineHeight = canvasFontSize * 1.1;
-    ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#fff";
-
-    // Wrap text as per overlay width in canvas, with matching padding
-    const wrappedLines = wrapCanvasText(
-      ctx,
-      markerText,
-      textBoxWidth - 2 * canvasPaddingX
-    );
-
-    // Vertically center lines in the box (account for padding top/bottom)
-    const totalLines = wrappedLines.length;
-    const totalTextHeight = totalLines * canvasLineHeight;
-    let y = textBoxY + canvasPaddingY + (textBoxHeight - 2 * canvasPaddingY - totalTextHeight) / 2 + canvasLineHeight / 2;
-
-    for (let i = 0; i < wrappedLines.length; i++) {
-      ctx.fillText(
-        wrappedLines[i],
-        textBoxX + textBoxWidth / 2,
-        y + i * canvasLineHeight
-      );
-    }
-    ctx.restore();
-
-    // ... previous code (unchanged) ...
-
-        // ... previous code (unchanged) ...
-
-    imgPreview = document.createElement('img');
-    imgPreview.src = canvas.toDataURL('image/png');
-    imgPreview.style.display = 'block';
-    imgPreview.style.margin = '16px auto 8px auto';
-    imgPreview.style.maxWidth = '90vw';
-    imgPreview.style.maxHeight = '60vh';
-    imgPreview.style.borderRadius = '12px';
-    imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-    posterContainer.appendChild(imgPreview);
-
-    // Informational button (previously downloadBtn)
-    downloadBtn = document.createElement('button');
-    downloadBtn.textContent = 'Hold photo to share or save to photos';
-    downloadBtn.className = 'custom-button';
-    downloadBtn.style.display = 'block';
-    downloadBtn.style.margin = '10px auto 0 auto';
-    // Switched colour scheme (was purple, now grey)
-    downloadBtn.style.background = '#e0e0e0';
-    downloadBtn.style.color = '#333';
-    downloadBtn.onclick = function (e) {
-      e.preventDefault();
-      return false;
+    likeBtn.onclick = async function () {
+      if (auth.currentUser) {
+        hasLiked = await userHasLiked(building.id || building.name);
+        if (hasLiked) {
+          updateLikeBtn();
+          return;
+        }
+        await setDoc(doc(db, "likes", `${building.id || building.name}_${auth.currentUser.uid}`), {
+          buildingId: building.id || building.name,
+          userId: auth.currentUser.uid,
+          timestamp: Date.now()
+        });
+        likesCount++;
+        hasLiked = true;
+        updateLikeBtn();
+      } else {
+        window.forceShowAuthUI = true;
+        authUI.style.display = "";
+        window.pendingLikeAction = () => likeBtn.onclick();
+        alert("Please sign in to like videos!");
+      }
     };
-    posterContainer.appendChild(downloadBtn);
-
-    // Cancel button (was grey, now purple)
-    cancelBtn = document.createElement('button');
-    cancelBtn.textContent = 'Take again';
-    cancelBtn.className = 'custom-button';
-    cancelBtn.style.display = 'block';
-    cancelBtn.style.margin = '10px auto 0 auto';
-    // Switched colour scheme (was grey, now purple)
-    cancelBtn.style.background = '#9b4dca';
-    cancelBtn.style.color = '#fff';
-    posterContainer.appendChild(cancelBtn);
-
-    cameraVideo.style.display = 'none';
-    shutterBtn.style.display = 'none';
-    textOverlay.style.display = 'none';
-    cameraCloseBtn.style.display = 'none';
-
-    cancelBtn.onclick = function () {
-      if (imgPreview) imgPreview.remove();
-      if (downloadBtn) downloadBtn.remove();
-      if (cancelBtn) cancelBtn.remove();
-
-      cameraVideo.style.display = 'block';
-      shutterBtn.style.display = 'block';
-      textOverlay.style.display = 'block';
-      cameraCloseBtn.style.display = 'flex';
-
-      cameraVideo.play();
-    };
-  };
-};
-
 
     playBtn.onclick = () => {
       playBtn.style.display = 'none';
@@ -1413,3 +1177,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set the dropdown width to match the button width
   dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
 });
+
+  if (auth.currentUser) {
+  updateUI(auth.currentUser);
+  if (!window.mapInitDone) {
+    window.mapInitDone = true;
+    initMapLogic();
+  }
+}
