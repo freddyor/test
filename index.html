@@ -39,6 +39,22 @@
     </style>
 </head>
 <body>
+    <div class="auth-container" id="auth-ui" style="display:none;">
+    <h2>Login to YorkMapped</h2>
+    <form id="signup-form" class="auth-form">
+        <input type="email" id="signup-email" placeholder="Email" required />
+        <input type="password" id="signup-password" placeholder="Password" required />
+        <button type="submit">Sign Up</button>
+    </form>
+    <form id="login-form" class="auth-form">
+        <input type="email" id="login-email" placeholder="Email" required />
+        <input type="password" id="login-password" placeholder="Password" required />
+        <button type="submit">Log In</button>
+    </form>
+    <div id="user-info">Not logged in</div>
+    <button id="logout-btn" class="hide">Log Out</button>
+    <div id="auth-error"></div>
+</div>
     <div id="loading-screen">
         <img src="https://freddyor.github.io/british-map/videos/favicon.png" alt="Loading icon" id="loading-icon">
         <div class="spinner"></div>
