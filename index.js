@@ -1180,6 +1180,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
  dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
+  }); 
+}
 
   // This was previously outside the handler!
   if (auth.currentUser) {
@@ -1189,4 +1191,3 @@ document.addEventListener('DOMContentLoaded', () => {
       initMapLogic();
     }
   }
-}); 
