@@ -11,11 +11,8 @@
     <!-- Optional: Remove if not necessary -->
     <link rel="icon" href="https://freddyor.github.io/british-map/videos/favicon.png" type="image/png" sizes="32x32">
 
-    <!-- Mapbox GL JS CSS -->
+    <!-- Mapbox GL JS CSS (replace MapLibre) -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet" />
-
-    <!-- Poppins font for consistency -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
         body, html {
@@ -31,8 +28,8 @@
         #map {
             flex: 1;
             width: 100%;
-            margin: 0;
-            padding: 0;
+            margin: 0; /* Ensure no margin */
+            padding: 0; /* Ensure no padding */
         }
         #loading-screen {
             position: fixed;
@@ -67,39 +64,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        /* Firebase Auth UI */
-        .auth-container {
-            max-width: 340px;
-            margin: 24px auto;
-            background: #fff;
-            padding: 18px 16px;
-            border-radius: 12px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-            position: absolute;
-            top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10001;
-        }
-        .auth-container h2 { margin-top: 0; font-size: 1.2em; }
-        .auth-form input {
-            width: 100%; padding: 8px; margin: 6px 0;
-            border-radius: 8px; border: 1px solid #ccc;
-            font-size: 15px;
-        }
-        .auth-form button {
-            background: #9b4dca; color: #fff; border: none;
-            padding: 8px 16px; border-radius: 8px;
-            margin: 8px 0; font-size: 16px; cursor: pointer;
-        }
-        #logout-btn { background: #e0e0e0; color: #333; }
-        #user-info { margin: 10px 0 0 0; font-weight: bold; font-size: 16px; color: #7C6E4D; }
-        .hide { display: none; }
-        .show { display: block; }
-        #auth-error { color:#c00; margin-top:8px; min-height:18px;}
-        @media (max-width: 540px) {
-            .auth-container { max-width: 98vw; padding: 10px 2vw; }
-        }
     </style>
 </head>
 <body>
@@ -107,30 +71,11 @@
         <img src="https://freddyor.github.io/british-map/videos/favicon.png" alt="Loading icon" id="loading-icon">
         <div class="spinner"></div>
     </div>
-    <!-- Firebase Auth UI -->
-    <div class="auth-container" id="auth-ui" style="display:none;">
-        <h2>Login to YorkMapped</h2>
-        <form id="signup-form" class="auth-form">
-            <input type="email" id="signup-email" placeholder="Email" required />
-            <input type="password" id="signup-password" placeholder="Password" required />
-            <button type="submit">Sign Up</button>
-        </form>
-        <form id="login-form" class="auth-form">
-            <input type="email" id="login-email" placeholder="Email" required />
-            <input type="password" id="login-password" placeholder="Password" required />
-            <button type="submit">Log In</button>
-        </form>
-        <div id="user-info">Not logged in</div>
-        <button id="logout-btn" class="hide">Log Out</button>
-        <div id="auth-error"></div>
-    </div>
     <div id="map"></div>
 
-    <!-- Mapbox GL JS -->
+    <!-- Mapbox GL JS (replace MapLibre) -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
-    <!-- Firebase Auth + App modules -->
+    <!-- Your custom script -->
     <script type="module" src="index.js"></script>
-    <!-- html2canvas (unchanged) -->
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
 </html>
