@@ -231,13 +231,21 @@ buildings.forEach((building) => {
       }
     }
 
+    function showLoginModal() {
+      // Implement your login modal here
+      // For now, fallback to alert
+      alert("You must be logged in to like videos. Please sign in or create an account.");
+      // You could also trigger a redirect or display a modal
+    }
+
     likeButton.onclick = async () => {
       const user = auth.currentUser;
       if (!user) {
-        alert("You must be logged in to like videos.");
+        showLoginModal();
+        return;
       } else {
         await toggleFirebaseLike(videoUrl, user.uid);
-        updateLikeButtonState();
+        await updateLikeButtonState();
       }
     };
 
@@ -871,6 +879,11 @@ stylePopup.innerHTML = `
     white-space: nowrap;
     text-align: center;
   }
+  .like-btn.liked {
+    color: #e74c3c !important;
+    background: #fff0f0 !important;
+    border-color: #e74c3c !important;
+  }
   #button-group {
     position: fixed;
     top: 50px;
@@ -1113,10 +1126,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <b>If this site was free for you to use, it means someone else paid forward.</b>
         </div>
            <div class="project-info" style="margin-bottom: 15px;">
-            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no other city has before.
+            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no[...]
         </div>
         <div class="project-info" style="margin-bottom: 15px;">
-             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic images from York Archives to use) ❤️
+             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic imag[...]
         </div>
         <button 
             class="support-button" 
