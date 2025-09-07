@@ -894,6 +894,7 @@ function createPopupContent(location, isFirebase = false) {
         </div>
     `;
 }
+}
 
 // ========== Support Button + Marker List Button & Popup =============
 
