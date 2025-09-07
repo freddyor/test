@@ -1,6 +1,105 @@
 import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
+// ---- Firebase Auth Integration ----
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDjv5uUNOx86FvYsXdKSMkl8vui2Jynt7M",
+  authDomain: "britmap-64cb3.firebaseapp.com",
+  projectId: "britmap-64cb3",
+  storageBucket: "britmap-64cb3.firebasestorage.app",
+  messagingSenderId: "821384262397",
+  appId: "1:821384262397:web:ca81d64ab6a8dea562c494",
+  measurementId: "G-03E2BB7BQH"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+
+const signupForm = document.getElementById("signup-form");
+const loginForm = document.getElementById("login-form");
+const logoutBtn = document.getElementById("logout-btn");
+const userInfo = document.getElementById("user-info");
+const authError = document.getElementById("auth-error");
+const authUI = document.getElementById("auth-ui");
+const mapDiv = document.getElementById("map");
+
+function updateUI(user) {
+  if (user) {
+    userInfo.textContent = `Logged in as: ${user.email}`;
+    logoutBtn.classList.remove("hide");
+    signupForm.classList.add("hide");
+    loginForm.classList.add("hide");
+    authError.textContent = "";
+    authUI.style.display = "none";
+    mapDiv.style.display = "";
+  } else {
+    userInfo.textContent = "Not logged in";
+    logoutBtn.classList.add("hide");
+    signupForm.classList.remove("hide");
+    loginForm.classList.remove("hide");
+    authUI.style.display = "";
+    mapDiv.style.display = "none";
+  }
+}
+
+onAuthStateChanged(auth, (user) => {
+  updateUI(user);
+  if (user) {
+    if (!window.mapInitDone) {
+      window.mapInitDone = true;
+      initMapLogic();
+    }
+  }
+});
+
+if (signupForm) {
+  signupForm.onsubmit = async function(e) {
+    e.preventDefault();
+    const email = document.getElementById("signup-email").value.trim();
+    const password = document.getElementById("signup-password").value;
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      authError.textContent = "";
+    } catch (error) {
+      authError.textContent = error.message;
+    }
+  };
+}
+
+if (loginForm) {
+  loginForm.onsubmit = async function(e) {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      authError.textContent = "";
+    } catch (error) {
+      authError.textContent = error.message;
+    }
+  };
+}
+
+if (logoutBtn) {
+  logoutBtn.onclick = async function() {
+    await signOut(auth);
+  };
+}
+
+// ---- Main Map Logic ----
+function initMapLogic() {
+
 // Track when the loading screen is first shown
 const loadingScreenStart = Date.now();
 
@@ -275,8 +374,6 @@ buildings.forEach((building) => {
     overlay.addEventListener('mousedown', function (e) {
       if (e.target === overlay) removeOverlayAndPauseVideo();
     });
-
-// ... previous code (unchanged) ...
 
 cameraIcon.onclick = async function () {
   if (
@@ -600,7 +697,6 @@ cameraIcon.onclick = async function () {
       videoElement.playsInline = true;
       showFirstVideoWaitMessage(videoElement);
       let hasStarted = false;
-
       function showVideo() {
         if (!hasStarted) {
           hasStarted = true;
@@ -608,7 +704,6 @@ cameraIcon.onclick = async function () {
           spinner.style.display = 'none';
         }
       }
-
       function onProgress() {
         if (videoElement.duration && videoElement.buffered.length) {
           const bufferedEnd =
@@ -619,7 +714,6 @@ cameraIcon.onclick = async function () {
           }
         }
       }
-
       videoElement.addEventListener('play', showVideo);
       videoElement.addEventListener('progress', onProgress);
       videoElement.addEventListener('click', () => {
@@ -635,11 +729,6 @@ cameraIcon.onclick = async function () {
     };
   });
 });
-
-// ... rest of your file (unchanged) ...
-
-// ... rest of your file (unchanged) ...
-// (all logic for map, bottom sheet, styling, popup content, support button, marker search, etc.)
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
   const markerSize = zoomLevel - 13;
