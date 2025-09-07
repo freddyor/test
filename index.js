@@ -17,6 +17,58 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// ========== LOGIN MODAL LOGIC =============
+
+function showLoginModal() {
+  document.getElementById('auth-ui').style.display = 'block';
+}
+function hideLoginModal() {
+  document.getElementById('auth-ui').style.display = 'none';
+}
+
+document.getElementById('signup-form').onsubmit = async function(e) {
+  e.preventDefault();
+  let email = document.getElementById('signup-email').value;
+  let password = document.getElementById('signup-password').value;
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    hideLoginModal();
+    document.getElementById('auth-error').textContent = '';
+  } catch (err) {
+    document.getElementById('auth-error').textContent = err.message;
+  }
+};
+
+document.getElementById('login-form').onsubmit = async function(e) {
+  e.preventDefault();
+  let email = document.getElementById('login-email').value;
+  let password = document.getElementById('login-password').value;
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    hideLoginModal();
+    document.getElementById('auth-error').textContent = '';
+  } catch (err) {
+    document.getElementById('auth-error').textContent = err.message;
+  }
+};
+
+document.getElementById('logout-btn').onclick = function() {
+  auth.signOut();
+  document.getElementById('user-info').textContent = 'Not logged in';
+  document.getElementById('logout-btn').classList.add('hide');
+};
+
+onAuthStateChanged(auth, function(user) {
+  if (user) {
+    document.getElementById('user-info').textContent = 'Logged in as ' + user.email;
+    document.getElementById('logout-btn').classList.remove('hide');
+    hideLoginModal();
+  } else {
+    document.getElementById('user-info').textContent = 'Not logged in';
+    document.getElementById('logout-btn').classList.add('hide');
+  }
+});
+
 const loadingScreenStart = Date.now();
 let firstVideoLoadedThisSession = false;
 function showFirstVideoWaitMessage(videoElement) {}
@@ -231,22 +283,14 @@ buildings.forEach((building) => {
       }
     }
 
-    function showLoginModal() {
-      // Implement your login modal here
-      // For now, fallback to alert
-      alert("You must be logged in to like videos. Please sign in or create an account.");
-      // You could also trigger a redirect or display a modal
-    }
-
     likeButton.onclick = async () => {
       const user = auth.currentUser;
       if (!user) {
         showLoginModal();
         return;
-      } else {
-        await toggleFirebaseLike(videoUrl, user.uid);
-        await updateLikeButtonState();
       }
+      await toggleFirebaseLike(videoUrl, user.uid);
+      await updateLikeButtonState();
     };
 
     async function toggleFirebaseLike(videoId, userId) {
@@ -684,6 +728,9 @@ buildings.forEach((building) => {
     };
   });
 });
+
+// ... rest of your code unchanged (bottom sheet, marker list, support/donors, styles, etc.)
+
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
