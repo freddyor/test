@@ -276,216 +276,209 @@ buildings.forEach((building) => {
       if (e.target === overlay) removeOverlayAndPauseVideo();
     });
 
-    // CAMERA ICON FUNCTIONALITY
-    cameraIcon.onclick = async function () {
-      if (
-        !(
-          navigator.mediaDevices &&
-          typeof navigator.mediaDevices.getUserMedia === 'function'
-        )
-      ) {
-        alert(
-          "Camera access is not supported on this browser/device. If you're on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date."
-        );
-        return;
+   // ... previous code (unchanged) ...
+
+cameraIcon.onclick = async function () {
+  if (
+    !(
+      navigator.mediaDevices &&
+      typeof navigator.mediaDevices.getUserMedia === 'function'
+    )
+  ) {
+    alert(
+      "Camera access is not supported on this browser/device. If you're on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date."
+    );
+    return;
+  }
+
+  cameraIcon.remove();
+  posterContainer.innerHTML = '';
+
+  //--- ADD TEXT OVERLAY DIV ---
+  const textOverlay = document.createElement('div');
+  textOverlay.textContent = markerText;
+  textOverlay.style.position = 'absolute';
+  textOverlay.style.top = '16px';
+  textOverlay.style.left = '50%';
+  textOverlay.style.transform = 'translateX(-50%)';
+  textOverlay.style.background = 'rgba(0,0,0,0.4)';
+  textOverlay.style.color = '#fff';
+  textOverlay.style.padding = '6px 18px';
+  textOverlay.style.borderRadius = '8px';
+  textOverlay.style.fontSize = '18px';
+  textOverlay.style.fontWeight = 'bold';
+  textOverlay.style.pointerEvents = 'none';
+  textOverlay.style.zIndex = 20;
+  textOverlay.style.fontFamily = "'Poppins', sans-serif";
+  posterContainer.appendChild(textOverlay);
+
+  const cameraVideo = document.createElement('video');
+  cameraVideo.autoplay = true;
+  cameraVideo.playsInline = true;
+  cameraVideo.style.width = '90vw';
+  cameraVideo.style.height = '160vw'; // portrait
+  cameraVideo.style.objectFit = 'contain';
+  cameraVideo.style.borderRadius = '14px';
+  cameraVideo.style.display = 'block';
+  cameraVideo.style.margin = '0 auto';
+  posterContainer.appendChild(cameraVideo);
+
+  const shutterBtn = document.createElement('button');
+  shutterBtn.title = 'Take Photo';
+  shutterBtn.className = 'custom-shutter-btn';
+  shutterBtn.style.position = 'absolute';
+  shutterBtn.style.left = '50%';
+  shutterBtn.style.bottom = '20px';
+  shutterBtn.style.transform = 'translateX(-50%)';
+  shutterBtn.style.width = '64px';
+  shutterBtn.style.height = '64px';
+  shutterBtn.style.background = 'white';
+  shutterBtn.style.border = '4px solid #ccc';
+  shutterBtn.style.borderRadius = '50%';
+  shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+  shutterBtn.style.display = 'flex';
+  shutterBtn.style.alignItems = 'center';
+  shutterBtn.style.justifyContent = 'center';
+  shutterBtn.style.cursor = 'pointer';
+  shutterBtn.style.zIndex = 12;
+  shutterBtn.style.outline = 'none';
+  shutterBtn.style.transition = 'box-shadow 0.1s';
+  // inner circle for shutter effect
+  const innerCircle = document.createElement('div');
+  innerCircle.style.width = '44px';
+  innerCircle.style.height = '44px';
+  innerCircle.style.background = '#fff';
+  innerCircle.style.borderRadius = '50%';
+  innerCircle.style.boxShadow = '0 0 0 2px #eee';
+  shutterBtn.appendChild(innerCircle);
+  posterContainer.appendChild(shutterBtn);
+
+  const cameraCloseBtn = document.createElement('button');
+  cameraCloseBtn.textContent = '❌';
+  cameraCloseBtn.style.position = 'absolute';
+  cameraCloseBtn.style.top = '-8px';
+  cameraCloseBtn.style.right = '-8px';
+  cameraCloseBtn.style.width = '25px';
+  cameraCloseBtn.style.height = '25px';
+  cameraCloseBtn.style.background = '#000';
+  cameraCloseBtn.style.color = '#fff';
+  cameraCloseBtn.style.border = '1.5px solid #E9E8E0';
+  cameraCloseBtn.style.borderRadius = '50%';
+  cameraCloseBtn.style.cursor = 'pointer';
+  cameraCloseBtn.style.fontSize = '0.7rem';
+  cameraCloseBtn.style.zIndex = '100001';
+  cameraCloseBtn.style.display = 'flex';
+  cameraCloseBtn.style.alignItems = 'center';
+  cameraCloseBtn.style.justifyContent = 'center';
+  cameraCloseBtn.onclick = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+    }
+    overlay.remove();
+  };
+  posterContainer.appendChild(cameraCloseBtn);
+
+  let imgPreview = null, downloadBtn = null, cancelBtn = null;
+  let cameraStream = null;
+
+  async function startCameraStream() {
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        }
+      });
+      cameraVideo.srcObject = cameraStream;
+    } catch (err) {
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        cameraVideo.srcObject = cameraStream;
+      } catch (err2) {
+        alert('Could not access camera: ' + err2.message);
       }
+    }
+  }
+  await startCameraStream();
 
-      // Remove the camera icon button from the posterContainer
-      cameraIcon.remove();
+  shutterBtn.onclick = function () {
+    // Pause video for effect, but not strictly needed
+    cameraVideo.pause();
 
-      posterContainer.innerHTML = '';
+    if (imgPreview) imgPreview.remove();
+    if (downloadBtn) downloadBtn.remove();
+    if (cancelBtn) cancelBtn.remove();
 
-      //--- ADD TEXT OVERLAY DIV ---
-      const textOverlay = document.createElement('div');
-      textOverlay.textContent = markerText;
-      textOverlay.style.position = 'absolute';
-      textOverlay.style.top = '16px';
-      textOverlay.style.left = '50%';
-      textOverlay.style.transform = 'translateX(-50%)';
-      textOverlay.style.background = 'rgba(0,0,0,0.4)';
-      textOverlay.style.color = '#fff';
-      textOverlay.style.padding = '6px 18px';
-      textOverlay.style.borderRadius = '8px';
-      textOverlay.style.fontSize = '18px';
-      textOverlay.style.fontWeight = 'bold';
-      textOverlay.style.pointerEvents = 'none';
-      textOverlay.style.zIndex = 20;
-      textOverlay.style.fontFamily = "'Poppins', sans-serif";
+    shutterBtn.style.display = 'none';
+    cameraCloseBtn.style.display = 'none';
 
-      posterContainer.appendChild(textOverlay);
+    // --- NEW: Use canvas to capture video frame at full resolution ---
+    const canvas = document.createElement('canvas');
+    canvas.width = cameraVideo.videoWidth;
+    canvas.height = cameraVideo.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
-      const cameraVideo = document.createElement('video');
-      cameraVideo.autoplay = true;
-      cameraVideo.playsInline = true;
-      cameraVideo.style.width = '90vw';
-      cameraVideo.style.height = '160vw'; // 16/9 * width → portrait
-      cameraVideo.style.objectFit = 'contain'; // crop/fill container
-      cameraVideo.style.borderRadius = '14px';
+    // Draw text overlay, centered horizontally near the top
+    ctx.font = "bold 40px 'Poppins', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(0,0,0,0.4)";
+    ctx.fillRect(canvas.width/2 - ctx.measureText(markerText).width/2 - 20, 20, ctx.measureText(markerText).width + 40, 50);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(markerText, canvas.width / 2, 55);
+
+    imgPreview = document.createElement('img');
+    imgPreview.src = canvas.toDataURL('image/png');
+    imgPreview.style.display = 'block';
+    imgPreview.style.margin = '16px auto 8px auto';
+    imgPreview.style.maxWidth = '90vw';
+    imgPreview.style.maxHeight = '60vh';
+    imgPreview.style.borderRadius = '12px';
+    imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    posterContainer.appendChild(imgPreview);
+
+    downloadBtn = document.createElement('a');
+    downloadBtn.textContent = 'Download Photo';
+    downloadBtn.className = 'custom-button';
+    downloadBtn.href = imgPreview.src;
+    downloadBtn.download = 'photo.png';
+    downloadBtn.style.display = 'block';
+    downloadBtn.style.margin = '10px auto 0 auto';
+    downloadBtn.style.background = '#9b4dca';
+    downloadBtn.style.color = '#fff';
+    posterContainer.appendChild(downloadBtn);
+
+    cancelBtn = document.createElement('button');
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.className = 'custom-button';
+    cancelBtn.style.display = 'block';
+    cancelBtn.style.margin = '10px auto 0 auto';
+    cancelBtn.style.background = '#e0e0e0';
+    cancelBtn.style.color = '#333';
+    posterContainer.appendChild(cancelBtn);
+
+    cameraVideo.style.display = 'none';
+    shutterBtn.style.display = 'none';
+    textOverlay.style.display = 'none';
+    cameraCloseBtn.style.display = 'none';
+
+    cancelBtn.onclick = function () {
+      if (imgPreview) imgPreview.remove();
+      if (downloadBtn) downloadBtn.remove();
+      if (cancelBtn) cancelBtn.remove();
+
       cameraVideo.style.display = 'block';
-      cameraVideo.style.margin = '0 auto';
-      posterContainer.appendChild(cameraVideo);
-
-      const shutterBtn = document.createElement('button');
-      shutterBtn.title = 'Take Photo';
-      shutterBtn.className = 'custom-shutter-btn';
-      shutterBtn.style.position = 'absolute';
-      shutterBtn.style.left = '50%';
-      shutterBtn.style.bottom = '20px';
-      shutterBtn.style.transform = 'translateX(-50%)';
-      shutterBtn.style.width = '64px';
-      shutterBtn.style.height = '64px';
-      shutterBtn.style.background = 'white';
-      shutterBtn.style.border = '4px solid #ccc';
-      shutterBtn.style.borderRadius = '50%';
-      shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-      shutterBtn.style.display = 'flex';
-      shutterBtn.style.alignItems = 'center';
-      shutterBtn.style.justifyContent = 'center';
-      shutterBtn.style.cursor = 'pointer';
-      shutterBtn.style.zIndex = 12;
-      shutterBtn.style.outline = 'none';
-      shutterBtn.style.transition = 'box-shadow 0.1s';
-
-      // inner circle for shutter effect
-      const innerCircle = document.createElement('div');
-      innerCircle.style.width = '44px';
-      innerCircle.style.height = '44px';
-      innerCircle.style.background = '#fff';
-      innerCircle.style.borderRadius = '50%';
-      innerCircle.style.boxShadow = '0 0 0 2px #eee';
-      shutterBtn.appendChild(innerCircle);
-
-      posterContainer.appendChild(shutterBtn);
-
-      // Close button for camera/photo mode
-      const cameraCloseBtn = document.createElement('button');
-      cameraCloseBtn.textContent = '❌';
-      cameraCloseBtn.style.position = 'absolute';
-      cameraCloseBtn.style.top = '-8px';
-      cameraCloseBtn.style.right = '-8px';
-      cameraCloseBtn.style.width = '25px';
-      cameraCloseBtn.style.height = '25px';
-      cameraCloseBtn.style.background = '#000';
-      cameraCloseBtn.style.color = '#fff';
-      cameraCloseBtn.style.border = '1.5px solid #E9E8E0';
-      cameraCloseBtn.style.borderRadius = '50%';
-      cameraCloseBtn.style.cursor = 'pointer';
-      cameraCloseBtn.style.fontSize = '0.7rem';
-      cameraCloseBtn.style.zIndex = '100001';
+      shutterBtn.style.display = 'block';
+      textOverlay.style.display = 'block';
       cameraCloseBtn.style.display = 'flex';
-      cameraCloseBtn.style.alignItems = 'center';
-      cameraCloseBtn.style.justifyContent = 'center';
 
-      // Remove camera stream and overlay
-      cameraCloseBtn.onclick = () => {
-        if (cameraStream) {
-          cameraStream.getTracks().forEach((track) => track.stop());
-        }
-        overlay.remove();
-      };
-      posterContainer.appendChild(cameraCloseBtn);
-
-      let imgPreview = null,
-        downloadBtn = null,
-        cancelBtn = null;
-
-      async function startCameraStream() {
-        try {
-          cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: { 
-              facingMode: { ideal: 'environment' },
-              width: { ideal: 1920 },
-              height: { ideal: 1080 }
-            }
-          });
-
-          cameraVideo.srcObject = cameraStream;
-        } catch (err) {
-          // fallback to default camera
-          try {
-            cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-
-            cameraVideo.srcObject = cameraStream;
-          } catch (err2) {
-            alert('Could not access camera: ' + err2.message);
-          }
-        }
-      }
-
-      await startCameraStream();
-
-      shutterBtn.onclick = async function () {
-        cameraVideo.pause();
-
-        if (imgPreview) imgPreview.remove();
-        if (downloadBtn) downloadBtn.remove();
-        if (cancelBtn) cancelBtn.remove();
-
-        // Hide shutter and close buttons before capture
-        shutterBtn.style.display = 'none';
-        cameraCloseBtn.style.display = 'none';
-
-        // Use html2canvas to capture the posterContainer including the camera stream and text overlay
-        html2canvas(posterContainer, {
-          backgroundColor: null,
-          useCORS: true,
-          scale: window.devicePixelRatio
-        }).then(canvas => {
-          // Restore shutter and close buttons after capture
-          shutterBtn.style.display = 'block';
-          cameraCloseBtn.style.display = 'flex';
-
-          imgPreview = document.createElement('img');
-          imgPreview.src = canvas.toDataURL('image/png');
-          imgPreview.style.display = 'block';
-          imgPreview.style.margin = '16px auto 8px auto';
-          imgPreview.style.maxWidth = '90vw';
-          imgPreview.style.maxHeight = '60vh';
-          imgPreview.style.borderRadius = '12px';
-          imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-          posterContainer.appendChild(imgPreview);
-
-          downloadBtn = document.createElement('a');
-          downloadBtn.textContent = 'Download Photo';
-          downloadBtn.className = 'custom-button';
-          downloadBtn.href = imgPreview.src;
-          downloadBtn.download = 'photo.png';
-          downloadBtn.style.display = 'block';
-          downloadBtn.style.margin = '10px auto 0 auto';
-          downloadBtn.style.background = '#9b4dca';
-          downloadBtn.style.color = '#fff';
-          posterContainer.appendChild(downloadBtn);
-
-          cancelBtn = document.createElement('button');
-          cancelBtn.textContent = 'Cancel';
-          cancelBtn.className = 'custom-button';
-          cancelBtn.style.display = 'block';
-          cancelBtn.style.margin = '10px auto 0 auto';
-          cancelBtn.style.background = '#e0e0e0';
-          cancelBtn.style.color = '#333';
-          posterContainer.appendChild(cancelBtn);
-
-          // Hide video, take photo button, text overlay, and close button
-          cameraVideo.style.display = 'none';
-          shutterBtn.style.display = 'none';
-          textOverlay.style.display = 'none';
-          cameraCloseBtn.style.display = 'none';
-
-          cancelBtn.onclick = function () {
-            if (imgPreview) imgPreview.remove();
-            if (downloadBtn) downloadBtn.remove();
-            if (cancelBtn) cancelBtn.remove();
-
-            cameraVideo.style.display = 'block';
-            shutterBtn.style.display = 'block';
-            textOverlay.style.display = 'block';
-            cameraCloseBtn.style.display = 'flex';
-
-            cameraVideo.play();
-          };
-        });
-      };
+      cameraVideo.play();
     };
+  };
+};
+
+// --- the rest is the same ---
 
     playBtn.onclick = () => {
       playBtn.style.display = 'none';
