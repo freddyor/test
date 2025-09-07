@@ -549,7 +549,7 @@ cameraIcon.onclick = async function () {
     posterContainer.appendChild(downloadBtn);
 
     cancelBtn = document.createElement('button');
-    cancelBtn.textContent = 'Cancel';
+    cancelBtn.textContent = 'Take again';
     cancelBtn.className = 'custom-button';
     cancelBtn.style.display = 'block';
     cancelBtn.style.margin = '10px auto 0 auto';
