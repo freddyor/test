@@ -523,6 +523,8 @@ cameraIcon.onclick = async function () {
 
     // ... previous code (unchanged) ...
 
+        // ... previous code (unchanged) ...
+
     imgPreview = document.createElement('img');
     imgPreview.src = canvas.toDataURL('image/png');
     imgPreview.style.display = 'block';
@@ -533,28 +535,30 @@ cameraIcon.onclick = async function () {
     imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
     posterContainer.appendChild(imgPreview);
 
-    // Replace download button with informational button
+    // Informational button (previously downloadBtn)
     downloadBtn = document.createElement('button');
     downloadBtn.textContent = 'Hold photo to share or save to photos';
     downloadBtn.className = 'custom-button';
     downloadBtn.style.display = 'block';
     downloadBtn.style.margin = '10px auto 0 auto';
-    downloadBtn.style.background = '#9b4dca';
-    downloadBtn.style.color = '#fff';
-    // Disable any click action
+    // Switched colour scheme (was purple, now grey)
+    downloadBtn.style.background = '#e0e0e0';
+    downloadBtn.style.color = '#333';
     downloadBtn.onclick = function (e) {
       e.preventDefault();
       return false;
     };
     posterContainer.appendChild(downloadBtn);
 
+    // Cancel button (was grey, now purple)
     cancelBtn = document.createElement('button');
-    cancelBtn.textContent = 'Take again';
+    cancelBtn.textContent = 'Cancel';
     cancelBtn.className = 'custom-button';
     cancelBtn.style.display = 'block';
     cancelBtn.style.margin = '10px auto 0 auto';
-    cancelBtn.style.background = '#e0e0e0';
-    cancelBtn.style.color = '#333';
+    // Switched colour scheme (was grey, now purple)
+    cancelBtn.style.background = '#9b4dca';
+    cancelBtn.style.color = '#fff';
     posterContainer.appendChild(cancelBtn);
 
     cameraVideo.style.display = 'none';
@@ -576,8 +580,6 @@ cameraIcon.onclick = async function () {
     };
   };
 };
-
-// --- the rest is the same ---
 
 
     playBtn.onclick = () => {
