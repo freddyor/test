@@ -280,6 +280,8 @@ buildings.forEach((building) => {
 
 // ... previous code (unchanged) ...
 
+// ... previous code (unchanged) ...
+
 cameraIcon.onclick = async function () {
   if (
     !(
@@ -307,11 +309,13 @@ cameraIcon.onclick = async function () {
   textOverlay.style.color = '#fff';
   textOverlay.style.padding = '6px 18px';
   textOverlay.style.borderRadius = '8px';
-  textOverlay.style.fontSize = '18px';
+  textOverlay.style.fontSize = '12px'; // Smaller text
   textOverlay.style.fontWeight = 'bold';
   textOverlay.style.pointerEvents = 'none';
   textOverlay.style.zIndex = 20;
   textOverlay.style.fontFamily = "'Poppins', sans-serif";
+  textOverlay.style.textAlign = "center"; // Center align
+  textOverlay.style.lineHeight = "0.8"; // Reduce line spacing by 50%
   posterContainer.appendChild(textOverlay);
 
   const cameraVideo = document.createElement('video');
@@ -415,29 +419,23 @@ cameraIcon.onclick = async function () {
     shutterBtn.style.display = 'none';
     cameraCloseBtn.style.display = 'none';
 
-    // --- NEW: Use canvas to capture video frame at full resolution ---
+    // --- Use canvas to capture video frame at full resolution ---
     const canvas = document.createElement('canvas');
     canvas.width = cameraVideo.videoWidth;
     canvas.height = cameraVideo.videoHeight;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
-    // --- Make text overlay on photo match the stream exactly ---
-    // Compute overlay position and styles from textOverlay
+    // --- Match overlay styling ---
     // Get computed styles and bounding box from the textOverlay div
     const overlayRect = textOverlay.getBoundingClientRect();
     const videoRect = cameraVideo.getBoundingClientRect();
-
-    // Compute position relative to video
     let topPx = overlayRect.top - videoRect.top;
     let leftPx = overlayRect.left - videoRect.left;
     let overlayWidth = overlayRect.width;
     let overlayHeight = overlayRect.height;
-
-    // Scale from screen pixels to video pixels
     let scaleX = canvas.width / videoRect.width;
     let scaleY = canvas.height / videoRect.height;
-
     let textBoxX = leftPx * scaleX;
     let textBoxY = topPx * scaleY;
     let textBoxWidth = overlayWidth * scaleX;
@@ -448,21 +446,34 @@ cameraIcon.onclick = async function () {
     ctx.globalAlpha = 0.4;
     ctx.fillStyle = "#000";
     ctx.beginPath();
-    ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
+    if (ctx.roundRect) {
+      ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
+    } else {
+      // fallback for Safari
+      ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
+    }
     ctx.fill();
     ctx.restore();
 
     // Draw the text
     ctx.save();
-    ctx.font = `bold ${18 * scaleY}px 'Poppins', sans-serif`;
+    ctx.font = `bold ${12 * scaleY}px 'Poppins', sans-serif`; // Smaller text
     ctx.fillStyle = "#fff";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(
-      markerText,
-      textBoxX + textBoxWidth / 2,
-      textBoxY + textBoxHeight / 2
-    );
+
+    // Reduce line spacing: split lines and manually draw
+    const lines = markerText.split("\n");
+    const lineHeight = 0.8 * 12 * scaleY; // 0.8 times font size
+    const midY = textBoxY + textBoxHeight / 2;
+    const startY = midY - ((lines.length - 1) / 2) * lineHeight;
+    for (let i = 0; i < lines.length; i++) {
+      ctx.fillText(
+        lines[i],
+        textBoxX + textBoxWidth / 2,
+        startY + i * lineHeight
+      );
+    }
     ctx.restore();
 
     imgPreview = document.createElement('img');
@@ -514,8 +525,6 @@ cameraIcon.onclick = async function () {
     };
   };
 };
-
-// --- the rest is the same ---
 
 // --- the rest is the same ---
 
