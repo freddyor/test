@@ -1181,9 +1181,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Set the dropdown width to match the button width
   dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
-});
+}); // <--- THIS closes the DOMContentLoaded event listener
 
-  if (auth.currentUser) {
+if (auth.currentUser) {
   updateUI(auth.currentUser);
   if (!window.mapInitDone) {
     window.mapInitDone = true;
