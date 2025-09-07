@@ -1180,6 +1180,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
+  });
 
   if (auth.currentUser) {
     updateUI(auth.currentUser);
@@ -1188,4 +1189,3 @@ document.addEventListener('DOMContentLoaded', () => {
       initMapLogic();
     }
   }
-});
