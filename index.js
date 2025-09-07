@@ -1,9 +1,9 @@
+import { buildings } from './buildings.js';
+import { locations } from './locations.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
 import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDjv5uUNOx86FvYsXdKSMkl8vui2Jynt7M",
   authDomain: "britmap-64cb3.firebaseapp.com",
@@ -13,20 +13,11 @@ const firebaseConfig = {
   appId: "1:821384262397:web:ca81d64ab6a8dea562c494",
   measurementId: "G-03E2BB7BQH"
 };
-
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-import { buildings } from './buildings.js';
-import { locations } from './locations.js';
-
-// Track when the loading screen is first shown
 const loadingScreenStart = Date.now();
-
-// --- First Video Popup additions START ---
 let firstVideoLoadedThisSession = false;
 function showFirstVideoWaitMessage(videoElement) {}
 
@@ -35,7 +26,6 @@ const yorkBounds = [
   [-1.010, 54.010]
 ];
 
-// Set Mapbox access token
 mapboxgl.accessToken =
   'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
@@ -51,7 +41,6 @@ var map = new mapboxgl.Map({
   maxZoom: 19,
 });
 
-// Geolocate control and user location marker
 const geolocate = new mapboxgl.GeolocateControl({
   positionOptions: {
     enableHighAccuracy: true,
@@ -91,7 +80,6 @@ geolocate.on('geolocate', (e) => {
   userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
 });
 
-// --- Marker and helper functions ---
 locations.forEach((location) => {
   const { element: markerElement } = createCustomMarker(
     location.image,
@@ -112,7 +100,6 @@ locations.forEach((location) => {
   });
 });
 
-// --- BUILDINGS: Add Firebase likes & login modal to video overlays ---
 buildings.forEach((building) => {
   const outlineColor = building.colour === 'yes' ? '#FF69B4' : '#FFFFFF';
   const { element: markerElement } = createCustomMarker(
@@ -130,356 +117,626 @@ buildings.forEach((building) => {
 
   marker.getElement().addEventListener('click', () => {
     map.getCanvas().style.cursor = 'pointer';
-    showVideoOverlayWithFirebase(building);
+    const videoUrl = building.videoUrl;
+    const posterUrl = building.posterUrl;
+    const markerText = building.text || "";
+
+    if (!videoUrl) {
+      console.error('Video URL not available for this building.');
+      return;
+    }
+    document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
+    const overlay = document.createElement('div');
+    overlay.className = 'video-modal-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = 0;
+    overlay.style.left = 0;
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(0,0,0,0.2)';
+    overlay.style.backdropFilter = 'blur(10px)';
+    overlay.style.webkitBackdropFilter = 'blur(10px)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = 100000;
+    const posterContainer = document.createElement('div');
+    posterContainer.style.position = 'relative';
+    posterContainer.style.marginTop = '-60px';
+
+    const cameraIcon = document.createElement('button');
+    cameraIcon.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="7" width="18" height="14" rx="4" ry="4"></rect>
+        <circle cx="12" cy="14" r="3.5"></circle>
+        <circle cx="17.5" cy="10.5" r="1"></circle>
+        <rect x="8" y="3" width="8" height="4" rx="2" ry="2"></rect>
+      </svg>
+    `;
+    cameraIcon.title = 'Open Camera';
+    cameraIcon.style.position = 'absolute';
+    cameraIcon.style.left = '50%';
+    cameraIcon.style.top = '0';
+    cameraIcon.style.transform = 'translate(-50%, -50%)';
+    cameraIcon.style.background = 'white';
+    cameraIcon.style.border = 'none';
+    cameraIcon.style.borderRadius = '50%';
+    cameraIcon.style.width = '48px';
+    cameraIcon.style.height = '48px';
+    cameraIcon.style.display = 'flex';
+    cameraIcon.style.alignItems = 'center';
+    cameraIcon.style.justifyContent = 'center';
+    cameraIcon.style.cursor = 'pointer';
+    cameraIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+    cameraIcon.style.zIndex = 10;
+    posterContainer.appendChild(cameraIcon);
+
+    const posterImg = document.createElement('img');
+    posterImg.src = posterUrl || '';
+    posterImg.alt = 'Video cover';
+    posterImg.style.maxWidth = '88vw';
+    posterImg.style.maxHeight = '80vh';
+    posterImg.style.borderRadius = '14px';
+    posterImg.style.display = 'block';
+    posterImg.addEventListener('load', () => {
+      posterImg.style.border = '1.5px solid #E9E8E0';
+    });
+
+    const likeButton = document.createElement('button');
+    likeButton.className = 'custom-button like-btn';
+    likeButton.style.marginTop = '10px';
+    const likeCountSpan = document.createElement('span');
+    likeCountSpan.className = 'like-count';
+    likeCountSpan.style.marginLeft = '6px';
+    likeCountSpan.style.fontWeight = 'bold';
+    likeButton.appendChild(document.createTextNode('🖤'));
+    likeButton.appendChild(likeCountSpan);
+    posterContainer.appendChild(likeButton);
+
+    async function getLikesCount(videoId) {
+      try {
+        const countDocRef = doc(db, "videoLikes", videoId);
+        const countDocSnap = await getDoc(countDocRef);
+        if (countDocSnap.exists()) {
+          return countDocSnap.data().count || 0;
+        }
+      } catch (e) {}
+      return 0;
+    }
+
+    async function updateLikeCount(videoId) {
+      const count = await getLikesCount(videoId);
+      likeCountSpan.textContent = count;
+    }
+
+    async function updateLikeButtonState() {
+      const user = auth.currentUser;
+      await updateLikeCount(videoUrl);
+      if (!user) {
+        likeButton.childNodes[0].textContent = '🖤';
+        likeButton.disabled = false;
+        likeButton.classList.remove('liked');
+        return;
+      }
+      const likeDocRef = doc(db, "likes", `${videoUrl}_${user.uid}`);
+      const likeDocSnap = await getDoc(likeDocRef);
+      if (likeDocSnap.exists()) {
+        likeButton.childNodes[0].textContent = '❤️';
+        likeButton.disabled = false;
+        likeButton.classList.add('liked');
+      } else {
+        likeButton.childNodes[0].textContent = '🖤';
+        likeButton.disabled = false;
+        likeButton.classList.remove('liked');
+      }
+    }
+
+    likeButton.onclick = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be logged in to like videos.");
+      } else {
+        await toggleFirebaseLike(videoUrl, user.uid);
+        updateLikeButtonState();
+      }
+    };
+
+    async function toggleFirebaseLike(videoId, userId) {
+      const user = auth.currentUser;
+      if (!user) return;
+      const likeRef = doc(db, "likes", `${videoId}_${user.uid}`);
+      const countDocRef = doc(db, "videoLikes", videoId);
+      const likeDoc = await getDoc(likeRef);
+      const countDocSnap = await getDoc(countDocRef);
+      let currentCount = (countDocSnap.exists() ? countDocSnap.data().count : 0) || 0;
+
+      if (likeDoc.exists()) {
+        await setDoc(countDocRef, { count: Math.max(0, currentCount - 1) }, { merge: true });
+        await deleteDoc(likeRef);
+      } else {
+        await setDoc(likeRef, {
+          videoId,
+          userId: user.uid,
+          timestamp: new Date().toISOString()
+        });
+        await setDoc(countDocRef, { count: currentCount + 1 }, { merge: true });
+      }
+    }
+
+    updateLikeButtonState();
+    onAuthStateChanged(auth, updateLikeButtonState);
+
+    const playBtn = document.createElement('button');
+    playBtn.innerHTML = '▶';
+    playBtn.style.position = 'absolute';
+    playBtn.style.top = '50%';
+    playBtn.style.left = '50%';
+    playBtn.style.transform = 'translate(-50%, -50%)';
+    playBtn.style.background = 'rgba(0,0,0,0.6)';
+    playBtn.style.border = 'none';
+    playBtn.style.borderRadius = '50%';
+    playBtn.style.width = '64px';
+    playBtn.style.height = '64px';
+    playBtn.style.color = '#fff';
+    playBtn.style.fontSize = '2.5rem';
+    playBtn.style.cursor = 'pointer';
+    playBtn.style.display = 'flex';
+    playBtn.style.alignItems = 'center';
+    playBtn.style.justifyContent = 'center';
+    playBtn.style.zIndex = 2;
+
+    const spinner = document.createElement('div');
+    spinner.style.position = 'absolute';
+    spinner.style.top = '50%';
+    spinner.style.left = '50%';
+    spinner.style.transform = 'translate(-50%, -50%)';
+    spinner.style.width = '48px';
+    spinner.style.height = '48px';
+    spinner.style.border = '6px solid #eee';
+    spinner.style.borderTop = '6px solid #9b4dca';
+    spinner.style.borderRadius = '50%';
+    spinner.style.animation = 'spin 1s linear infinite';
+    spinner.style.display = 'none';
+    spinner.style.zIndex = 3;
+
+    const spinnerStyle = document.createElement('style');
+    spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
+    document.head.appendChild(spinnerStyle);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '❌';
+    closeBtn.style.position = 'absolute';
+    closeBtn.style.top = '-8px';
+    closeBtn.style.right = '-8px';
+    closeBtn.style.width = '25px';
+    closeBtn.style.height = '25px';
+    closeBtn.style.background = '#000';
+    closeBtn.style.color = '#fff';
+    closeBtn.style.border = '1.5px solid #E9E8E0';
+    closeBtn.style.borderRadius = '50%';
+    closeBtn.style.cursor = 'pointer';
+    closeBtn.style.fontSize = '0.7rem';
+    closeBtn.style.zIndex = '100001';
+    closeBtn.style.display = 'flex';
+    closeBtn.style.alignItems = 'center';
+    closeBtn.style.justifyContent = 'center';
+
+    let videoElement = null;
+    let cameraStream = null;
+
+    function removeOverlayAndPauseVideo() {
+      if (videoElement) {
+        videoElement.pause();
+        videoElement.currentTime = 0;
+      }
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((track) => track.stop());
+      }
+      overlay.remove();
+    }
+
+    closeBtn.onclick = () => removeOverlayAndPauseVideo();
+
+    posterContainer.appendChild(posterImg);
+    posterContainer.appendChild(playBtn);
+    posterContainer.appendChild(spinner);
+    posterContainer.appendChild(closeBtn);
+    overlay.appendChild(posterContainer);
+    document.body.appendChild(overlay);
+
+    playBtn.onclick = () => {
+      playBtn.style.display = 'none';
+      spinner.style.display = 'block';
+      videoElement = document.createElement('video');
+      videoElement.src = videoUrl;
+      if (posterUrl) videoElement.poster = posterUrl;
+      videoElement.style.border = '1.5px solid #E9E8E0';
+      videoElement.style.maxWidth = '88vw';
+      videoElement.style.maxHeight = '80vh';
+      videoElement.style.borderRadius = '14px';
+      videoElement.controls = false;
+      videoElement.preload = 'auto';
+      videoElement.autoplay = true;
+      videoElement.setAttribute('playsinline', '');
+      videoElement.setAttribute('webkit-playsinline', '');
+      videoElement.playsInline = true;
+      showFirstVideoWaitMessage(videoElement);
+      let hasStarted = false;
+
+      function showVideo() {
+        if (!hasStarted) {
+          hasStarted = true;
+          posterContainer.replaceChild(videoElement, posterImg);
+          spinner.style.display = 'none';
+        }
+      }
+
+      function onProgress() {
+        if (videoElement.duration && videoElement.buffered.length) {
+          const bufferedEnd =
+            videoElement.buffered.end(videoElement.buffered.length - 1);
+          const percentBuffered = bufferedEnd / videoElement.duration;
+          if (percentBuffered >= 0.25 && !hasStarted) {
+            videoElement.play();
+          }
+        }
+      }
+
+      videoElement.addEventListener('play', showVideo);
+      videoElement.addEventListener('progress', onProgress);
+      videoElement.addEventListener('click', () => {
+        videoElement.controls = true;
+      });
+      videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
+      videoElement.addEventListener('error', () => {
+        spinner.style.display = 'none';
+        playBtn.style.display = 'block';
+        alert('Video failed to load.');
+      });
+      videoElement.load();
+    };
+
+    cameraIcon.onclick = async function () {
+      if (
+        !(
+          navigator.mediaDevices &&
+          typeof navigator.mediaDevices.getUserMedia === 'function'
+        )
+      ) {
+        alert(
+          "Camera access is not supported on this browser/device. If you're on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date."
+        );
+        return;
+      }
+
+      cameraIcon.remove();
+      posterContainer.innerHTML = '';
+
+      const overlayPaddingY = 6;
+      const overlayPaddingX = 12;
+      const overlayInset = 32;
+      const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
+
+      const textOverlay = document.createElement('div');
+      textOverlay.textContent = markerText;
+      textOverlay.style.position = 'absolute';
+      textOverlay.style.top = '50px';
+      textOverlay.style.left = '50%';
+      textOverlay.style.transform = 'translateX(-50%)';
+      textOverlay.style.background = 'rgba(0,0,0,0.4)';
+      textOverlay.style.color = '#fff';
+      textOverlay.style.padding = overlayInnerPadding;
+      textOverlay.style.borderRadius = '8px';
+      textOverlay.style.fontSize = '12px';
+      textOverlay.style.fontWeight = 'bold';
+      textOverlay.style.pointerEvents = 'none';
+      textOverlay.style.zIndex = 20;
+      textOverlay.style.fontFamily = "'Poppins', sans-serif";
+      textOverlay.style.textAlign = "center";
+      textOverlay.style.lineHeight = "1";
+      textOverlay.style.width = `calc(90vw - ${2 * overlayInset}px)`;
+      posterContainer.appendChild(textOverlay);
+
+      const cameraVideo = document.createElement('video');
+      cameraVideo.autoplay = true;
+      cameraVideo.playsInline = true;
+      cameraVideo.style.width = '90vw';
+      cameraVideo.style.height = '160vw';
+      cameraVideo.style.objectFit = 'contain';
+      cameraVideo.style.borderRadius = '14px';
+      cameraVideo.style.display = 'block';
+      cameraVideo.style.margin = '0 auto';
+      cameraVideo.style.position = 'relative';
+      posterContainer.appendChild(cameraVideo);
+
+      const shutterBtn = document.createElement('button');
+      shutterBtn.title = 'Take Photo';
+      shutterBtn.className = 'custom-shutter-btn';
+      shutterBtn.style.position = 'absolute';
+      shutterBtn.style.left = '50%';
+      shutterBtn.style.bottom = '20px';
+      shutterBtn.style.transform = 'translateX(-50%)';
+      shutterBtn.style.width = '64px';
+      shutterBtn.style.height = '64px';
+      shutterBtn.style.background = 'white';
+      shutterBtn.style.border = '4px solid #ccc';
+      shutterBtn.style.borderRadius = '50%';
+      shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+      shutterBtn.style.display = 'flex';
+      shutterBtn.style.alignItems = 'center';
+      shutterBtn.style.justifyContent = 'center';
+      shutterBtn.style.cursor = 'pointer';
+      shutterBtn.style.zIndex = 12;
+      shutterBtn.style.outline = 'none';
+      shutterBtn.style.transition = 'box-shadow 0.1s';
+      const innerCircle = document.createElement('div');
+      innerCircle.style.width = '44px';
+      innerCircle.style.height = '44px';
+      innerCircle.style.background = '#fff';
+      innerCircle.style.borderRadius = '50%';
+      innerCircle.style.boxShadow = '0 0 0 2px #eee';
+      shutterBtn.appendChild(innerCircle);
+      posterContainer.appendChild(shutterBtn);
+
+      const cameraCloseBtn = document.createElement('button');
+      cameraCloseBtn.textContent = '❌';
+      cameraCloseBtn.style.position = 'absolute';
+      cameraCloseBtn.style.top = '-8px';
+      cameraCloseBtn.style.right = '-8px';
+      cameraCloseBtn.style.width = '25px';
+      cameraCloseBtn.style.height = '25px';
+      cameraCloseBtn.style.background = '#000';
+      cameraCloseBtn.style.color = '#fff';
+      cameraCloseBtn.style.border = '1.5px solid #E9E8E0';
+      cameraCloseBtn.style.borderRadius = '50%';
+      cameraCloseBtn.style.cursor = 'pointer';
+      cameraCloseBtn.style.fontSize = '0.7rem';
+      cameraCloseBtn.style.zIndex = '100001';
+      cameraCloseBtn.style.display = 'flex';
+      cameraCloseBtn.style.alignItems = 'center';
+      cameraCloseBtn.style.justifyContent = 'center';
+      cameraCloseBtn.onclick = () => {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((track) => track.stop());
+        }
+        overlay.remove();
+      };
+      posterContainer.appendChild(cameraCloseBtn);
+
+      let imgPreview = null, downloadBtn = null, cancelBtn = null;
+      let cameraStream = null;
+
+      async function startCameraStream() {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 }
+            }
+          });
+          cameraVideo.srcObject = cameraStream;
+        } catch (err) {
+          try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            cameraVideo.srcObject = cameraStream;
+          } catch (err2) {
+            alert('Could not access camera: ' + err2.message);
+          }
+        }
+      }
+      await startCameraStream();
+
+      function wrapCanvasText(ctx, text, maxWidth) {
+        const words = text.split(' ');
+        let lines = [];
+        let line = '';
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + (line ? ' ' : '') + words[n];
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxWidth && line) {
+            lines.push(line);
+            line = words[n];
+          } else {
+            line = testLine;
+          }
+        }
+        lines.push(line);
+        return lines;
+      }
+
+      shutterBtn.onclick = function () {
+        cameraVideo.pause();
+
+        if (imgPreview) imgPreview.remove();
+        if (downloadBtn) downloadBtn.remove();
+        if (cancelBtn) cancelBtn.remove();
+
+        shutterBtn.style.display = 'none';
+        cameraCloseBtn.style.display = 'none';
+
+        const canvas = document.createElement('canvas');
+        canvas.width = cameraVideo.videoWidth;
+        canvas.height = cameraVideo.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+
+        const overlayRect = textOverlay.getBoundingClientRect();
+        const videoRect = cameraVideo.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(textOverlay);
+
+        let topPx = overlayRect.top - videoRect.top;
+        let leftPx = overlayRect.left - videoRect.left;
+        let overlayWidthPx = overlayRect.width;
+        let overlayHeightPx = overlayRect.height;
+
+        let fontSizePx = parseFloat(computedStyle.fontSize);
+        let fontFamily = computedStyle.fontFamily;
+        let fontWeight = computedStyle.fontWeight;
+        let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
+
+        let scaleX = canvas.width / videoRect.width;
+        let scaleY = canvas.height / videoRect.height;
+
+        let textBoxX = leftPx * scaleX;
+        let textBoxY = topPx * scaleY;
+        let textBoxWidth = overlayWidthPx * scaleX;
+        let textBoxHeight = overlayHeightPx * scaleY;
+
+        const canvasPaddingY = overlayPaddingY * scaleY;
+        const canvasPaddingX = overlayPaddingX * scaleX;
+
+        ctx.save();
+        ctx.globalAlpha = 0.4;
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
+        } else {
+          ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
+        }
+        ctx.fill();
+        ctx.restore();
+
+        const canvasFontSize = fontSizePx * scaleY;
+        const canvasLineHeight = canvasFontSize * 1.1;
+        ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#fff";
+
+        const wrappedLines = wrapCanvasText(
+          ctx,
+          markerText,
+          textBoxWidth - 2 * canvasPaddingX
+        );
+        const totalLines = wrappedLines.length;
+        const totalTextHeight = totalLines * canvasLineHeight;
+        let y = textBoxY + canvasPaddingY + (textBoxHeight - 2 * canvasPaddingY - totalTextHeight) / 2 + canvasLineHeight / 2;
+
+        for (let i = 0; i < wrappedLines.length; i++) {
+          ctx.fillText(
+            wrappedLines[i],
+            textBoxX + textBoxWidth / 2,
+            y + i * canvasLineHeight
+          );
+        }
+        ctx.restore();
+
+        imgPreview = document.createElement('img');
+        imgPreview.src = canvas.toDataURL('image/png');
+        imgPreview.style.display = 'block';
+        imgPreview.style.margin = '16px auto 8px auto';
+        imgPreview.style.maxWidth = '90vw';
+        imgPreview.style.maxHeight = '60vh';
+        imgPreview.style.borderRadius = '12px';
+        imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+        posterContainer.appendChild(imgPreview);
+
+        downloadBtn = document.createElement('button');
+        downloadBtn.textContent = 'Hold photo to share or save to photos';
+        downloadBtn.className = 'custom-button';
+        downloadBtn.style.display = 'block';
+        downloadBtn.style.margin = '10px auto 0 auto';
+        downloadBtn.style.background = '#e0e0e0';
+        downloadBtn.style.color = '#333';
+        downloadBtn.onclick = function (e) {
+          e.preventDefault();
+          return false;
+        };
+        posterContainer.appendChild(downloadBtn);
+
+        cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Take again';
+        cancelBtn.className = 'custom-button';
+        cancelBtn.style.display = 'block';
+        cancelBtn.style.margin = '10px auto 0 auto';
+        cancelBtn.style.background = '#9b4dca';
+        cancelBtn.style.color = '#fff';
+        posterContainer.appendChild(cancelBtn);
+
+        cameraVideo.style.display = 'none';
+        shutterBtn.style.display = 'none';
+        textOverlay.style.display = 'none';
+        cameraCloseBtn.style.display = 'none';
+
+        cancelBtn.onclick = function () {
+          if (imgPreview) imgPreview.remove();
+          if (downloadBtn) downloadBtn.remove();
+          if (cancelBtn) cancelBtn.remove();
+
+          cameraVideo.style.display = 'block';
+          shutterBtn.style.display = 'block';
+          textOverlay.style.display = 'block';
+          cameraCloseBtn.style.display = 'flex';
+
+          cameraVideo.play();
+        };
+      };
+    };
   });
 });
 
-// --- Video overlay with Firebase likes ---
-function showVideoOverlayWithFirebase(building) {
-  const videoUrl = building.videoUrl;
-  const posterUrl = building.posterUrl;
-  const markerText = building.text || "";
+// ...rest of your file unchanged...
 
-  if (!videoUrl) {
-    console.error('Video URL not available for this building.');
-    return;
-  }
-  document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
-  const overlay = document.createElement('div');
-  overlay.className = 'video-modal-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.top = 0;
-  overlay.style.left = 0;
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.background = 'rgba(0,0,0,0.2)';
-  overlay.style.backdropFilter = 'blur(10px)';
-  overlay.style.webkitBackdropFilter = 'blur(10px)';
-  overlay.style.display = 'flex';
-  overlay.style.alignItems = 'center';
-  overlay.style.justifyContent = 'center';
-  overlay.style.zIndex = 100000;
-  const posterContainer = document.createElement('div');
-  posterContainer.style.position = 'relative';
-  posterContainer.style.marginTop = '-60px';
+    playBtn.onclick = () => {
+      playBtn.style.display = 'none';
+      spinner.style.display = 'block';
+      videoElement = document.createElement('video');
+      videoElement.src = videoUrl;
+      if (posterUrl) videoElement.poster = posterUrl;
+      videoElement.style.border = '1.5px solid #E9E8E0';
+      videoElement.style.maxWidth = '88vw';
+      videoElement.style.maxHeight = '80vh';
+      videoElement.style.borderRadius = '14px';
+      videoElement.controls = false;
+      videoElement.preload = 'auto';
+      videoElement.autoplay = true;
+      videoElement.setAttribute('playsinline', '');
+      videoElement.setAttribute('webkit-playsinline', '');
+      videoElement.playsInline = true;
+      showFirstVideoWaitMessage(videoElement);
+      let hasStarted = false;
 
-  // Poster image
-  const posterImg = document.createElement('img');
-  posterImg.src = posterUrl || '';
-  posterImg.alt = 'Video cover';
-  posterImg.style.maxWidth = '88vw';
-  posterImg.style.maxHeight = '80vh';
-  posterImg.style.borderRadius = '14px';
-  posterImg.style.display = 'block';
-  posterImg.addEventListener('load', () => {
-    posterImg.style.border = '1.5px solid #E9E8E0';
-  });
-
-  // Play button
-  const playBtn = document.createElement('button');
-  playBtn.innerHTML = '▶';
-  playBtn.style.position = 'absolute';
-  playBtn.style.top = '50%';
-  playBtn.style.left = '50%';
-  playBtn.style.transform = 'translate(-50%, -50%)';
-  playBtn.style.background = 'rgba(0,0,0,0.6)';
-  playBtn.style.border = 'none';
-  playBtn.style.borderRadius = '50%';
-  playBtn.style.width = '64px';
-  playBtn.style.height = '64px';
-  playBtn.style.color = '#fff';
-  playBtn.style.fontSize = '2.5rem';
-  playBtn.style.cursor = 'pointer';
-  playBtn.style.display = 'flex';
-  playBtn.style.alignItems = 'center';
-  playBtn.style.justifyContent = 'center';
-  playBtn.style.zIndex = 2;
-
-  // Spinner
-  const spinner = document.createElement('div');
-  spinner.style.position = 'absolute';
-  spinner.style.top = '50%';
-  spinner.style.left = '50%';
-  spinner.style.transform = 'translate(-50%, -50%)';
-  spinner.style.width = '48px';
-  spinner.style.height = '48px';
-  spinner.style.border = '6px solid #eee';
-  spinner.style.borderTop = '6px solid #9b4dca';
-  spinner.style.borderRadius = '50%';
-  spinner.style.animation = 'spin 1s linear infinite';
-  spinner.style.display = 'none';
-  spinner.style.zIndex = 3;
-
-  const spinnerStyle = document.createElement('style');
-  spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
-  document.head.appendChild(spinnerStyle);
-
-  // Close button
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = '❌';
-  closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '-8px';
-  closeBtn.style.right = '-8px';
-  closeBtn.style.width = '25px';
-  closeBtn.style.height = '25px';
-  closeBtn.style.background = '#000';
-  closeBtn.style.color = '#fff';
-  closeBtn.style.border = '1.5px solid #E9E8E0';
-  closeBtn.style.borderRadius = '50%';
-  closeBtn.style.cursor = 'pointer';
-  closeBtn.style.fontSize = '0.7rem';
-  closeBtn.style.zIndex = '100001';
-  closeBtn.style.display = 'flex';
-  closeBtn.style.alignItems = 'center';
-  closeBtn.style.justifyContent = 'center';
-
-  let videoElement = null;
-
-  function removeOverlayAndPauseVideo() {
-    if (videoElement) {
-      videoElement.pause();
-      videoElement.currentTime = 0;
-    }
-    overlay.remove();
-  }
-  closeBtn.onclick = () => removeOverlayAndPauseVideo();
-
-  // --- LIKE BUTTON ---
-  const likeButton = document.createElement('button');
-  likeButton.className = 'custom-button like-btn';
-  likeButton.style.marginTop = '10px';
-  // Like count span
-  const likeCountSpan = document.createElement('span');
-  likeCountSpan.className = 'like-count';
-  likeCountSpan.style.marginLeft = '6px';
-  likeCountSpan.style.fontWeight = 'bold';
-  // Default: show unliked
-  likeButton.appendChild(document.createTextNode('🖤'));
-  likeButton.appendChild(likeCountSpan);
-  posterContainer.appendChild(likeButton);
-
-  // Helper to get likes count
-  async function getLikesCount(videoId) {
-    try {
-      const countDocRef = doc(db, "videoLikes", videoId);
-      const countDocSnap = await getDoc(countDocRef);
-      if (countDocSnap.exists()) {
-        return countDocSnap.data().count || 0;
-      }
-    } catch (e) {
-      // ignore errors, fallback below
-    }
-    return 0;
-  }
-
-  // Update like count
-  async function updateLikeCount(videoId) {
-    const count = await getLikesCount(videoId);
-    likeCountSpan.textContent = count;
-  }
-
-  async function updateLikeButtonState() {
-    const user = auth.currentUser;
-    await updateLikeCount(videoUrl);
-    if (!user) {
-      likeButton.childNodes[0].textContent = '🖤';
-      likeButton.disabled = false;
-      likeButton.classList.remove('liked');
-      return;
-    }
-    const likeDocRef = doc(db, "likes", `${videoUrl}_${user.uid}`);
-    const likeDocSnap = await getDoc(likeDocRef);
-    if (likeDocSnap.exists()) {
-      likeButton.childNodes[0].textContent = '❤️';
-      likeButton.disabled = false;
-      likeButton.classList.add('liked');
-    } else {
-      likeButton.childNodes[0].textContent = '🖤';
-      likeButton.disabled = false;
-      likeButton.classList.remove('liked');
-    }
-  }
-
-  // Like/Unlike logic
-  likeButton.onclick = async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      showFirebaseLoginModal(async () => {
-        await toggleFirebaseLike(videoUrl);
-        updateLikeButtonState();
-      });
-    } else {
-      await toggleFirebaseLike(videoUrl, user.uid);
-      updateLikeButtonState();
-    }
-  };
-
-  async function toggleFirebaseLike(videoId, userId) {
-    const user = auth.currentUser;
-    if (!user) return;
-    const likeRef = doc(db, "likes", `${videoId}_${user.uid}`);
-    const countDocRef = doc(db, "videoLikes", videoId);
-    const likeDoc = await getDoc(likeRef);
-    const countDocSnap = await getDoc(countDocRef);
-    let currentCount = (countDocSnap.exists() ? countDocSnap.data().count : 0) || 0;
-
-    if (likeDoc.exists()) {
-      // Unlike: remove like, decrement count
-      await setDoc(countDocRef, { count: Math.max(0, currentCount - 1) }, { merge: true });
-      await deleteDoc(likeRef);
-    } else {
-      // Like: add like, increment count
-      await setDoc(likeRef, {
-        videoId,
-        userId: user.uid,
-        timestamp: new Date().toISOString()
-      });
-      await setDoc(countDocRef, { count: currentCount + 1 }, { merge: true });
-    }
-  }
-
-  posterContainer.appendChild(posterImg);
-  posterContainer.appendChild(playBtn);
-  posterContainer.appendChild(spinner);
-  posterContainer.appendChild(closeBtn);
-  overlay.appendChild(posterContainer);
-  document.body.appendChild(overlay);
-
-  updateLikeButtonState();
-  onAuthStateChanged(auth, updateLikeButtonState);
-
-  // Play video logic (unchanged from your repo)
-  playBtn.onclick = () => {
-    playBtn.style.display = 'none';
-    spinner.style.display = 'block';
-    videoElement = document.createElement('video');
-    videoElement.src = videoUrl;
-    if (posterUrl) videoElement.poster = posterUrl;
-    videoElement.style.border = '1.5px solid #E9E8E0';
-    videoElement.style.maxWidth = '88vw';
-    videoElement.style.maxHeight = '80vh';
-    videoElement.style.borderRadius = '14px';
-    videoElement.controls = false;
-    videoElement.preload = 'auto';
-    videoElement.autoplay = true;
-    videoElement.setAttribute('playsinline', '');
-    videoElement.setAttribute('webkit-playsinline', '');
-    videoElement.playsInline = true;
-    showFirstVideoWaitMessage(videoElement);
-    let hasStarted = false;
-
-    function showVideo() {
-      if (!hasStarted) {
-        hasStarted = true;
-        posterContainer.replaceChild(videoElement, posterImg);
-        spinner.style.display = 'none';
-      }
-    }
-
-    function onProgress() {
-      if (videoElement.duration && videoElement.buffered.length) {
-        const bufferedEnd =
-          videoElement.buffered.end(videoElement.buffered.length - 1);
-        const percentBuffered = bufferedEnd / videoElement.duration;
-        if (percentBuffered >= 0.25 && !hasStarted) {
-          videoElement.play();
+      function showVideo() {
+        if (!hasStarted) {
+          hasStarted = true;
+          posterContainer.replaceChild(videoElement, posterImg);
+          spinner.style.display = 'none';
         }
       }
-    }
 
-    videoElement.addEventListener('play', showVideo);
-    videoElement.addEventListener('progress', onProgress);
-    videoElement.addEventListener('click', () => {
-      videoElement.controls = true;
-    });
-    videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
-    videoElement.addEventListener('error', () => {
-      spinner.style.display = 'none';
-      playBtn.style.display = 'block';
-      alert('Video failed to load.');
-    });
-    videoElement.load();
-  };
-}
+      function onProgress() {
+        if (videoElement.duration && videoElement.buffered.length) {
+          const bufferedEnd =
+            videoElement.buffered.end(videoElement.buffered.length - 1);
+          const percentBuffered = bufferedEnd / videoElement.duration;
+          if (percentBuffered >= 0.25 && !hasStarted) {
+            videoElement.play();
+          }
+        }
+      }
 
-// --- LOGIN MODAL ---
-// ... (rest of the file unchanged, see your original for rest)
+      videoElement.addEventListener('play', showVideo);
+      videoElement.addEventListener('progress', onProgress);
+      videoElement.addEventListener('click', () => {
+        videoElement.controls = true;
+      });
+      videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
+      videoElement.addEventListener('error', () => {
+        spinner.style.display = 'none';
+        playBtn.style.display = 'block';
+        alert('Video failed to load.');
+      });
+      videoElement.load();
+    };
+  });
+});
 
-// --- LOGIN MODAL ---
-function showFirebaseLoginModal(onSuccess) {
-  document.querySelectorAll('.login-modal').forEach(m => m.remove());
+// ... rest of your file (unchanged) ...
 
-  // Create modal wrapper for backdrop
-  const modalWrapper = document.createElement('div');
-  modalWrapper.className = 'login-modal-wrapper';
-  modalWrapper.style.position = 'fixed';
-  modalWrapper.style.top = 0;
-  modalWrapper.style.left = 0;
-  modalWrapper.style.width = '100vw';
-  modalWrapper.style.height = '100vh';
-  modalWrapper.style.background = 'rgba(0,0,0,0.35)';
-  modalWrapper.style.zIndex = '100002';
-  modalWrapper.style.display = 'flex';
-  modalWrapper.style.alignItems = 'center';
-  modalWrapper.style.justifyContent = 'center';
-
-  // Create actual modal
-  const modal = document.createElement('div');
-  modal.className = 'login-modal';
-  modal.style.background = '#fff';
-  modal.style.padding = '24px 20px';
-  modal.style.borderRadius = '10px';
-  modal.style.boxShadow = '0 0 32px #0004';
-  modal.style.zIndex = '100003';
-  modal.style.position = 'relative';
-  modal.style.minWidth = '250px';
-  modal.style.maxWidth = '90vw';
-  modal.style.fontFamily = 'Poppins,sans-serif';
-
-  modal.innerHTML = `
-    <h3 style="margin-top:0;">Login to like videos</h3>
-    <input id="login-email" type="email" placeholder="Email" style="margin-bottom:10px;width:100%;border-radius:6px;padding:7px 9px;border:1.5px solid #eee;" />
-    <input id="login-password" type="password" placeholder="Password" style="margin-bottom:10px;width:100%;border-radius:6px;padding:7px 9px;border:1.5px solid #eee;" />
-    <button id="login-submit" class="custom-button" style="width:100%;margin-bottom:7px;">Login</button>
-    <button id="login-signup" class="custom-button" style="width:100%;margin-bottom:7px;">Sign Up</button>
-    <button id="login-cancel" class="custom-button" style="width:100%;background:#eee;color:#222;">Cancel</button>
-  `;
-
-  modalWrapper.appendChild(modal);
-  document.body.appendChild(modalWrapper);
-
-  modal.querySelector('#login-submit').onclick = () => {
-    const email = modal.querySelector('#login-email').value;
-    const password = modal.querySelector('#login-password').value;
-    signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        modalWrapper.remove();
-        if (onSuccess) onSuccess();
-      })
-      .catch(e => alert(e.message));
-  };
-
-  modal.querySelector('#login-signup').onclick = () => {
-    const email = modal.querySelector('#login-email').value;
-    const password = modal.querySelector('#login-password').value;
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        modalWrapper.remove();
-        if (onSuccess) onSuccess();
-      })
-      .catch(e => alert(e.message));
-  };
-
-  modal.querySelector('#login-cancel').onclick = () => {
-    modalWrapper.remove();
-  };
-
-  // Optional: close when clicking on the backdrop outside modal
-  modalWrapper.onclick = (e) => {
-    if (e.target === modalWrapper) modalWrapper.remove();
-  };
-}
-
+// ... rest of your file (unchanged) ...
+// (all logic for map, bottom sheet, styling, popup content, support button, marker search, etc.)
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
   const markerSize = zoomLevel - 13;
@@ -916,10 +1173,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <b>If this site was free for you to use, it means someone else paid forward.</b>
         </div>
            <div class="project-info" style="margin-bottom: 15px;">
-            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no[...]
+            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no other city has before.
         </div>
         <div class="project-info" style="margin-bottom: 15px;">
-             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic imag[...]
+             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic images from York Archives to use) ❤️
         </div>
         <button 
             class="support-button" 
