@@ -677,66 +677,6 @@ buildings.forEach((building) => {
   });
 });
 
-// ...rest of your file unchanged...
-
-    playBtn.onclick = () => {
-      playBtn.style.display = 'none';
-      spinner.style.display = 'block';
-      videoElement = document.createElement('video');
-      videoElement.src = videoUrl;
-      if (posterUrl) videoElement.poster = posterUrl;
-      videoElement.style.border = '1.5px solid #E9E8E0';
-      videoElement.style.maxWidth = '88vw';
-      videoElement.style.maxHeight = '80vh';
-      videoElement.style.borderRadius = '14px';
-      videoElement.controls = false;
-      videoElement.preload = 'auto';
-      videoElement.autoplay = true;
-      videoElement.setAttribute('playsinline', '');
-      videoElement.setAttribute('webkit-playsinline', '');
-      videoElement.playsInline = true;
-      showFirstVideoWaitMessage(videoElement);
-      let hasStarted = false;
-
-      function showVideo() {
-        if (!hasStarted) {
-          hasStarted = true;
-          posterContainer.replaceChild(videoElement, posterImg);
-          spinner.style.display = 'none';
-        }
-      }
-
-      function onProgress() {
-        if (videoElement.duration && videoElement.buffered.length) {
-          const bufferedEnd =
-            videoElement.buffered.end(videoElement.buffered.length - 1);
-          const percentBuffered = bufferedEnd / videoElement.duration;
-          if (percentBuffered >= 0.25 && !hasStarted) {
-            videoElement.play();
-          }
-        }
-      }
-
-      videoElement.addEventListener('play', showVideo);
-      videoElement.addEventListener('progress', onProgress);
-      videoElement.addEventListener('click', () => {
-        videoElement.controls = true;
-      });
-      videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
-      videoElement.addEventListener('error', () => {
-        spinner.style.display = 'none';
-        playBtn.style.display = 'block';
-        alert('Video failed to load.');
-      });
-      videoElement.load();
-    };
-  });
-});
-
-// ... rest of your file (unchanged) ...
-
-// ... rest of your file (unchanged) ...
-// (all logic for map, bottom sheet, styling, popup content, support button, marker search, etc.)
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
   const markerSize = zoomLevel - 13;
