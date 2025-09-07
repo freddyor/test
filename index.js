@@ -244,46 +244,65 @@ function showVideoOverlayWithFirebase(building) {
   }
   closeBtn.onclick = () => removeOverlayAndPauseVideo();
 
-  // --- LIKE BUTTON ---
-  const likeButton = document.createElement('button');
-  likeButton.className = 'custom-button like-btn';
-  likeButton.style.marginTop = '10px';
-  likeButton.textContent = '👍 Like';
-  posterContainer.appendChild(likeButton);
+// --- LIKE BUTTON & COUNTER ---
+const likeButton = document.createElement('button');
+likeButton.className = 'custom-button like-btn';
+likeButton.style.marginTop = '10px';
 
-  async function updateLikeButtonState() {
-    const user = auth.currentUser;
-    if (!user) {
-      likeButton.textContent = '👍 Like';
-      likeButton.disabled = false;
-      likeButton.classList.remove('liked');
-      return;
-    }
-    const likeDocRef = doc(db, "likes", `${videoUrl}_${user.uid}`);
-    const likeDocSnap = await getDoc(likeDocRef);
-    if (likeDocSnap.exists()) {
-      likeButton.textContent = '👍 Liked';
-      likeButton.disabled = true;
-      likeButton.classList.add('liked');
-    } else {
-      likeButton.textContent = '👍 Like';
-      likeButton.disabled = false;
-      likeButton.classList.remove('liked');
-    }
+// Like counter element
+const likeCounter = document.createElement('span');
+likeCounter.className = 'like-counter';
+likeCounter.style.marginLeft = '7px';
+likeCounter.style.fontWeight = 'bold';
+likeCounter.style.fontSize = '15px';
+likeCounter.style.color = '#9b4dca';
+
+posterContainer.appendChild(likeButton);
+posterContainer.appendChild(likeCounter);
+
+// Helper function to get like count for a video
+async function getLikeCount(videoId) {
+  const likesSnapshot = await getFirestore().collection("likes").where("videoId", "==", videoId).get();
+  return likesSnapshot.size;
+}
+
+// Update like button and counter
+async function updateLikeButtonState() {
+  const user = auth.currentUser;
+  const count = await getLikeCount(videoUrl);
+  likeCounter.textContent = count;
+
+  if (!user) {
+    likeButton.textContent = '❤️ Like';
+    likeButton.disabled = false;
+    likeButton.classList.remove('liked');
+    return;
   }
+  const likeDocRef = doc(db, "likes", `${videoUrl}_${user.uid}`);
+  const likeDocSnap = await getDoc(likeDocRef);
+  if (likeDocSnap.exists()) {
+    likeButton.textContent = '❤️ Liked';
+    likeButton.disabled = true;
+    likeButton.classList.add('liked');
+  } else {
+    likeButton.textContent = '❤️ Like';
+    likeButton.disabled = false;
+    likeButton.classList.remove('liked');
+  }
+}
 
-  likeButton.onclick = async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      showFirebaseLoginModal(async () => {
-        await handleFirebaseLike(videoUrl);
-        updateLikeButtonState();
-      });
-    } else {
+likeButton.onclick = async () => {
+  const user = auth.currentUser;
+  if (!user) {
+    showFirebaseLoginModal(async () => {
       await handleFirebaseLike(videoUrl);
       updateLikeButtonState();
-    }
-  };
+    });
+  } else {
+    await handleFirebaseLike(videoUrl);
+    updateLikeButtonState();
+  }
+};
 
   async function handleFirebaseLike(videoId) {
     const user = auth.currentUser;
@@ -367,9 +386,9 @@ function showVideoOverlayWithFirebase(building) {
 
 // --- LOGIN MODAL ---
 function showFirebaseLoginModal(onSuccess) {
-  document.querySelectorAll('.login-modal').forEach(m => m.remove());
+  document.querySelectorAll('.login-modal-wrapper').forEach(m => m.remove());
 
-  // Create modal wrapper for backdrop
+  // Modal wrapper for backdrop
   const modalWrapper = document.createElement('div');
   modalWrapper.className = 'login-modal-wrapper';
   modalWrapper.style.position = 'fixed';
@@ -383,17 +402,17 @@ function showFirebaseLoginModal(onSuccess) {
   modalWrapper.style.alignItems = 'center';
   modalWrapper.style.justifyContent = 'center';
 
-  // Create actual modal
+  // Actual modal
   const modal = document.createElement('div');
   modal.className = 'login-modal';
   modal.style.background = '#fff';
-  modal.style.padding = '24px 20px';
+  modal.style.padding = '20px 16px';
   modal.style.borderRadius = '10px';
   modal.style.boxShadow = '0 0 32px #0004';
   modal.style.zIndex = '100003';
   modal.style.position = 'relative';
-  modal.style.minWidth = '250px';
-  modal.style.maxWidth = '90vw';
+  modal.style.minWidth = '220px';
+  modal.style.maxWidth = '300px'; // Thinner modal
   modal.style.fontFamily = 'Poppins,sans-serif';
 
   modal.innerHTML = `
@@ -434,11 +453,10 @@ function showFirebaseLoginModal(onSuccess) {
     modalWrapper.remove();
   };
 
-  // Optional: close when clicking on the backdrop outside modal
+  // Close on backdrop click
   modalWrapper.onclick = (e) => {
     if (e.target === modalWrapper) modalWrapper.remove();
   };
-}
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
