@@ -198,6 +198,9 @@ buildings.forEach((building) => {
     const posterContainer = document.createElement('div');
     posterContainer.style.position = 'relative';
     posterContainer.style.marginTop = '-60px';
+    posterContainer.style.display = 'flex';
+    posterContainer.style.flexDirection = 'column';
+    posterContainer.style.alignItems = 'center';
 
     const cameraIcon = document.createElement('button');
     cameraIcon.innerHTML = `
@@ -637,15 +640,11 @@ buildings.forEach((building) => {
       videoElement.setAttribute('webkit-playsinline', '');
       videoElement.playsInline = true;
       showFirstVideoWaitMessage(videoElement);
-      let hasStarted = false;
 
-      // --- NEW: Add visited/unvisited button ---
+      // --- NEW BUTTON ---
       const visitBtn = document.createElement('button');
       visitBtn.textContent = 'Unvisited';
-      visitBtn.style.position = 'absolute';
-      visitBtn.style.left = '50%';
-      visitBtn.style.bottom = '12px';
-      visitBtn.style.transform = 'translateX(-50%)';
+      visitBtn.style.marginTop = '18px';
       visitBtn.style.background = '#ccc';
       visitBtn.style.color = '#333';
       visitBtn.style.border = 'none';
@@ -655,8 +654,8 @@ buildings.forEach((building) => {
       visitBtn.style.fontWeight = 'bold';
       visitBtn.style.fontSize = '14px';
       visitBtn.style.cursor = 'pointer';
-      visitBtn.style.zIndex = '11';
       visitBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+      visitBtn.style.display = 'block';
 
       let isVisited = false;
       const markerKey = 'completed-marker-' + building.name;
@@ -689,13 +688,14 @@ buildings.forEach((building) => {
         }
       };
 
-      // --- END NEW ---
+      let hasStarted = false;
 
       function showVideo() {
         if (!hasStarted) {
           hasStarted = true;
           posterContainer.replaceChild(videoElement, posterImg);
           spinner.style.display = 'none';
+          // --- Make sure the button is always directly under the video ---
           posterContainer.appendChild(visitBtn);
         }
       }
