@@ -140,49 +140,55 @@ buildings.forEach((building) => {
     posterContainer.style.position = 'relative';
     posterContainer.style.marginTop = '-60px';
 
-    // --- NEW: Completed button (top left of component) ---
-    const completeContainer = document.createElement('div');
-    completeContainer.style.position = 'absolute';
-    completeContainer.style.top = '18px';
-    completeContainer.style.left = '18px';
-    completeContainer.style.zIndex = '100002';
-    completeContainer.style.display = 'flex';
-    completeContainer.style.alignItems = 'center';
-    completeContainer.style.background = 'rgba(255,255,255,0.8)';
-    completeContainer.style.borderRadius = '8px';
-    completeContainer.style.padding = '4px 8px';
-    completeContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
 
-    // Checkbox and label
-    const completeCheckbox = document.createElement('input');
-    completeCheckbox.type = 'checkbox';
-    completeCheckbox.id = 'complete-marker-checkbox-' + building.name;
-    completeCheckbox.style.marginRight = '6px';
-    completeCheckbox.style.width = '18px';
-    completeCheckbox.style.height = '18px';
-    const completeLabel = document.createElement('label');
-    completeLabel.htmlFor = completeCheckbox.id;
-    completeLabel.textContent = 'Completed';
+// --- NEW: Completed circle button (top left corner) ---
+const completeContainer = document.createElement('div');
+completeContainer.style.position = 'absolute';
+completeContainer.style.top = '-8px';
+completeContainer.style.left = '-8px';
+completeContainer.style.zIndex = '100002';
+completeContainer.style.display = 'flex';
+completeContainer.style.alignItems = 'center';
 
-    completeContainer.appendChild(completeCheckbox);
-    completeContainer.appendChild(completeLabel);
+// Make it a circle button
+completeContainer.style.background = '#000';
+completeContainer.style.borderRadius = '50%';
+completeContainer.style.width = '25px';
+completeContainer.style.height = '25px';
+completeContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+completeContainer.style.justifyContent = 'center';
 
-    // --- Persist completed state per marker using localStorage ---
-    if (localStorage.getItem(markerKey) === 'true') {
-      completeCheckbox.checked = true;
-    }
+// Checkbox only (no label text)
+const completeCheckbox = document.createElement('input');
+completeCheckbox.type = 'checkbox';
+completeCheckbox.id = 'complete-marker-checkbox-' + building.name;
+completeCheckbox.style.margin = '0';
+completeCheckbox.style.width = '18px';
+completeCheckbox.style.height = '18px';
+completeCheckbox.style.cursor = 'pointer';
+completeCheckbox.style.accentColor = '#9b4dca'; // purple tick for completed
 
-    completeCheckbox.addEventListener('change', function () {
-      if (completeCheckbox.checked) {
-        localStorage.setItem(markerKey, 'true');
-        markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
-      } else {
-        localStorage.setItem(markerKey, 'false');
-        markerElement.style.filter = '';
-      }
-    });
+// Hide default checkbox background, use only tick. If you want a custom tick icon, you could use a background image or SVG.
 
-    posterContainer.appendChild(completeContainer);
+completeContainer.appendChild(completeCheckbox);
+
+// --- Persist completed state per marker using localStorage ---
+if (localStorage.getItem(markerKey) === 'true') {
+  completeCheckbox.checked = true;
+}
+
+completeCheckbox.addEventListener('change', function () {
+  if (completeCheckbox.checked) {
+    localStorage.setItem(markerKey, 'true');
+    markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
+  } else {
+    localStorage.setItem(markerKey, 'false');
+    markerElement.style.filter = '';
+  }
+});
+
+posterContainer.appendChild(completeContainer);
+
 
     // Camera icon button (Instagram-style simple camera)
     const cameraIcon = document.createElement('button');
