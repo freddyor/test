@@ -141,55 +141,6 @@ buildings.forEach((building) => {
     posterContainer.style.marginTop = '-60px';
 
 
-// --- NEW: Completed circle button (top left corner) ---
-const completeContainer = document.createElement('div');
-completeContainer.style.position = 'absolute';
-completeContainer.style.top = '-8px';
-completeContainer.style.left = '-8px';
-completeContainer.style.zIndex = '100002';
-completeContainer.style.display = 'flex';
-completeContainer.style.alignItems = 'center';
-
-// Make it a circle button
-completeContainer.style.background = '#000';
-completeContainer.style.borderRadius = '50%';
-completeContainer.style.width = '25px';
-completeContainer.style.height = '25px';
-completeContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-completeContainer.style.justifyContent = 'center';
-
-// Checkbox only (no label text)
-const completeCheckbox = document.createElement('input');
-completeCheckbox.type = 'checkbox';
-completeCheckbox.id = 'complete-marker-checkbox-' + building.name;
-completeCheckbox.style.margin = '0';
-completeCheckbox.style.width = '18px';
-completeCheckbox.style.height = '18px';
-completeCheckbox.style.cursor = 'pointer';
-completeCheckbox.style.accentColor = '#9b4dca'; // purple tick for completed
-
-// Hide default checkbox background, use only tick. If you want a custom tick icon, you could use a background image or SVG.
-
-completeContainer.appendChild(completeCheckbox);
-
-// --- Persist completed state per marker using localStorage ---
-if (localStorage.getItem(markerKey) === 'true') {
-  completeCheckbox.checked = true;
-}
-
-completeCheckbox.addEventListener('change', function () {
-  if (completeCheckbox.checked) {
-    localStorage.setItem(markerKey, 'true');
-    markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
-  } else {
-    localStorage.setItem(markerKey, 'false');
-    markerElement.style.filter = '';
-  }
-});
-
-posterContainer.appendChild(completeContainer);
-
-
     // Camera icon button (Instagram-style simple camera)
     const cameraIcon = document.createElement('button');
     cameraIcon.innerHTML = `
@@ -629,61 +580,68 @@ posterContainer.appendChild(completeContainer);
       };
     };
 
-    playBtn.onclick = () => {
-      playBtn.style.display = 'none';
-      spinner.style.display = 'block';
-      videoElement = document.createElement('video');
-      videoElement.src = videoUrl;
-      if (posterUrl) videoElement.poster = posterUrl;
-      videoElement.style.border = '1.5px solid #E9E8E0';
-      videoElement.style.maxWidth = '88vw';
-      videoElement.style.maxHeight = '80vh';
-      videoElement.style.borderRadius = '14px';
-      videoElement.controls = false;
-      videoElement.preload = 'auto';
-      videoElement.autoplay = true;
-      videoElement.setAttribute('playsinline', '');
-      videoElement.setAttribute('webkit-playsinline', '');
-      videoElement.playsInline = true;
-      showFirstVideoWaitMessage(videoElement);
-      let hasStarted = false;
+    // Remove (or comment out) the completed checkbox UI:
+// posterContainer.appendChild(completeContainer);
+// ...and all related completeCheckbox code...
 
-      function showVideo() {
-        if (!hasStarted) {
-          hasStarted = true;
-          posterContainer.replaceChild(videoElement, posterImg);
-          spinner.style.display = 'none';
-        }
+// --- Instead, update playBtn.onclick as follows ---
+
+playBtn.onclick = () => {
+  playBtn.style.display = 'none';
+  spinner.style.display = 'block';
+  videoElement = document.createElement('video');
+  videoElement.src = videoUrl;
+  if (posterUrl) videoElement.poster = posterUrl;
+  videoElement.style.border = '1.5px solid #E9E8E0';
+  videoElement.style.maxWidth = '88vw';
+  videoElement.style.maxHeight = '80vh';
+  videoElement.style.borderRadius = '14px';
+  videoElement.controls = false;
+  videoElement.preload = 'auto';
+  videoElement.autoplay = true;
+  videoElement.setAttribute('playsinline', '');
+  videoElement.setAttribute('webkit-playsinline', '');
+  videoElement.playsInline = true;
+  showFirstVideoWaitMessage(videoElement);
+  let hasStarted = false;
+
+  function showVideo() {
+    if (!hasStarted) {
+      hasStarted = true;
+      posterContainer.replaceChild(videoElement, posterImg);
+      spinner.style.display = 'none';
+
+      // --- DIM MARKER WHEN PLAY IS PRESSED ---
+      markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
+      // Optionally persist in localStorage:
+      localStorage.setItem(markerKey, 'true');
+    }
+  }
+
+  function onProgress() {
+    if (videoElement.duration && videoElement.buffered.length) {
+      const bufferedEnd =
+        videoElement.buffered.end(videoElement.buffered.length - 1);
+      const percentBuffered = bufferedEnd / videoElement.duration;
+      if (percentBuffered >= 0.25 && !hasStarted) {
+        videoElement.play();
       }
+    }
+  }
 
-      function onProgress() {
-        if (videoElement.duration && videoElement.buffered.length) {
-          const bufferedEnd =
-            videoElement.buffered.end(videoElement.buffered.length - 1);
-          const percentBuffered = bufferedEnd / videoElement.duration;
-          if (percentBuffered >= 0.25 && !hasStarted) {
-            videoElement.play();
-          }
-        }
-      }
-
-      videoElement.addEventListener('play', showVideo);
-      videoElement.addEventListener('progress', onProgress);
-      videoElement.addEventListener('click', () => {
-        videoElement.controls = true;
-      });
-      videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
-      videoElement.addEventListener('error', () => {
-        spinner.style.display = 'none';
-        playBtn.style.display = 'block';
-        alert('Video failed to load.');
-      });
-      videoElement.load();
-    };
+  videoElement.addEventListener('play', showVideo);
+  videoElement.addEventListener('progress', onProgress);
+  videoElement.addEventListener('click', () => {
+    videoElement.controls = true;
   });
-});
-
-// ... rest of your file (unchanged) ...
+  videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
+  videoElement.addEventListener('error', () => {
+    spinner.style.display = 'none';
+    playBtn.style.display = 'block';
+    alert('Video failed to load.');
+  });
+  videoElement.load();
+};
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
