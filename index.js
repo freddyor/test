@@ -639,15 +639,64 @@ buildings.forEach((building) => {
       showFirstVideoWaitMessage(videoElement);
       let hasStarted = false;
 
+      // --- NEW: Add visited/unvisited button ---
+      const visitBtn = document.createElement('button');
+      visitBtn.textContent = 'Unvisited';
+      visitBtn.style.position = 'absolute';
+      visitBtn.style.left = '50%';
+      visitBtn.style.bottom = '12px';
+      visitBtn.style.transform = 'translateX(-50%)';
+      visitBtn.style.background = '#ccc';
+      visitBtn.style.color = '#333';
+      visitBtn.style.border = 'none';
+      visitBtn.style.borderRadius = '20px';
+      visitBtn.style.width = '110px';
+      visitBtn.style.height = '36px';
+      visitBtn.style.fontWeight = 'bold';
+      visitBtn.style.fontSize = '14px';
+      visitBtn.style.cursor = 'pointer';
+      visitBtn.style.zIndex = '11';
+      visitBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+
+      let isVisited = false;
+      const markerKey = 'completed-marker-' + building.name;
+      if (completedMarkers[markerKey]) {
+        isVisited = true;
+        visitBtn.textContent = 'Visited';
+        visitBtn.style.background = '#4caf50';
+        visitBtn.style.color = '#fff';
+        markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
+      } else {
+        markerElement.style.filter = '';
+      }
+
+      visitBtn.onclick = async function () {
+        isVisited = !isVisited;
+        if (isVisited) {
+          visitBtn.textContent = 'Visited';
+          visitBtn.style.background = '#4caf50';
+          visitBtn.style.color = '#fff';
+          markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
+          await saveCompletedMarker(markerKey);
+        } else {
+          visitBtn.textContent = 'Unvisited';
+          visitBtn.style.background = '#ccc';
+          visitBtn.style.color = '#333';
+          markerElement.style.filter = '';
+          completedMarkers[markerKey] = false;
+          const docRef = doc(db, "users", firebaseUser.uid);
+          await setDoc(docRef, { completedMarkers }, { merge: true });
+        }
+      };
+
+      // --- END NEW ---
+
       function showVideo() {
         if (!hasStarted) {
           hasStarted = true;
           posterContainer.replaceChild(videoElement, posterImg);
           spinner.style.display = 'none';
-
-          markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
-          const markerKey = 'completed-marker-' + building.name;
-          saveCompletedMarker(markerKey);
+          posterContainer.appendChild(visitBtn);
         }
       }
 
