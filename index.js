@@ -17,6 +17,8 @@ const firebaseConfig = {
   measurementId: "G-03E2BB7BQH"
 };
 
+const loadingScreenStart = Date.now();
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
