@@ -101,6 +101,12 @@ buildings.forEach((building) => {
 
   if (building.colour === 'yes') markerElement.style.zIndex = '3';
 
+  // --- NEW: load completed state for marker, apply dimming if completed ---
+  const markerKey = 'completed-marker-' + building.name;
+  if (localStorage.getItem(markerKey) === 'true') {
+    markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
+  }
+
   const marker = new mapboxgl.Marker({ element: markerElement })
     .setLngLat(building.coords)
     .addTo(map);
@@ -133,6 +139,50 @@ buildings.forEach((building) => {
     const posterContainer = document.createElement('div');
     posterContainer.style.position = 'relative';
     posterContainer.style.marginTop = '-60px';
+
+    // --- NEW: Completed button (top left of component) ---
+    const completeContainer = document.createElement('div');
+    completeContainer.style.position = 'absolute';
+    completeContainer.style.top = '18px';
+    completeContainer.style.left = '18px';
+    completeContainer.style.zIndex = '100002';
+    completeContainer.style.display = 'flex';
+    completeContainer.style.alignItems = 'center';
+    completeContainer.style.background = 'rgba(255,255,255,0.8)';
+    completeContainer.style.borderRadius = '8px';
+    completeContainer.style.padding = '4px 8px';
+    completeContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+
+    // Checkbox and label
+    const completeCheckbox = document.createElement('input');
+    completeCheckbox.type = 'checkbox';
+    completeCheckbox.id = 'complete-marker-checkbox-' + building.name;
+    completeCheckbox.style.marginRight = '6px';
+    completeCheckbox.style.width = '18px';
+    completeCheckbox.style.height = '18px';
+    const completeLabel = document.createElement('label');
+    completeLabel.htmlFor = completeCheckbox.id;
+    completeLabel.textContent = 'Completed';
+
+    completeContainer.appendChild(completeCheckbox);
+    completeContainer.appendChild(completeLabel);
+
+    // --- Persist completed state per marker using localStorage ---
+    if (localStorage.getItem(markerKey) === 'true') {
+      completeCheckbox.checked = true;
+    }
+
+    completeCheckbox.addEventListener('change', function () {
+      if (completeCheckbox.checked) {
+        localStorage.setItem(markerKey, 'true');
+        markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
+      } else {
+        localStorage.setItem(markerKey, 'false');
+        markerElement.style.filter = '';
+      }
+    });
+
+    posterContainer.appendChild(completeContainer);
 
     // Camera icon button (Instagram-style simple camera)
     const cameraIcon = document.createElement('button');
@@ -276,311 +326,302 @@ buildings.forEach((building) => {
       if (e.target === overlay) removeOverlayAndPauseVideo();
     });
 
-// ... previous code (unchanged) ...
-
-cameraIcon.onclick = async function () {
-  if (
-    !(
-      navigator.mediaDevices &&
-      typeof navigator.mediaDevices.getUserMedia === 'function'
-    )
-  ) {
-    alert(
-      "Camera access is not supported on this browser/device. If you're on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date."
-    );
-    return;
-  }
-
-  cameraIcon.remove();
-  posterContainer.innerHTML = '';
-
-  // --- TEXT OVERLAY: bring in overlay sides, so it's inset from the video/photo edges ---
-  const overlayPaddingY = 6;   // px - vertical padding (top/bottom)
-  const overlayPaddingX = 12;  // px - horizontal padding (left/right)
-  const overlayInset = 32;     // px - overlay inset from left/right of video/photo
-  const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
-
-  const textOverlay = document.createElement('div');
-  textOverlay.textContent = markerText;
-  textOverlay.style.position = 'absolute';
-  textOverlay.style.top = '50px';
-  textOverlay.style.left = '50%';
-  textOverlay.style.transform = 'translateX(-50%)';
-  textOverlay.style.background = 'rgba(0,0,0,0.4)';
-  textOverlay.style.color = '#fff';
-  textOverlay.style.padding = overlayInnerPadding;
-  textOverlay.style.borderRadius = '8px';
-  textOverlay.style.fontSize = '12px';
-  textOverlay.style.fontWeight = 'bold';
-  textOverlay.style.pointerEvents = 'none';
-  textOverlay.style.zIndex = 20;
-  textOverlay.style.fontFamily = "'Poppins', sans-serif";
-  textOverlay.style.textAlign = "center";
-  textOverlay.style.lineHeight = "1"; // Slightly increased
-  // Make overlay width slightly less than video width, inset by overlayInset on both sides
-  textOverlay.style.width = `calc(90vw - ${2 * overlayInset}px)`;
-  posterContainer.appendChild(textOverlay);
-
-  const cameraVideo = document.createElement('video');
-  cameraVideo.autoplay = true;
-  cameraVideo.playsInline = true;
-  cameraVideo.style.width = '90vw';
-  cameraVideo.style.height = '160vw'; // portrait
-  cameraVideo.style.objectFit = 'contain';
-  cameraVideo.style.borderRadius = '14px';
-  cameraVideo.style.display = 'block';
-  cameraVideo.style.margin = '0 auto';
-  cameraVideo.style.position = 'relative';
-  posterContainer.appendChild(cameraVideo);
-
-  const shutterBtn = document.createElement('button');
-  shutterBtn.title = 'Take Photo';
-  shutterBtn.className = 'custom-shutter-btn';
-  shutterBtn.style.position = 'absolute';
-  shutterBtn.style.left = '50%';
-  shutterBtn.style.bottom = '20px';
-  shutterBtn.style.transform = 'translateX(-50%)';
-  shutterBtn.style.width = '64px';
-  shutterBtn.style.height = '64px';
-  shutterBtn.style.background = 'white';
-  shutterBtn.style.border = '4px solid #ccc';
-  shutterBtn.style.borderRadius = '50%';
-  shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-  shutterBtn.style.display = 'flex';
-  shutterBtn.style.alignItems = 'center';
-  shutterBtn.style.justifyContent = 'center';
-  shutterBtn.style.cursor = 'pointer';
-  shutterBtn.style.zIndex = 12;
-  shutterBtn.style.outline = 'none';
-  shutterBtn.style.transition = 'box-shadow 0.1s';
-  // inner circle for shutter effect
-  const innerCircle = document.createElement('div');
-  innerCircle.style.width = '44px';
-  innerCircle.style.height = '44px';
-  innerCircle.style.background = '#fff';
-  innerCircle.style.borderRadius = '50%';
-  innerCircle.style.boxShadow = '0 0 0 2px #eee';
-  shutterBtn.appendChild(innerCircle);
-  posterContainer.appendChild(shutterBtn);
-
-  const cameraCloseBtn = document.createElement('button');
-  cameraCloseBtn.textContent = '❌';
-  cameraCloseBtn.style.position = 'absolute';
-  cameraCloseBtn.style.top = '-8px';
-  cameraCloseBtn.style.right = '-8px';
-  cameraCloseBtn.style.width = '25px';
-  cameraCloseBtn.style.height = '25px';
-  cameraCloseBtn.style.background = '#000';
-  cameraCloseBtn.style.color = '#fff';
-  cameraCloseBtn.style.border = '1.5px solid #E9E8E0';
-  cameraCloseBtn.style.borderRadius = '50%';
-  cameraCloseBtn.style.cursor = 'pointer';
-  cameraCloseBtn.style.fontSize = '0.7rem';
-  cameraCloseBtn.style.zIndex = '100001';
-  cameraCloseBtn.style.display = 'flex';
-  cameraCloseBtn.style.alignItems = 'center';
-  cameraCloseBtn.style.justifyContent = 'center';
-  cameraCloseBtn.onclick = () => {
-    if (cameraStream) {
-      cameraStream.getTracks().forEach((track) => track.stop());
-    }
-    overlay.remove();
-  };
-  posterContainer.appendChild(cameraCloseBtn);
-
-  let imgPreview = null, downloadBtn = null, cancelBtn = null;
-  let cameraStream = null;
-
-  async function startCameraStream() {
-    try {
-      cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 }
-        }
-      });
-      cameraVideo.srcObject = cameraStream;
-    } catch (err) {
-      try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-        cameraVideo.srcObject = cameraStream;
-      } catch (err2) {
-        alert('Could not access camera: ' + err2.message);
+    cameraIcon.onclick = async function () {
+      if (
+        !(
+          navigator.mediaDevices &&
+          typeof navigator.mediaDevices.getUserMedia === 'function'
+        )
+      ) {
+        alert(
+          "Camera access is not supported on this browser/device. If you're on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date."
+        );
+        return;
       }
-    }
-  }
-  await startCameraStream();
 
-  // --- Text wrapping function for canvas ---
-  function wrapCanvasText(ctx, text, maxWidth) {
-    const words = text.split(' ');
-    let lines = [];
-    let line = '';
-    for (let n = 0; n < words.length; n++) {
-      const testLine = line + (line ? ' ' : '') + words[n];
-      const metrics = ctx.measureText(testLine);
-      if (metrics.width > maxWidth && line) {
-        lines.push(line);
-        line = words[n];
-      } else {
-        line = testLine;
-      }
-    }
-    lines.push(line);
-    return lines;
-  }
+      cameraIcon.remove();
+      posterContainer.innerHTML = '';
 
-  shutterBtn.onclick = function () {
-    cameraVideo.pause();
+      // --- TEXT OVERLAY: bring in overlay sides, so it's inset from the video/photo edges ---
+      const overlayPaddingY = 6;   // px - vertical padding (top/bottom)
+      const overlayPaddingX = 12;  // px - horizontal padding (left/right)
+      const overlayInset = 32;     // px - overlay inset from left/right of video/photo
+      const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
 
-    if (imgPreview) imgPreview.remove();
-    if (downloadBtn) downloadBtn.remove();
-    if (cancelBtn) cancelBtn.remove();
+      const textOverlay = document.createElement('div');
+      textOverlay.textContent = markerText;
+      textOverlay.style.position = 'absolute';
+      textOverlay.style.top = '50px';
+      textOverlay.style.left = '50%';
+      textOverlay.style.transform = 'translateX(-50%)';
+      textOverlay.style.background = 'rgba(0,0,0,0.4)';
+      textOverlay.style.color = '#fff';
+      textOverlay.style.padding = overlayInnerPadding;
+      textOverlay.style.borderRadius = '8px';
+      textOverlay.style.fontSize = '12px';
+      textOverlay.style.fontWeight = 'bold';
+      textOverlay.style.pointerEvents = 'none';
+      textOverlay.style.zIndex = 20;
+      textOverlay.style.fontFamily = "'Poppins', sans-serif";
+      textOverlay.style.textAlign = "center";
+      textOverlay.style.lineHeight = "1"; // Slightly increased
+      // Make overlay width slightly less than video width, inset by overlayInset on both sides
+      textOverlay.style.width = `calc(90vw - ${2 * overlayInset}px)`;
+      posterContainer.appendChild(textOverlay);
 
-    shutterBtn.style.display = 'none';
-    cameraCloseBtn.style.display = 'none';
-
-    // --- Use canvas to capture video frame at full resolution ---
-    const canvas = document.createElement('canvas');
-    canvas.width = cameraVideo.videoWidth;
-    canvas.height = cameraVideo.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-
-    // --- Get computed style from HTML overlay ---
-    const overlayRect = textOverlay.getBoundingClientRect();
-    const videoRect = cameraVideo.getBoundingClientRect();
-    const computedStyle = window.getComputedStyle(textOverlay);
-
-    // Screen pixel values
-    let topPx = overlayRect.top - videoRect.top;
-    let leftPx = overlayRect.left - videoRect.left;
-    let overlayWidthPx = overlayRect.width;
-    let overlayHeightPx = overlayRect.height;
-
-    // Font size and line height in px
-    let fontSizePx = parseFloat(computedStyle.fontSize);
-    let fontFamily = computedStyle.fontFamily;
-    let fontWeight = computedStyle.fontWeight;
-    let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
-
-    // Map screen pixels to canvas pixels
-    let scaleX = canvas.width / videoRect.width;
-    let scaleY = canvas.height / videoRect.height;
-
-    let textBoxX = leftPx * scaleX;
-    let textBoxY = topPx * scaleY;
-    let textBoxWidth = overlayWidthPx * scaleX;
-    let textBoxHeight = overlayHeightPx * scaleY;
-
-    // Padding for text inside the overlay
-    const canvasPaddingY = overlayPaddingY * scaleY;
-    const canvasPaddingX = overlayPaddingX * scaleX;
-
-    // Draw background rectangle
-    ctx.save();
-    ctx.globalAlpha = 0.4;
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    if (ctx.roundRect) {
-      ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
-    } else {
-      ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
-    }
-    ctx.fill();
-    ctx.restore();
-
-    // Prepare font and wrapping
-    const canvasFontSize = fontSizePx * scaleY;
-    // Slightly increased line gap (was 0.8, now 1.1)
-    const canvasLineHeight = canvasFontSize * 1.1;
-    ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#fff";
-
-    // Wrap text as per overlay width in canvas, with matching padding
-    const wrappedLines = wrapCanvasText(
-      ctx,
-      markerText,
-      textBoxWidth - 2 * canvasPaddingX
-    );
-
-    // Vertically center lines in the box (account for padding top/bottom)
-    const totalLines = wrappedLines.length;
-    const totalTextHeight = totalLines * canvasLineHeight;
-    let y = textBoxY + canvasPaddingY + (textBoxHeight - 2 * canvasPaddingY - totalTextHeight) / 2 + canvasLineHeight / 2;
-
-    for (let i = 0; i < wrappedLines.length; i++) {
-      ctx.fillText(
-        wrappedLines[i],
-        textBoxX + textBoxWidth / 2,
-        y + i * canvasLineHeight
-      );
-    }
-    ctx.restore();
-
-    // ... previous code (unchanged) ...
-
-        // ... previous code (unchanged) ...
-
-    imgPreview = document.createElement('img');
-    imgPreview.src = canvas.toDataURL('image/png');
-    imgPreview.style.display = 'block';
-    imgPreview.style.margin = '16px auto 8px auto';
-    imgPreview.style.maxWidth = '90vw';
-    imgPreview.style.maxHeight = '60vh';
-    imgPreview.style.borderRadius = '12px';
-    imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-    posterContainer.appendChild(imgPreview);
-
-    // Informational button (previously downloadBtn)
-    downloadBtn = document.createElement('button');
-    downloadBtn.textContent = 'Hold photo to share or save to photos';
-    downloadBtn.className = 'custom-button';
-    downloadBtn.style.display = 'block';
-    downloadBtn.style.margin = '10px auto 0 auto';
-    // Switched colour scheme (was purple, now grey)
-    downloadBtn.style.background = '#e0e0e0';
-    downloadBtn.style.color = '#333';
-    downloadBtn.onclick = function (e) {
-      e.preventDefault();
-      return false;
-    };
-    posterContainer.appendChild(downloadBtn);
-
-    // Cancel button (was grey, now purple)
-    cancelBtn = document.createElement('button');
-    cancelBtn.textContent = 'Take again';
-    cancelBtn.className = 'custom-button';
-    cancelBtn.style.display = 'block';
-    cancelBtn.style.margin = '10px auto 0 auto';
-    // Switched colour scheme (was grey, now purple)
-    cancelBtn.style.background = '#9b4dca';
-    cancelBtn.style.color = '#fff';
-    posterContainer.appendChild(cancelBtn);
-
-    cameraVideo.style.display = 'none';
-    shutterBtn.style.display = 'none';
-    textOverlay.style.display = 'none';
-    cameraCloseBtn.style.display = 'none';
-
-    cancelBtn.onclick = function () {
-      if (imgPreview) imgPreview.remove();
-      if (downloadBtn) downloadBtn.remove();
-      if (cancelBtn) cancelBtn.remove();
-
+      const cameraVideo = document.createElement('video');
+      cameraVideo.autoplay = true;
+      cameraVideo.playsInline = true;
+      cameraVideo.style.width = '90vw';
+      cameraVideo.style.height = '160vw'; // portrait
+      cameraVideo.style.objectFit = 'contain';
+      cameraVideo.style.borderRadius = '14px';
       cameraVideo.style.display = 'block';
-      shutterBtn.style.display = 'block';
-      textOverlay.style.display = 'block';
+      cameraVideo.style.margin = '0 auto';
+      cameraVideo.style.position = 'relative';
+      posterContainer.appendChild(cameraVideo);
+
+      const shutterBtn = document.createElement('button');
+      shutterBtn.title = 'Take Photo';
+      shutterBtn.className = 'custom-shutter-btn';
+      shutterBtn.style.position = 'absolute';
+      shutterBtn.style.left = '50%';
+      shutterBtn.style.bottom = '20px';
+      shutterBtn.style.transform = 'translateX(-50%)';
+      shutterBtn.style.width = '64px';
+      shutterBtn.style.height = '64px';
+      shutterBtn.style.background = 'white';
+      shutterBtn.style.border = '4px solid #ccc';
+      shutterBtn.style.borderRadius = '50%';
+      shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+      shutterBtn.style.display = 'flex';
+      shutterBtn.style.alignItems = 'center';
+      shutterBtn.style.justifyContent = 'center';
+      shutterBtn.style.cursor = 'pointer';
+      shutterBtn.style.zIndex = 12;
+      shutterBtn.style.outline = 'none';
+      shutterBtn.style.transition = 'box-shadow 0.1s';
+      // inner circle for shutter effect
+      const innerCircle = document.createElement('div');
+      innerCircle.style.width = '44px';
+      innerCircle.style.height = '44px';
+      innerCircle.style.background = '#fff';
+      innerCircle.style.borderRadius = '50%';
+      innerCircle.style.boxShadow = '0 0 0 2px #eee';
+      shutterBtn.appendChild(innerCircle);
+      posterContainer.appendChild(shutterBtn);
+
+      const cameraCloseBtn = document.createElement('button');
+      cameraCloseBtn.textContent = '❌';
+      cameraCloseBtn.style.position = 'absolute';
+      cameraCloseBtn.style.top = '-8px';
+      cameraCloseBtn.style.right = '-8px';
+      cameraCloseBtn.style.width = '25px';
+      cameraCloseBtn.style.height = '25px';
+      cameraCloseBtn.style.background = '#000';
+      cameraCloseBtn.style.color = '#fff';
+      cameraCloseBtn.style.border = '1.5px solid #E9E8E0';
+      cameraCloseBtn.style.borderRadius = '50%';
+      cameraCloseBtn.style.cursor = 'pointer';
+      cameraCloseBtn.style.fontSize = '0.7rem';
+      cameraCloseBtn.style.zIndex = '100001';
       cameraCloseBtn.style.display = 'flex';
+      cameraCloseBtn.style.alignItems = 'center';
+      cameraCloseBtn.style.justifyContent = 'center';
+      cameraCloseBtn.onclick = () => {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((track) => track.stop());
+        }
+        overlay.remove();
+      };
+      posterContainer.appendChild(cameraCloseBtn);
 
-      cameraVideo.play();
+      let imgPreview = null, downloadBtn = null, cancelBtn = null;
+      let cameraStream = null;
+
+      async function startCameraStream() {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+              facingMode: { ideal: 'environment' },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 }
+            }
+          });
+          cameraVideo.srcObject = cameraStream;
+        } catch (err) {
+          try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            cameraVideo.srcObject = cameraStream;
+          } catch (err2) {
+            alert('Could not access camera: ' + err2.message);
+          }
+        }
+      }
+      await startCameraStream();
+
+      // --- Text wrapping function for canvas ---
+      function wrapCanvasText(ctx, text, maxWidth) {
+        const words = text.split(' ');
+        let lines = [];
+        let line = '';
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + (line ? ' ' : '') + words[n];
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxWidth && line) {
+            lines.push(line);
+            line = words[n];
+          } else {
+            line = testLine;
+          }
+        }
+        lines.push(line);
+        return lines;
+      }
+
+      shutterBtn.onclick = function () {
+        cameraVideo.pause();
+
+        if (imgPreview) imgPreview.remove();
+        if (downloadBtn) downloadBtn.remove();
+        if (cancelBtn) cancelBtn.remove();
+
+        shutterBtn.style.display = 'none';
+        cameraCloseBtn.style.display = 'none';
+
+        // --- Use canvas to capture video frame at full resolution ---
+        const canvas = document.createElement('canvas');
+        canvas.width = cameraVideo.videoWidth;
+        canvas.height = cameraVideo.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+
+        // --- Get computed style from HTML overlay ---
+        const overlayRect = textOverlay.getBoundingClientRect();
+        const videoRect = cameraVideo.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(textOverlay);
+
+        // Screen pixel values
+        let topPx = overlayRect.top - videoRect.top;
+        let leftPx = overlayRect.left - videoRect.left;
+        let overlayWidthPx = overlayRect.width;
+        let overlayHeightPx = overlayRect.height;
+
+        // Font size and line height in px
+        let fontSizePx = parseFloat(computedStyle.fontSize);
+        let fontFamily = computedStyle.fontFamily;
+        let fontWeight = computedStyle.fontWeight;
+        let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
+
+        // Map screen pixels to canvas pixels
+        let scaleX = canvas.width / videoRect.width;
+        let scaleY = canvas.height / videoRect.height;
+
+        let textBoxX = leftPx * scaleX;
+        let textBoxY = topPx * scaleY;
+        let textBoxWidth = overlayWidthPx * scaleX;
+        let textBoxHeight = overlayHeightPx * scaleY;
+
+        // Padding for text inside the overlay
+        const canvasPaddingY = overlayPaddingY * scaleY;
+        const canvasPaddingX = overlayPaddingX * scaleX;
+
+        // Draw background rectangle
+        ctx.save();
+        ctx.globalAlpha = 0.4;
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
+        } else {
+          ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
+        }
+        ctx.fill();
+        ctx.restore();
+
+        // Prepare font and wrapping
+        const canvasFontSize = fontSizePx * scaleY;
+        // Slightly increased line gap (was 0.8, now 1.1)
+        const canvasLineHeight = canvasFontSize * 1.1;
+        ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#fff";
+
+        // Wrap text as per overlay width in canvas, with matching padding
+        const wrappedLines = wrapCanvasText(
+          ctx,
+          markerText,
+          textBoxWidth - 2 * canvasPaddingX
+        );
+
+        // Vertically center lines in the box (account for padding top/bottom)
+        const totalLines = wrappedLines.length;
+        const totalTextHeight = totalLines * canvasLineHeight;
+        let y = textBoxY + canvasPaddingY + (textBoxHeight - 2 * canvasPaddingY - totalTextHeight) / 2 + canvasLineHeight / 2;
+
+        for (let i = 0; i < wrappedLines.length; i++) {
+          ctx.fillText(
+            wrappedLines[i],
+            textBoxX + textBoxWidth / 2,
+            y + i * canvasLineHeight
+          );
+        }
+        ctx.restore();
+
+        imgPreview = document.createElement('img');
+        imgPreview.src = canvas.toDataURL('image/png');
+        imgPreview.style.display = 'block';
+        imgPreview.style.margin = '16px auto 8px auto';
+        imgPreview.style.maxWidth = '90vw';
+        imgPreview.style.maxHeight = '60vh';
+        imgPreview.style.borderRadius = '12px';
+        imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+        posterContainer.appendChild(imgPreview);
+
+        // Informational button (previously downloadBtn)
+        downloadBtn = document.createElement('button');
+        downloadBtn.textContent = 'Hold photo to share or save to photos';
+        downloadBtn.className = 'custom-button';
+        downloadBtn.style.display = 'block';
+        downloadBtn.style.margin = '10px auto 0 auto';
+        downloadBtn.style.background = '#e0e0e0';
+        downloadBtn.style.color = '#333';
+        downloadBtn.onclick = function (e) {
+          e.preventDefault();
+          return false;
+        };
+        posterContainer.appendChild(downloadBtn);
+
+        // Cancel button (was grey, now purple)
+        cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Take again';
+        cancelBtn.className = 'custom-button';
+        cancelBtn.style.display = 'block';
+        cancelBtn.style.margin = '10px auto 0 auto';
+        cancelBtn.style.background = '#9b4dca';
+        cancelBtn.style.color = '#fff';
+        posterContainer.appendChild(cancelBtn);
+
+        cameraVideo.style.display = 'none';
+        shutterBtn.style.display = 'none';
+        textOverlay.style.display = 'none';
+        cameraCloseBtn.style.display = 'none';
+
+        cancelBtn.onclick = function () {
+          if (imgPreview) imgPreview.remove();
+          if (downloadBtn) downloadBtn.remove();
+          if (cancelBtn) cancelBtn.remove();
+
+          cameraVideo.style.display = 'block';
+          shutterBtn.style.display = 'block';
+          textOverlay.style.display = 'block';
+          cameraCloseBtn.style.display = 'flex';
+
+          cameraVideo.play();
+        };
+      };
     };
-  };
-};
-
 
     playBtn.onclick = () => {
       playBtn.style.display = 'none';
@@ -638,8 +679,6 @@ cameraIcon.onclick = async function () {
 
 // ... rest of your file (unchanged) ...
 
-// ... rest of your file (unchanged) ...
-// (all logic for map, bottom sheet, styling, popup content, support button, marker search, etc.)
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
   const markerSize = zoomLevel - 13;
@@ -652,20 +691,17 @@ function scaleMarkersBasedOnZoom() {
     marker.style.height = markerHeight;
     marker.style.borderWidth = borderWidth;
 
-    // Scale the bump if present
     const bump = marker.querySelector('.marker-bump');
     if (bump) {
       const bumpWidth = markerSize * 0.4 + 'em';
       const bumpHeight = markerSize * 0.25 + 'em';
       bump.style.width = bumpWidth;
       bump.style.height = bumpHeight;
-      // No border scaling needed for solid color
     }
   });
 }
 scaleMarkersBasedOnZoom();
 
-// Map event listeners immediately
 map.on('click', (e) => {
   const currentLat = e.lngLat.lat;
   const currentLng = e.lngLat.lng;
@@ -675,14 +711,12 @@ map.on('click', (e) => {
 });
 map.on('zoom', () => scaleMarkersBasedOnZoom());
 
-// Only what requires style load
 map.on('load', () => {
   geolocate.trigger();
 
-  // Hide the loading screen after at least 5 seconds
   const loadingScreen = document.getElementById('loading-screen');
   const elapsed = Date.now() - loadingScreenStart;
-  const minDuration = 5000; // 5 seconds
+  const minDuration = 5000;
 
   if (loadingScreen) {
     if (elapsed >= minDuration) {
@@ -694,7 +728,6 @@ map.on('load', () => {
     }
   }
 });
-// Function to parse URL parameters
 function getUrlParameter(name) {
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
   var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -702,53 +735,47 @@ function getUrlParameter(name) {
   return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
 
-// Get parameters from URL
 const lat = getUrlParameter('lat');
 const lng = getUrlParameter('lng');
 const zoom = getUrlParameter('zoom');
 
-// Default York coordinates and zoom
 const defaultCenter = [-1.0835104081554843, 53.95838745239521];
 const defaultZoom = 15;
 
-// Use URL parameters if available, otherwise use default values
 const initialCenter = lat && lng ? [parseFloat(lng), parseFloat(lat)] : defaultCenter;
 const initialZoom = zoom ? parseFloat(zoom) : defaultZoom;
 
-// Create a bottom sheet container
 const bottomSheet = document.createElement('div');
 bottomSheet.id = 'bottom-sheet';
 bottomSheet.style.position = 'fixed';
-bottomSheet.style.bottom = '-100%'; // Initially hidden
-bottomSheet.style.left = '50%'; // Align to the left
-bottomSheet.style.transform = 'translate(-50%)'; // Adjust position to align center both ways
+bottomSheet.style.bottom = '-100%';
+bottomSheet.style.left = '50%';
+bottomSheet.style.transform = 'translate(-50%)';
 bottomSheet.style.right = '50%';
 bottomSheet.style.width = '96%';
-bottomSheet.style.height = '40%'; // Adjust height as needed
+bottomSheet.style.height = '40%';
 bottomSheet.style.backgroundColor = '#fff';
 bottomSheet.style.borderTop = '2px solid #ccc';
 bottomSheet.style.boxShadow = '0 -6px 15px rgba(0, 0, 0, 0.3)';
 bottomSheet.style.zIndex = '10000';
 bottomSheet.style.transition = 'bottom 0.3s ease';
-bottomSheet.style.borderRadius = '12px 12px 0 0'; // Matches the popup's border-radius
-bottomSheet.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)'; // Matches the popup's shadow
-bottomSheet.style.backgroundColor = '#E9E8E0'; // Matches popup background color
-bottomSheet.style.border = '2px solid #f0f0f0'; // Matches popup border
-bottomSheet.style.fontFamily = "'Poppins', sans-serif"; // Matches popup font-family
-bottomSheet.style.fontSize = '14px'; // Matches popup font size
-bottomSheet.style.lineHeight = '1.05'; // Matches popup line height
-bottomSheet.style.padding = '5px'; // Matches popup padding
-bottomSheet.style.overflowY = 'auto'; // Make it scrollable
+bottomSheet.style.borderRadius = '12px 12px 0 0';
+bottomSheet.style.boxShadow = '0 6px 15px rgba(0, 0, 0, 0.3)';
+bottomSheet.style.backgroundColor = '#E9E8E0';
+bottomSheet.style.border = '2px solid #f0f0f0';
+bottomSheet.style.fontFamily = "'Poppins', sans-serif";
+bottomSheet.style.fontSize = '14px';
+bottomSheet.style.lineHeight = '1.05';
+bottomSheet.style.padding = '5px';
+bottomSheet.style.overflowY = 'auto';
 document.body.appendChild(bottomSheet);
 
-// Function to generate a URL with given coordinates and zoom
 function generateMapLink(latitude, longitude, zoomLevel) {
   const baseUrl = window.location.origin + window.location.pathname;
   const params = `?lat=${latitude}&lng=${longitude}&zoom=${zoomLevel}`;
   return baseUrl + params;
 }
 
-// Container for both buttons
 const buttonGroup = document.createElement('div');
 buttonGroup.id = 'button-group';
 buttonGroup.style.position = 'fixed';
@@ -760,16 +787,13 @@ buttonGroup.style.display = 'flex';
 buttonGroup.style.gap = '10px';
 document.body.appendChild(buttonGroup);
 
-// Create a <style> element to add the CSS
 const stylePopup = document.createElement('style');
 
-// Add the link to Google Fonts for Poppins
 const link = document.createElement('link');
 link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap';
 link.rel = 'stylesheet';
 document.head.appendChild(link);
 
-// Style for the popup and markers
 stylePopup.innerHTML = `
   .mapboxgl-popup-content {
     border-radius: 12px !important;
@@ -783,7 +807,7 @@ stylePopup.innerHTML = `
     padding-bottom: 0 !important;
     margin-left: 3px;
     margin-right: 5px;
-    margin-bottom: 10px; /* Add this line */
+    margin-bottom: 10px;
   }
   .mapboxgl-popup-content img {
     border: 2px solid #f0f0f0 !important;
@@ -861,14 +885,13 @@ stylePopup.innerHTML = `
   #bottom-sheet p {
     margin-bottom: 10px;
   }
-  /* Social media image grid */
-.marker-list-grid {
+  .marker-list-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 4px;
     margin-bottom: 8px;
-    justify-items: center; /* Center grid items horizontally */
-}
+    justify-items: center;
+  }
   .marker-list-grid-btn {
     background: none;
     border: none;
@@ -878,17 +901,17 @@ stylePopup.innerHTML = `
     flex-direction: column;
     align-items: center;
   }
-.marker-list-grid-img {
-    width: 100px;              /* Adjust as needed for your layout */
-    height: 178px;             /* 100 * 16 / 9 ≈ 178 for a 9:16 aspect ratio */
-    object-fit: cover;         /* Ensures image fills the box, cropping as needed */
+  .marker-list-grid-img {
+    width: 100px;
+    height: 178px;
+    object-fit: cover;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.12);
     border: 1.5px solid #E9E8E0;
     background: #fff;
     display: block;
     margin-bottom: 0;
-}
+  }
   .marker-list-grid-label {
     font-size: 11px;
     font-weight: bold;
@@ -912,7 +935,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   markerDiv.style.borderRadius = '50%';
   markerDiv.style.border = `0.05em solid ${color}`;
   markerDiv.style.boxSizing = 'border-box';
-  markerDiv.style.overflow = 'visible'; // allow the bump to overflow
+  markerDiv.style.overflow = 'visible';
   markerDiv.style.background = 'white';
   markerDiv.style.display = 'flex';
   markerDiv.style.alignItems = 'center';
@@ -925,7 +948,6 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   imageElement.style.objectFit = 'cover';
   imageElement.style.borderRadius = '50%';
 
-  // Create the "bump" at the bottom as a smooth upside-down triangle (teardrop)
   const bump = document.createElement('div');
   bump.className = 'marker-bump';
   bump.style.position = 'absolute';
@@ -934,7 +956,7 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   bump.style.transform = 'translateX(-50%)';
   bump.style.width = '5em';
   bump.style.height = '0.5em';
-  bump.style.background = color; // Or 'white' for a hollow pyramid with border
+  bump.style.background = color;
   bump.style.clipPath =
     'polygon(0% 0%, 100% 0%, 55% 96%, 56% 100%, 44% 100%, 45% 96%)';
   bump.style.zIndex = '1';
@@ -948,14 +970,12 @@ function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   };
 }
 
-// Toggle functionality for the bottom sheet
 let isBottomSheetOpen = false;
 
 function toggleBottomSheet(contentHTML) {
   if (isBottomSheetOpen) {
-    bottomSheet.style.bottom = '-100%'; // Hide
+    bottomSheet.style.bottom = '-100%';
   } else {
-    // Add a close button to the top-right corner of the content
     const closeButtonHTML = `
             <button id="close-bottom-sheet" style="
                 position: absolute;
@@ -971,18 +991,16 @@ function toggleBottomSheet(contentHTML) {
             ">❌</button>
         `;
 
-    bottomSheet.innerHTML = closeButtonHTML + contentHTML; // Add close button + content
-    bottomSheet.style.bottom = '0'; // Show
+    bottomSheet.innerHTML = closeButtonHTML + contentHTML;
+    bottomSheet.style.bottom = '0';
 
-    // Attach event listener to the close button
     document.getElementById('close-bottom-sheet').addEventListener('click', () => {
-      // Stop video playback
-      const videoElement = document.querySelector('video'); // Adjust selector as needed
+      const videoElement = document.querySelector('video');
       if (videoElement) {
         videoElement.pause();
-        videoElement.currentTime = 0; // Optional: Reset video to start
+        videoElement.currentTime = 0;
       }
-      toggleBottomSheet(); // Close the popup
+      toggleBottomSheet();
     });
   }
   isBottomSheetOpen = !isBottomSheetOpen;
@@ -1037,16 +1055,12 @@ function createPopupContent(location, isFirebase = false) {
     `;
 }
 
-// ========== Support Button + Marker List Button & Popup =============
-
 document.addEventListener('DOMContentLoaded', () => {
-  // === SUPPORT BUTTON ===
   const button = document.createElement('button');
   button.id = 'custom-bmc-button';
   button.className = 'custom-button';
   button.textContent = '❤️ This site costs - please support it ❤️';
 
-  // Create the dropdown content
   const dropdownContent = document.createElement('div');
   dropdownContent.style.display = 'none';
   dropdownContent.style.position = 'fixed';
@@ -1076,10 +1090,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <b>If this site was free for you to use, it means someone else paid forward.</b>
         </div>
            <div class="project-info" style="margin-bottom: 15px;">
-            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no other city has before.
+            My name is Freddy, I’m a 22 year old local to the city. I am coding and building this project completely independently. My mission is to use technology to tell the story of York, like no[...]
         </div>
         <div class="project-info" style="margin-bottom: 15px;">
-             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic images from York Archives to use) ❤️
+             I would love to keep the site free-to-use, so please consider donating forward for your usage. I would also love to keep making the site better for future users (i.e. buying historic imag[...]
         </div>
         <button 
             class="support-button" 
@@ -1108,7 +1122,6 @@ document.addEventListener('DOMContentLoaded', () => {
 <div id="donor-list" style="margin-top: 10px;"></div>
     `;
 
-  // Wrap the button and dropdown in a container
   const dropdownContainer = document.createElement('div');
   dropdownContainer.className = 'dropdown';
   dropdownContainer.style.position = 'fixed';
@@ -1121,8 +1134,6 @@ document.addEventListener('DOMContentLoaded', () => {
   dropdownContainer.style.alignItems = 'center';
   dropdownContainer.appendChild(button);
 
-  // === MARKER LIST BUTTON & POPUP ===
-  // Create the marker list button
   const markerListButton = document.createElement('button');
   markerListButton.textContent = '🔍 Search Locations';
   markerListButton.className = 'custom-button';
@@ -1131,7 +1142,6 @@ document.addEventListener('DOMContentLoaded', () => {
   markerListButton.style.marginRight = 'auto';
   markerListButton.style.display = 'block';
 
-  // Marker list popup
   const markerListPopup = document.createElement('div');
   markerListPopup.style.display = 'none';
   markerListPopup.style.position = 'fixed';
@@ -1151,7 +1161,6 @@ document.addEventListener('DOMContentLoaded', () => {
   markerListPopup.style.fontSize = '15px';
   markerListPopup.style.lineHeight = '1.28';
 
-  // Mode toggle UI
   const popupModeContainer = document.createElement('div');
   popupModeContainer.style.display = 'flex';
   popupModeContainer.style.justifyContent = 'center';
@@ -1193,7 +1202,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateModeButtons();
     popupContentDiv.innerHTML = '';
     if (popupMode === 'list') {
-      // Alphabetical order
       const allMarkers = [
         ...locations.map((l) => ({ name: l.name, coords: l.coords })),
         ...buildings.map((b) => ({ name: b.name, coords: b.coords })),
@@ -1213,7 +1221,6 @@ document.addEventListener('DOMContentLoaded', () => {
         popupContentDiv.appendChild(item);
       });
     } else {
-      // Social media mode
       const socialBuildings = buildings.filter((b) => b['social media'] === 'yes');
       if (!socialBuildings.length) {
         popupContentDiv.innerHTML +=
@@ -1238,7 +1245,6 @@ document.addEventListener('DOMContentLoaded', () => {
         popupContentDiv.appendChild(grid);
       }
     }
-    // Add close button at the end (always)
     const close = document.createElement('button');
     close.textContent = 'Close';
     close.className = 'custom-button';
@@ -1270,13 +1276,11 @@ document.addEventListener('DOMContentLoaded', () => {
   markerListPopup.appendChild(popupModeContainer);
   markerListPopup.appendChild(popupContentDiv);
 
-  // Center the button below the support button
   dropdownContainer.appendChild(markerListButton);
-  dropdownContainer.appendChild(dropdownContent); // keep donors popup functional
+  dropdownContainer.appendChild(dropdownContent);
   document.body.appendChild(dropdownContainer);
   document.body.appendChild(markerListPopup);
 
-  // Function to add donors
   function addDonor(name, amount, subtext) {
     const donorList = document.getElementById('donor-list');
     const donorDiv = document.createElement('div');
@@ -1309,7 +1313,6 @@ document.addEventListener('DOMContentLoaded', () => {
       dropdownContent.style.display === 'block' ? 'none' : 'block';
   });
 
-  // Close popups when clicking outside
   document.addEventListener('click', (event) => {
     if (
       !dropdownContainer.contains(event.target) &&
@@ -1321,6 +1324,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Set the dropdown width to match the button width
   dropdownContent.style.width = `${Math.max(button.offsetWidth, 300)}px`;
 });
