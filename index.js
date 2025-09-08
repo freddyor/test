@@ -1,10 +1,75 @@
 import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
-// Track when the loading screen is first shown
-const loadingScreenStart = Date.now();
+// --- Firebase imports ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-// --- First Video Popup additions START ---
+// --- Firebase config ---
+const firebaseConfig = {
+  apiKey: "AIzaSyDjv5uUNOx86FvYsXdKSMkl8vui2Jynt7M",
+  authDomain: "britmap-64cb3.firebaseapp.com",
+  projectId: "britmap-64cb3",
+  storageBucket: "britmap-64cb3.firebasestorage.app",
+  messagingSenderId: "821384262397",
+  appId: "1:821384262397:web:ca81d64ab6a8dea562c494",
+  measurementId: "G-03E2BB7BQH"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let firebaseUser = null;
+let completedMarkers = {};
+
+signInAnonymously(auth);
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    firebaseUser = user;
+    await loadCompletedMarkers();
+    applyDimmedMarkers();
+  }
+});
+
+async function loadCompletedMarkers() {
+  if (!firebaseUser) return;
+  try {
+    const docRef = doc(db, "users", firebaseUser.uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      completedMarkers = docSnap.data().completedMarkers || {};
+    }
+  } catch (err) {
+    completedMarkers = {};
+  }
+}
+
+async function saveCompletedMarker(markerKey) {
+  if (!firebaseUser) return;
+  completedMarkers[markerKey] = true;
+  const docRef = doc(db, "users", firebaseUser.uid);
+  await setDoc(docRef, { completedMarkers }, { merge: true });
+}
+
+function applyDimmedMarkers() {
+  buildings.forEach((building) => {
+    const markerKey = 'completed-marker-' + building.name;
+    const markerEls = document.querySelectorAll(
+      `.building-marker[data-marker-key="${markerKey}"]`
+    );
+    markerEls.forEach((el) => {
+      if (completedMarkers[markerKey]) {
+        el.style.filter = 'brightness(0.6) grayscale(0.3)';
+      } else {
+        el.style.filter = '';
+      }
+    });
+  });
+}
+
 let firstVideoLoadedThisSession = false;
 function showFirstVideoWaitMessage(videoElement) {}
 
@@ -13,7 +78,6 @@ const yorkBounds = [
   [-1.010, 54.010]
 ];
 
-// Set Mapbox access token
 mapboxgl.accessToken =
   'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
@@ -29,7 +93,6 @@ var map = new mapboxgl.Map({
   maxZoom: 19,
 });
 
-// Geolocate control and user location marker
 const geolocate = new mapboxgl.GeolocateControl({
   positionOptions: {
     enableHighAccuracy: true,
@@ -69,7 +132,6 @@ geolocate.on('geolocate', (e) => {
   userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
 });
 
-// --- Marker and helper functions ---
 locations.forEach((location) => {
   const { element: markerElement } = createCustomMarker(
     location.image,
@@ -98,14 +160,9 @@ buildings.forEach((building) => {
     false
   );
   markerElement.className += ' building-marker';
+  markerElement.setAttribute('data-marker-key', 'completed-marker-' + building.name);
 
   if (building.colour === 'yes') markerElement.style.zIndex = '3';
-
-  // --- NEW: load completed state for marker, apply dimming if completed ---
-  const markerKey = 'completed-marker-' + building.name;
-  if (localStorage.getItem(markerKey) === 'true') {
-    markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
-  }
 
   const marker = new mapboxgl.Marker({ element: markerElement })
     .setLngLat(building.coords)
@@ -115,7 +172,7 @@ buildings.forEach((building) => {
     map.getCanvas().style.cursor = 'pointer';
     const videoUrl = building.videoUrl;
     const posterUrl = building.posterUrl;
-    const markerText = building.text || ""; // <- text for overlay and photo
+    const markerText = building.text || "";
 
     if (!videoUrl) {
       console.error('Video URL not available for this building.');
@@ -131,7 +188,7 @@ buildings.forEach((building) => {
     overlay.style.height = '100vh';
     overlay.style.background = 'rgba(0,0,0,0.2)';
     overlay.style.backdropFilter = 'blur(10px)';
-    overlay.style.webkitBackdropFilter = 'blur(10px)'; // For Safari
+    overlay.style.webkitBackdropFilter = 'blur(10px)';
     overlay.style.display = 'flex';
     overlay.style.alignItems = 'center';
     overlay.style.justifyContent = 'center';
@@ -140,8 +197,6 @@ buildings.forEach((building) => {
     posterContainer.style.position = 'relative';
     posterContainer.style.marginTop = '-60px';
 
-
-    // Camera icon button (Instagram-style simple camera)
     const cameraIcon = document.createElement('button');
     cameraIcon.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -299,10 +354,9 @@ buildings.forEach((building) => {
       cameraIcon.remove();
       posterContainer.innerHTML = '';
 
-      // --- TEXT OVERLAY: bring in overlay sides, so it's inset from the video/photo edges ---
-      const overlayPaddingY = 6;   // px - vertical padding (top/bottom)
-      const overlayPaddingX = 12;  // px - horizontal padding (left/right)
-      const overlayInset = 32;     // px - overlay inset from left/right of video/photo
+      const overlayPaddingY = 6;
+      const overlayPaddingX = 12;
+      const overlayInset = 32;
       const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
 
       const textOverlay = document.createElement('div');
@@ -321,8 +375,7 @@ buildings.forEach((building) => {
       textOverlay.style.zIndex = 20;
       textOverlay.style.fontFamily = "'Poppins', sans-serif";
       textOverlay.style.textAlign = "center";
-      textOverlay.style.lineHeight = "1"; // Slightly increased
-      // Make overlay width slightly less than video width, inset by overlayInset on both sides
+      textOverlay.style.lineHeight = "1";
       textOverlay.style.width = `calc(90vw - ${2 * overlayInset}px)`;
       posterContainer.appendChild(textOverlay);
 
@@ -330,7 +383,7 @@ buildings.forEach((building) => {
       cameraVideo.autoplay = true;
       cameraVideo.playsInline = true;
       cameraVideo.style.width = '90vw';
-      cameraVideo.style.height = '160vw'; // portrait
+      cameraVideo.style.height = '160vw';
       cameraVideo.style.objectFit = 'contain';
       cameraVideo.style.borderRadius = '14px';
       cameraVideo.style.display = 'block';
@@ -358,7 +411,6 @@ buildings.forEach((building) => {
       shutterBtn.style.zIndex = 12;
       shutterBtn.style.outline = 'none';
       shutterBtn.style.transition = 'box-shadow 0.1s';
-      // inner circle for shutter effect
       const innerCircle = document.createElement('div');
       innerCircle.style.width = '44px';
       innerCircle.style.height = '44px';
@@ -417,7 +469,6 @@ buildings.forEach((building) => {
       }
       await startCameraStream();
 
-      // --- Text wrapping function for canvas ---
       function wrapCanvasText(ctx, text, maxWidth) {
         const words = text.split(' ');
         let lines = [];
@@ -446,31 +497,26 @@ buildings.forEach((building) => {
         shutterBtn.style.display = 'none';
         cameraCloseBtn.style.display = 'none';
 
-        // --- Use canvas to capture video frame at full resolution ---
         const canvas = document.createElement('canvas');
         canvas.width = cameraVideo.videoWidth;
         canvas.height = cameraVideo.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
-        // --- Get computed style from HTML overlay ---
         const overlayRect = textOverlay.getBoundingClientRect();
         const videoRect = cameraVideo.getBoundingClientRect();
         const computedStyle = window.getComputedStyle(textOverlay);
 
-        // Screen pixel values
         let topPx = overlayRect.top - videoRect.top;
         let leftPx = overlayRect.left - videoRect.left;
         let overlayWidthPx = overlayRect.width;
         let overlayHeightPx = overlayRect.height;
 
-        // Font size and line height in px
         let fontSizePx = parseFloat(computedStyle.fontSize);
         let fontFamily = computedStyle.fontFamily;
         let fontWeight = computedStyle.fontWeight;
         let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
 
-        // Map screen pixels to canvas pixels
         let scaleX = canvas.width / videoRect.width;
         let scaleY = canvas.height / videoRect.height;
 
@@ -479,11 +525,9 @@ buildings.forEach((building) => {
         let textBoxWidth = overlayWidthPx * scaleX;
         let textBoxHeight = overlayHeightPx * scaleY;
 
-        // Padding for text inside the overlay
         const canvasPaddingY = overlayPaddingY * scaleY;
         const canvasPaddingX = overlayPaddingX * scaleX;
 
-        // Draw background rectangle
         ctx.save();
         ctx.globalAlpha = 0.4;
         ctx.fillStyle = "#000";
@@ -496,23 +540,19 @@ buildings.forEach((building) => {
         ctx.fill();
         ctx.restore();
 
-        // Prepare font and wrapping
         const canvasFontSize = fontSizePx * scaleY;
-        // Slightly increased line gap (was 0.8, now 1.1)
         const canvasLineHeight = canvasFontSize * 1.1;
         ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = "#fff";
 
-        // Wrap text as per overlay width in canvas, with matching padding
         const wrappedLines = wrapCanvasText(
           ctx,
           markerText,
           textBoxWidth - 2 * canvasPaddingX
         );
 
-        // Vertically center lines in the box (account for padding top/bottom)
         const totalLines = wrappedLines.length;
         const totalTextHeight = totalLines * canvasLineHeight;
         let y = textBoxY + canvasPaddingY + (textBoxHeight - 2 * canvasPaddingY - totalTextHeight) / 2 + canvasLineHeight / 2;
@@ -536,7 +576,6 @@ buildings.forEach((building) => {
         imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
         posterContainer.appendChild(imgPreview);
 
-        // Informational button (previously downloadBtn)
         downloadBtn = document.createElement('button');
         downloadBtn.textContent = 'Hold photo to share or save to photos';
         downloadBtn.className = 'custom-button';
@@ -550,7 +589,6 @@ buildings.forEach((building) => {
         };
         posterContainer.appendChild(downloadBtn);
 
-        // Cancel button (was grey, now purple)
         cancelBtn = document.createElement('button');
         cancelBtn.textContent = 'Take again';
         cancelBtn.className = 'custom-button';
@@ -580,68 +618,63 @@ buildings.forEach((building) => {
       };
     };
 
-    // Remove (or comment out) the completed checkbox UI:
-// posterContainer.appendChild(completeContainer);
-// ...and all related completeCheckbox code...
+    playBtn.onclick = () => {
+      playBtn.style.display = 'none';
+      spinner.style.display = 'block';
+      videoElement = document.createElement('video');
+      videoElement.src = videoUrl;
+      if (posterUrl) videoElement.poster = posterUrl;
+      videoElement.style.border = '1.5px solid #E9E8E0';
+      videoElement.style.maxWidth = '88vw';
+      videoElement.style.maxHeight = '80vh';
+      videoElement.style.borderRadius = '14px';
+      videoElement.controls = false;
+      videoElement.preload = 'auto';
+      videoElement.autoplay = true;
+      videoElement.setAttribute('playsinline', '');
+      videoElement.setAttribute('webkit-playsinline', '');
+      videoElement.playsInline = true;
+      showFirstVideoWaitMessage(videoElement);
+      let hasStarted = false;
 
-// --- Instead, update playBtn.onclick as follows ---
+      function showVideo() {
+        if (!hasStarted) {
+          hasStarted = true;
+          posterContainer.replaceChild(videoElement, posterImg);
+          spinner.style.display = 'none';
 
-playBtn.onclick = () => {
-  playBtn.style.display = 'none';
-  spinner.style.display = 'block';
-  videoElement = document.createElement('video');
-  videoElement.src = videoUrl;
-  if (posterUrl) videoElement.poster = posterUrl;
-  videoElement.style.border = '1.5px solid #E9E8E0';
-  videoElement.style.maxWidth = '88vw';
-  videoElement.style.maxHeight = '80vh';
-  videoElement.style.borderRadius = '14px';
-  videoElement.controls = false;
-  videoElement.preload = 'auto';
-  videoElement.autoplay = true;
-  videoElement.setAttribute('playsinline', '');
-  videoElement.setAttribute('webkit-playsinline', '');
-  videoElement.playsInline = true;
-  showFirstVideoWaitMessage(videoElement);
-  let hasStarted = false;
-
-  function showVideo() {
-    if (!hasStarted) {
-      hasStarted = true;
-      posterContainer.replaceChild(videoElement, posterImg);
-      spinner.style.display = 'none';
-
-      // --- DIM MARKER WHEN PLAY IS PRESSED ---
-      markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
-      // Optionally persist in localStorage:
-      localStorage.setItem(markerKey, 'true');
-    }
-  }
-
-  function onProgress() {
-    if (videoElement.duration && videoElement.buffered.length) {
-      const bufferedEnd =
-        videoElement.buffered.end(videoElement.buffered.length - 1);
-      const percentBuffered = bufferedEnd / videoElement.duration;
-      if (percentBuffered >= 0.25 && !hasStarted) {
-        videoElement.play();
+          markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
+          const markerKey = 'completed-marker-' + building.name;
+          saveCompletedMarker(markerKey);
+        }
       }
-    }
-  }
 
-  videoElement.addEventListener('play', showVideo);
-  videoElement.addEventListener('progress', onProgress);
-  videoElement.addEventListener('click', () => {
-    videoElement.controls = true;
+      function onProgress() {
+        if (videoElement.duration && videoElement.buffered.length) {
+          const bufferedEnd =
+            videoElement.buffered.end(videoElement.buffered.length - 1);
+          const percentBuffered = bufferedEnd / videoElement.duration;
+          if (percentBuffered >= 0.25 && !hasStarted) {
+            videoElement.play();
+          }
+        }
+      }
+
+      videoElement.addEventListener('play', showVideo);
+      videoElement.addEventListener('progress', onProgress);
+      videoElement.addEventListener('click', () => {
+        videoElement.controls = true;
+      });
+      videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
+      videoElement.addEventListener('error', () => {
+        spinner.style.display = 'none';
+        playBtn.style.display = 'block';
+        alert('Video failed to load.');
+      });
+      videoElement.load();
+    };
   });
-  videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
-  videoElement.addEventListener('error', () => {
-    spinner.style.display = 'none';
-    playBtn.style.display = 'block';
-    alert('Video failed to load.');
-  });
-  videoElement.load();
-};
+});
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
