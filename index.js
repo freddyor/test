@@ -107,7 +107,7 @@ const geolocate = new mapboxgl.GeolocateControl({
   },
   showUserLocation: false,
 });
-map.addControl(geolocate);
+map.addControl(geolocate, 'top-left');
 
 const userLocationEl = document.createElement('div');
 userLocationEl.className = 'user-location-marker';
