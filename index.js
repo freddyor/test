@@ -230,6 +230,49 @@ buildings.forEach((building) => {
 
     posterContainer.appendChild(cameraIcon);
 
+    const markerKey = 'completed-marker-' + building.name;
+    let isVisited = completedMarkers[markerKey] ? true : false;
+
+    // --- NEW BUTTON (visitBtn) ---
+    const visitBtn = document.createElement('button');
+    visitBtn.textContent = isVisited ? 'Visited' : 'Unvisited';
+    visitBtn.style.position = 'absolute';
+    visitBtn.style.left = '50%';
+    visitBtn.style.bottom = '12px';
+    visitBtn.style.transform = 'translateX(-50%)';
+    visitBtn.style.background = isVisited ? '#4caf50' : '#ccc';
+    visitBtn.style.color = isVisited ? '#fff' : '#333';
+    visitBtn.style.border = 'none';
+    visitBtn.style.borderRadius = '20px';
+    visitBtn.style.width = '110px';
+    visitBtn.style.height = '36px';
+    visitBtn.style.fontWeight = 'bold';
+    visitBtn.style.fontSize = '14px';
+    visitBtn.style.cursor = 'pointer';
+    visitBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    visitBtn.style.display = 'block';
+    visitBtn.style.zIndex = 11;
+
+    visitBtn.onclick = async function () {
+      isVisited = !isVisited;
+      if (isVisited) {
+        visitBtn.textContent = 'Visited';
+        visitBtn.style.background = '#4caf50';
+        visitBtn.style.color = '#fff';
+        markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
+        await saveCompletedMarker(markerKey);
+      } else {
+        visitBtn.textContent = 'Unvisited';
+        visitBtn.style.background = '#ccc';
+        visitBtn.style.color = '#333';
+        markerElement.style.filter = '';
+        completedMarkers[markerKey] = false;
+        const docRef = doc(db, "users", firebaseUser.uid);
+        await setDoc(docRef, { completedMarkers }, { merge: true });
+      }
+    };
+    posterContainer.appendChild(visitBtn);
+
     const posterImg = document.createElement('img');
     posterImg.src = posterUrl || '';
     posterImg.alt = 'Video cover';
@@ -641,52 +684,8 @@ buildings.forEach((building) => {
       videoElement.playsInline = true;
       showFirstVideoWaitMessage(videoElement);
 
-      // --- NEW BUTTON ---
-      const visitBtn = document.createElement('button');
-      visitBtn.textContent = 'Unvisited';
-      visitBtn.style.marginTop = '18px';
-      visitBtn.style.background = '#ccc';
-      visitBtn.style.color = '#333';
-      visitBtn.style.border = 'none';
-      visitBtn.style.borderRadius = '20px';
-      visitBtn.style.width = '110px';
-      visitBtn.style.height = '36px';
-      visitBtn.style.fontWeight = 'bold';
-      visitBtn.style.fontSize = '14px';
-      visitBtn.style.cursor = 'pointer';
-      visitBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+      // Attach visitBtn to the posterContainer so it stays at the bottom
       visitBtn.style.display = 'block';
-
-      let isVisited = false;
-      const markerKey = 'completed-marker-' + building.name;
-      if (completedMarkers[markerKey]) {
-        isVisited = true;
-        visitBtn.textContent = 'Visited';
-        visitBtn.style.background = '#4caf50';
-        visitBtn.style.color = '#fff';
-        markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
-      } else {
-        markerElement.style.filter = '';
-      }
-
-      visitBtn.onclick = async function () {
-        isVisited = !isVisited;
-        if (isVisited) {
-          visitBtn.textContent = 'Visited';
-          visitBtn.style.background = '#4caf50';
-          visitBtn.style.color = '#fff';
-          markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
-          await saveCompletedMarker(markerKey);
-        } else {
-          visitBtn.textContent = 'Unvisited';
-          visitBtn.style.background = '#ccc';
-          visitBtn.style.color = '#333';
-          markerElement.style.filter = '';
-          completedMarkers[markerKey] = false;
-          const docRef = doc(db, "users", firebaseUser.uid);
-          await setDoc(docRef, { completedMarkers }, { merge: true });
-        }
-      };
 
       let hasStarted = false;
 
@@ -695,8 +694,7 @@ buildings.forEach((building) => {
           hasStarted = true;
           posterContainer.replaceChild(videoElement, posterImg);
           spinner.style.display = 'none';
-          // --- Make sure the button is always directly under the video ---
-          posterContainer.appendChild(visitBtn);
+          // visitBtn is already present at the bottom
         }
       }
 
