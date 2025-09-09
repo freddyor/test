@@ -755,15 +755,18 @@ map.on('load', () => {
   const elapsed = Date.now() - loadingScreenStart;
   const minDuration = 5000;
 
-  if (loadingScreen) {
-    if (elapsed >= minDuration) {
-      loadingScreen.style.display = 'none';
-    } else {
-      setTimeout(() => {
+if (loadingScreen) {
+    const showBottomBar = () => {
         loadingScreen.style.display = 'none';
-      }, minDuration - elapsed);
+        const bottomBar = document.getElementById('bottom-bar');
+        if (bottomBar) bottomBar.style.display = 'flex';
+    };
+    if (elapsed >= minDuration) {
+        showBottomBar();
+    } else {
+        setTimeout(showBottomBar, minDuration - elapsed);
     }
-  }
+}
 });
 function getUrlParameter(name) {
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
