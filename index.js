@@ -813,16 +813,33 @@ function generateMapLink(latitude, longitude, zoomLevel) {
   return baseUrl + params;
 }
 
-const buttonGroup = document.createElement('div');
-buttonGroup.id = 'button-group';
-buttonGroup.style.position = 'fixed';
-buttonGroup.style.left = '50%';
-buttonGroup.style.top = '50px';
-buttonGroup.style.transform = 'translateX(-50%)';
-buttonGroup.style.zIndex = '1000';
-buttonGroup.style.display = 'flex';
-buttonGroup.style.gap = '10px';
-document.body.appendChild(buttonGroup);
+// ----------- BOTTOM BAR NAVIGATION LOGIC -----------
+function showSection(section) {
+  const sections = ['map-section', 'archive-section', 'about-section'];
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.display = (id === section) ? 'block' : 'none';
+    }
+  });
+
+  // Update bar button active state
+  document.getElementById('bar-map').classList.toggle('active', section === 'map-section');
+  document.getElementById('bar-archive').classList.toggle('active', section === 'archive-section');
+  document.getElementById('bar-about').classList.toggle('active', section === 'about-section');
+}
+
+// Initial section shown
+document.addEventListener('DOMContentLoaded', () => {
+  showSection('map-section');
+
+  // Add event listeners for bottom bar
+  document.getElementById('bar-map').addEventListener('click', () => showSection('map-section'));
+  document.getElementById('bar-archive').addEventListener('click', () => showSection('archive-section'));
+  document.getElementById('bar-about').addEventListener('click', () => showSection('about-section'));
+});
+
+// ----------------------------------------------------
 
 const stylePopup = document.createElement('style');
 
@@ -830,6 +847,9 @@ const link = document.createElement('link');
 link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap';
 link.rel = 'stylesheet';
 document.head.appendChild(link);
+
+// ...rest of your stylePopup and other logic (unchanged)...
+// [All previous popup, marker list, donor, and other logic here, unchanged from your original file.]
 
 stylePopup.innerHTML = `
   .mapboxgl-popup-content {
