@@ -202,6 +202,7 @@ buildings.forEach((building) => {
     posterContainer.style.flexDirection = 'column';
     posterContainer.style.alignItems = 'center';
 
+    // Create camera, visit, close buttons but DO NOT append yet!
     const cameraIcon = document.createElement('button');
     cameraIcon.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -228,32 +229,30 @@ buildings.forEach((building) => {
     cameraIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
     cameraIcon.style.zIndex = 10;
 
-    posterContainer.appendChild(cameraIcon);
-
     const markerKey = 'completed-marker-' + building.name;
     let isVisited = completedMarkers[markerKey] ? true : false;
 
     // --- NEW BUTTON (visitBtn) ---
     const visitBtn = document.createElement('button');
     visitBtn.textContent = isVisited ? 'Visited' : 'Unvisited';
-visitBtn.style.position = 'absolute';
-visitBtn.style.left = '50%';
-visitBtn.style.bottom = '0';
-visitBtn.style.transform = 'translateX(-50%) translateY(25%)';
-visitBtn.style.background = isVisited ? '#4caf50' : '#ccc';
-visitBtn.style.color = isVisited ? '#fff' : '#333';
-visitBtn.style.border = '2px solid #fff';
-visitBtn.style.borderRadius = '20px';
-visitBtn.style.width = '95px';
-visitBtn.style.height = '36px';
-visitBtn.style.fontWeight = 'bold';
-visitBtn.style.fontSize = '14px';
-visitBtn.style.cursor = 'pointer';
-visitBtn.style.alignItems = 'center';
-visitBtn.style.justifyContent = 'center';
-visitBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-visitBtn.style.display = 'flex';
-visitBtn.style.zIndex = 11;
+    visitBtn.style.position = 'absolute';
+    visitBtn.style.left = '50%';
+    visitBtn.style.bottom = '0';
+    visitBtn.style.transform = 'translateX(-50%) translateY(25%)';
+    visitBtn.style.background = isVisited ? '#4caf50' : '#ccc';
+    visitBtn.style.color = isVisited ? '#fff' : '#333';
+    visitBtn.style.border = '2px solid #fff';
+    visitBtn.style.borderRadius = '20px';
+    visitBtn.style.width = '95px';
+    visitBtn.style.height = '36px';
+    visitBtn.style.fontWeight = 'bold';
+    visitBtn.style.fontSize = '14px';
+    visitBtn.style.cursor = 'pointer';
+    visitBtn.style.alignItems = 'center';
+    visitBtn.style.justifyContent = 'center';
+    visitBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    visitBtn.style.display = 'flex';
+    visitBtn.style.zIndex = 11;
 
     visitBtn.onclick = async function () {
       isVisited = !isVisited;
@@ -273,55 +272,6 @@ visitBtn.style.zIndex = 11;
         await setDoc(docRef, { completedMarkers }, { merge: true });
       }
     };
-    posterContainer.appendChild(visitBtn);
-
-    const posterImg = document.createElement('img');
-    posterImg.src = posterUrl || '';
-    posterImg.alt = 'Video cover';
-    posterImg.style.maxWidth = '88vw';
-    posterImg.style.maxHeight = '80vh';
-    posterImg.style.borderRadius = '14px';
-    posterImg.style.display = 'block';
-    posterImg.addEventListener('load', () => {
-      posterImg.style.border = '1.5px solid #E9E8E0';
-    });
-
-    const playBtn = document.createElement('button');
-    playBtn.innerHTML = '▶';
-    playBtn.style.position = 'absolute';
-    playBtn.style.top = '50%';
-    playBtn.style.left = '50%';
-    playBtn.style.transform = 'translate(-50%, -50%)';
-    playBtn.style.background = 'rgba(0,0,0,0.6)';
-    playBtn.style.border = 'none';
-    playBtn.style.borderRadius = '50%';
-    playBtn.style.width = '64px';
-    playBtn.style.height = '64px';
-    playBtn.style.color = '#fff';
-    playBtn.style.fontSize = '2.5rem';
-    playBtn.style.cursor = 'pointer';
-    playBtn.style.display = 'flex';
-    playBtn.style.alignItems = 'center';
-    playBtn.style.justifyContent = 'center';
-    playBtn.style.zIndex = 2;
-
-    const spinner = document.createElement('div');
-    spinner.style.position = 'absolute';
-    spinner.style.top = '50%';
-    spinner.style.left = '50%';
-    spinner.style.transform = 'translate(-50%, -50%)';
-    spinner.style.width = '48px';
-    spinner.style.height = '48px';
-    spinner.style.border = '6px solid #eee';
-    spinner.style.borderTop = '6px solid #9b4dca';
-    spinner.style.borderRadius = '50%';
-    spinner.style.animation = 'spin 1s linear infinite';
-    spinner.style.display = 'none';
-    spinner.style.zIndex = 3;
-
-    const spinnerStyle = document.createElement('style');
-    spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
-    document.head.appendChild(spinnerStyle);
 
     const closeBtn = document.createElement('button');
     closeBtn.textContent = '❌';
@@ -372,18 +322,70 @@ visitBtn.style.zIndex = 11;
     overlay.addEventListener('touchend', () => {
       startY = undefined;
     });
-    playBtn.style.display = 'none';
-    closeBtn.style.display = 'none';
-    posterImg.onload = function () {
+
+    // spinner, playBtn, etc.
+    const playBtn = document.createElement('button');
+    playBtn.innerHTML = '▶';
+    playBtn.style.position = 'absolute';
+    playBtn.style.top = '50%';
+    playBtn.style.left = '50%';
+    playBtn.style.transform = 'translate(-50%, -50%)';
+    playBtn.style.background = 'rgba(0,0,0,0.6)';
+    playBtn.style.border = 'none';
+    playBtn.style.borderRadius = '50%';
+    playBtn.style.width = '64px';
+    playBtn.style.height = '64px';
+    playBtn.style.color = '#fff';
+    playBtn.style.fontSize = '2.5rem';
+    playBtn.style.cursor = 'pointer';
+    playBtn.style.display = 'flex';
+    playBtn.style.alignItems = 'center';
+    playBtn.style.justifyContent = 'center';
+    playBtn.style.zIndex = 2;
+
+    const spinner = document.createElement('div');
+    spinner.style.position = 'absolute';
+    spinner.style.top = '50%';
+    spinner.style.left = '50%';
+    spinner.style.transform = 'translate(-50%, -50%)';
+    spinner.style.width = '48px';
+    spinner.style.height = '48px';
+    spinner.style.border = '6px solid #eee';
+    spinner.style.borderTop = '6px solid #9b4dca';
+    spinner.style.borderRadius = '50%';
+    spinner.style.animation = 'spin 1s linear infinite';
+    spinner.style.display = 'none';
+    spinner.style.zIndex = 3;
+
+    const spinnerStyle = document.createElement('style');
+    spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
+    document.head.appendChild(spinnerStyle);
+
+    // Only the poster image is appended initially!
+    const posterImg = document.createElement('img');
+    posterImg.src = posterUrl || '';
+    posterImg.alt = 'Video cover';
+    posterImg.style.maxWidth = '88vw';
+    posterImg.style.maxHeight = '80vh';
+    posterImg.style.borderRadius = '14px';
+    posterImg.style.display = 'block';
+
+    // Only after the poster loads, append the controls/buttons
+    posterImg.addEventListener('load', () => {
+      posterImg.style.border = '1.5px solid #E9E8E0';
+      posterContainer.appendChild(cameraIcon);
+      posterContainer.appendChild(visitBtn);
+      posterContainer.appendChild(closeBtn);
+      posterContainer.appendChild(playBtn);
+      posterContainer.appendChild(spinner);
       playBtn.style.display = 'flex';
       closeBtn.style.display = 'flex';
-    };
+    });
+
     posterContainer.appendChild(posterImg);
-    posterContainer.appendChild(playBtn);
-    posterContainer.appendChild(spinner);
-    posterContainer.appendChild(closeBtn);
     overlay.appendChild(posterContainer);
     document.body.appendChild(overlay);
+
     overlay.addEventListener('mousedown', function (e) {
       if (e.target === overlay) removeOverlayAndPauseVideo();
     });
@@ -686,9 +688,6 @@ visitBtn.style.zIndex = 11;
       videoElement.playsInline = true;
       showFirstVideoWaitMessage(videoElement);
 
-      // Attach visitBtn to the posterContainer so it stays at the bottom
-      visitBtn.style.display = 'block';
-
       let hasStarted = false;
 
       function showVideo() {
@@ -696,7 +695,6 @@ visitBtn.style.zIndex = 11;
           hasStarted = true;
           posterContainer.replaceChild(videoElement, posterImg);
           spinner.style.display = 'none';
-          // visitBtn is already present at the bottom
         }
       }
 
@@ -710,6 +708,15 @@ visitBtn.style.zIndex = 11;
           }
         }
       }
+
+      // Only append controls/buttons after video metadata loaded!
+      videoElement.addEventListener('loadedmetadata', () => {
+        posterContainer.appendChild(cameraIcon);
+        posterContainer.appendChild(visitBtn);
+        posterContainer.appendChild(closeBtn);
+        playBtn.style.display = 'none';
+        spinner.style.display = 'none';
+      });
 
       videoElement.addEventListener('play', showVideo);
       videoElement.addEventListener('progress', onProgress);
@@ -726,6 +733,7 @@ visitBtn.style.zIndex = 11;
     };
   });
 });
+
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
