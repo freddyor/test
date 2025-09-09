@@ -154,8 +154,6 @@ locations.forEach((location) => {
   });
 });
 
-// ... all your setup code above is unchanged ...
-
 buildings.forEach((building) => {
   const outlineColor = building.colour === 'yes' ? '#FF69B4' : '#FFFFFF';
   const { element: markerElement } = createCustomMarker(
@@ -204,7 +202,6 @@ buildings.forEach((building) => {
     posterContainer.style.flexDirection = 'column';
     posterContainer.style.alignItems = 'center';
 
-    // Camera icon
     const cameraIcon = document.createElement('button');
     cameraIcon.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -230,6 +227,7 @@ buildings.forEach((building) => {
     cameraIcon.style.cursor = 'pointer';
     cameraIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
     cameraIcon.style.zIndex = 10;
+
     posterContainer.appendChild(cameraIcon);
 
     const posterImg = document.createElement('img');
@@ -275,6 +273,7 @@ buildings.forEach((building) => {
     spinner.style.animation = 'spin 1s linear infinite';
     spinner.style.display = 'none';
     spinner.style.zIndex = 3;
+
     const spinnerStyle = document.createElement('style');
     spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
     document.head.appendChild(spinnerStyle);
@@ -312,91 +311,37 @@ buildings.forEach((building) => {
     }
 
     closeBtn.onclick = () => removeOverlayAndPauseVideo();
-
-    // --- VISITED BUTTON, always present and attached to poster/video ---
-    const visitBtn = document.createElement('button');
-    visitBtn.textContent = 'Unvisited';
-    visitBtn.style.position = 'absolute';
-    visitBtn.style.left = '50%';
-    visitBtn.style.bottom = '-28px';
-    visitBtn.style.transform = 'translateX(-50%)';
-    visitBtn.style.background = '#ccc';
-    visitBtn.style.color = '#333';
-    visitBtn.style.border = 'none';
-    visitBtn.style.borderRadius = '20px';
-    visitBtn.style.width = '110px';
-    visitBtn.style.height = '36px';
-    visitBtn.style.fontWeight = 'bold';
-    visitBtn.style.fontSize = '14px';
-    visitBtn.style.cursor = 'pointer';
-    visitBtn.style.zIndex = '12';
-    visitBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-
-    let isVisited = false;
-    const markerKey = 'completed-marker-' + building.name;
-    if (completedMarkers[markerKey]) {
-      isVisited = true;
-      visitBtn.textContent = 'Visited';
-      visitBtn.style.background = '#4caf50';
-      visitBtn.style.color = '#fff';
-      markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
-    } else {
-      markerElement.style.filter = '';
-    }
-    visitBtn.onclick = async function () {
-      isVisited = !isVisited;
-      if (isVisited) {
-        visitBtn.textContent = 'Visited';
-        visitBtn.style.background = '#4caf50';
-        visitBtn.style.color = '#fff';
-        markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
-        await saveCompletedMarker(markerKey);
-      } else {
-        visitBtn.textContent = 'Unvisited';
-        visitBtn.style.background = '#ccc';
-        visitBtn.style.color = '#333';
-        markerElement.style.filter = '';
-        completedMarkers[markerKey] = false;
-        const docRef = doc(db, "users", firebaseUser.uid);
-        await setDoc(docRef, { completedMarkers }, { merge: true });
+    let startY;
+    overlay.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) startY = e.touches[0].clientY;
+    });
+    overlay.addEventListener('touchmove', (e) => {
+      if (startY !== undefined && e.touches.length === 1) {
+        const dy = e.touches[0].clientY - startY;
+        if (dy > 70) {
+          removeOverlayAndPauseVideo();
+          startY = undefined;
+        }
       }
+    });
+    overlay.addEventListener('touchend', () => {
+      startY = undefined;
+    });
+    playBtn.style.display = 'none';
+    closeBtn.style.display = 'none';
+    posterImg.onload = function () {
+      playBtn.style.display = 'flex';
+      closeBtn.style.display = 'flex';
     };
-
     posterContainer.appendChild(posterImg);
     posterContainer.appendChild(playBtn);
     posterContainer.appendChild(spinner);
     posterContainer.appendChild(closeBtn);
-    posterContainer.appendChild(visitBtn); // Attach visited button once
-
     overlay.appendChild(posterContainer);
     document.body.appendChild(overlay);
-
-    playBtn.onclick = () => {
-      playBtn.style.display = 'none';
-      spinner.style.display = 'block';
-      videoElement = document.createElement('video');
-      videoElement.src = videoUrl;
-      if (posterUrl) videoElement.poster = posterUrl;
-      videoElement.style.border = '1.5px solid #E9E8E0';
-      videoElement.style.maxWidth = '88vw';
-      videoElement.style.maxHeight = '80vh';
-      videoElement.style.borderRadius = '14px';
-      videoElement.controls = false;
-      videoElement.preload = 'auto';
-      videoElement.autoplay = true;
-      videoElement.setAttribute('playsinline', '');
-      videoElement.setAttribute('webkit-playsinline', '');
-      videoElement.playsInline = true;
-      videoElement.style.display = 'block';
-      videoElement.style.position = 'relative';
-      videoElement.style.zIndex = '10';
-
-      posterContainer.replaceChild(videoElement, posterImg);
-      spinner.style.display = 'none';
-
-      // Re-attach visitBtn to the container so it stays visible below video
-      posterContainer.appendChild(visitBtn);
-    };
+    overlay.addEventListener('mousedown', function (e) {
+      if (e.target === overlay) removeOverlayAndPauseVideo();
+    });
 
     cameraIcon.onclick = async function () {
       if (
@@ -414,7 +359,6 @@ buildings.forEach((building) => {
       cameraIcon.remove();
       posterContainer.innerHTML = '';
 
-      // Camera overlay and logic
       const overlayPaddingY = 6;
       const overlayPaddingX = 12;
       const overlayInset = 32;
@@ -678,8 +622,6 @@ buildings.forEach((building) => {
         };
       };
     };
-  });
-});
 
     playBtn.onclick = () => {
       playBtn.style.display = 'none';
@@ -699,105 +641,78 @@ buildings.forEach((building) => {
       videoElement.playsInline = true;
       showFirstVideoWaitMessage(videoElement);
 
-const visitBtn = document.createElement('button');
-    visitBtn.textContent = 'Unvisited';
-    visitBtn.style.position = 'absolute';
-    visitBtn.style.left = '50%';
-    visitBtn.style.bottom = '-28px';
-    visitBtn.style.transform = 'translateX(-50%)';
-    visitBtn.style.background = '#ccc';
-    visitBtn.style.color = '#333';
-    visitBtn.style.border = 'none';
-    visitBtn.style.borderRadius = '20px';
-    visitBtn.style.width = '110px';
-    visitBtn.style.height = '36px';
-    visitBtn.style.fontWeight = 'bold';
-    visitBtn.style.fontSize = '14px';
-    visitBtn.style.cursor = 'pointer';
-    visitBtn.style.zIndex = '12';
-    visitBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+      // --- NEW BUTTON ---
+      const visitBtn = document.createElement('button');
+      visitBtn.textContent = 'Unvisited';
+      visitBtn.style.marginTop = '18px';
+      visitBtn.style.background = '#ccc';
+      visitBtn.style.color = '#333';
+      visitBtn.style.border = 'none';
+      visitBtn.style.borderRadius = '20px';
+      visitBtn.style.width = '110px';
+      visitBtn.style.height = '36px';
+      visitBtn.style.fontWeight = 'bold';
+      visitBtn.style.fontSize = '14px';
+      visitBtn.style.cursor = 'pointer';
+      visitBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+      visitBtn.style.display = 'block';
 
-    let isVisited = false;
-    const markerKey = 'completed-marker-' + building.name;
-    if (completedMarkers[markerKey]) {
-      isVisited = true;
-      visitBtn.textContent = 'Visited';
-      visitBtn.style.background = '#4caf50';
-      visitBtn.style.color = '#fff';
-      markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
-    } else {
-      markerElement.style.filter = '';
-    }
-
-    visitBtn.onclick = async function () {
-      isVisited = !isVisited;
-      if (isVisited) {
+      let isVisited = false;
+      const markerKey = 'completed-marker-' + building.name;
+      if (completedMarkers[markerKey]) {
+        isVisited = true;
         visitBtn.textContent = 'Visited';
         visitBtn.style.background = '#4caf50';
         visitBtn.style.color = '#fff';
         markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
-        await saveCompletedMarker(markerKey);
       } else {
-        visitBtn.textContent = 'Unvisited';
-        visitBtn.style.background = '#ccc';
-        visitBtn.style.color = '#333';
         markerElement.style.filter = '';
-        completedMarkers[markerKey] = false;
-        const docRef = doc(db, "users", firebaseUser.uid);
-        await setDoc(docRef, { completedMarkers }, { merge: true });
-      }
-    };
-
-    // Attach visitBtn to poster image (when video not playing)
-    posterImg.style.position = 'relative';
-    posterImg.style.display = 'block';
-    posterImg.style.zIndex = '10';
-    visitBtn.style.position = 'absolute';
-    visitBtn.style.left = '50%';
-    visitBtn.style.bottom = '-28px';
-    visitBtn.style.transform = 'translateX(-50%)';
-    visitBtn.style.zIndex = '12';
-    posterContainer.appendChild(visitBtn);
-
-    // When play is pressed, swap poster for video and keep button attached to bottom of video
-    playBtn.onclick = () => {
-      playBtn.style.display = 'none';
-      spinner.style.display = 'block';
-      videoElement = document.createElement('video');
-      videoElement.src = videoUrl;
-      if (posterUrl) videoElement.poster = posterUrl;
-      videoElement.style.border = '1.5px solid #E9E8E0';
-      videoElement.style.maxWidth = '88vw';
-      videoElement.style.maxHeight = '80vh';
-      videoElement.style.borderRadius = '14px';
-      videoElement.controls = false;
-      videoElement.preload = 'auto';
-      videoElement.autoplay = true;
-      videoElement.setAttribute('playsinline', '');
-      videoElement.setAttribute('webkit-playsinline', '');
-      videoElement.playsInline = true;
-      videoElement.style.display = 'block';
-      videoElement.style.position = 'relative';
-      videoElement.style.zIndex = '10';
-      showFirstVideoWaitMessage(videoElement);
-
-      function attachVisitBtnToVideo() {
-        videoElement.style.marginBottom = '40px';
-        visitBtn.style.position = 'absolute';
-        visitBtn.style.left = '50%';
-        visitBtn.style.bottom = '-28px';
-        visitBtn.style.transform = 'translateX(-50%)';
-        visitBtn.style.zIndex = '12';
-        if (visitBtn.parentNode) visitBtn.parentNode.removeChild(visitBtn);
-        posterContainer.appendChild(visitBtn);
       }
 
-      posterContainer.replaceChild(videoElement, posterImg);
-      spinner.style.display = 'none';
-      attachVisitBtnToVideo();
+      visitBtn.onclick = async function () {
+        isVisited = !isVisited;
+        if (isVisited) {
+          visitBtn.textContent = 'Visited';
+          visitBtn.style.background = '#4caf50';
+          visitBtn.style.color = '#fff';
+          markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
+          await saveCompletedMarker(markerKey);
+        } else {
+          visitBtn.textContent = 'Unvisited';
+          visitBtn.style.background = '#ccc';
+          visitBtn.style.color = '#333';
+          markerElement.style.filter = '';
+          completedMarkers[markerKey] = false;
+          const docRef = doc(db, "users", firebaseUser.uid);
+          await setDoc(docRef, { completedMarkers }, { merge: true });
+        }
+      };
 
-      videoElement.addEventListener('loadeddata', attachVisitBtnToVideo);
+      let hasStarted = false;
 
+      function showVideo() {
+        if (!hasStarted) {
+          hasStarted = true;
+          posterContainer.replaceChild(videoElement, posterImg);
+          spinner.style.display = 'none';
+          // --- Make sure the button is always directly under the video ---
+          posterContainer.appendChild(visitBtn);
+        }
+      }
+
+      function onProgress() {
+        if (videoElement.duration && videoElement.buffered.length) {
+          const bufferedEnd =
+            videoElement.buffered.end(videoElement.buffered.length - 1);
+          const percentBuffered = bufferedEnd / videoElement.duration;
+          if (percentBuffered >= 0.25 && !hasStarted) {
+            videoElement.play();
+          }
+        }
+      }
+
+      videoElement.addEventListener('play', showVideo);
+      videoElement.addEventListener('progress', onProgress);
       videoElement.addEventListener('click', () => {
         videoElement.controls = true;
       });
