@@ -232,7 +232,6 @@ buildings.forEach((building) => {
     const markerKey = 'completed-marker-' + building.name;
     let isVisited = completedMarkers[markerKey] ? true : false;
 
-    // --- NEW BUTTON (visitBtn) ---
     const visitBtn = document.createElement('button');
     visitBtn.textContent = isVisited ? 'Visited' : 'Unvisited';
     visitBtn.style.position = 'absolute';
@@ -323,7 +322,6 @@ buildings.forEach((building) => {
       startY = undefined;
     });
 
-    // spinner, playBtn, etc.
     const playBtn = document.createElement('button');
     playBtn.innerHTML = '▶';
     playBtn.style.position = 'absolute';
@@ -361,7 +359,6 @@ buildings.forEach((building) => {
     spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
     document.head.appendChild(spinnerStyle);
 
-    // Only the poster image is appended initially!
     const posterImg = document.createElement('img');
     posterImg.src = posterUrl || '';
     posterImg.alt = 'Video cover';
@@ -370,7 +367,6 @@ buildings.forEach((building) => {
     posterImg.style.borderRadius = '14px';
     posterImg.style.display = 'block';
 
-    // Only after the poster loads, append the controls/buttons
     posterImg.addEventListener('load', () => {
       posterImg.style.border = '1.5px solid #E9E8E0';
       posterContainer.appendChild(cameraIcon);
@@ -618,7 +614,6 @@ buildings.forEach((building) => {
         }
         ctx.restore();
 
-        // --- TIP TEXT ABOVE PHOTO ---
         const tipText = document.createElement('div');
         tipText.textContent = 'tip; hold the image to share or save to photos';
         tipText.style.display = 'block';
@@ -644,7 +639,6 @@ buildings.forEach((building) => {
         imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
         posterContainer.appendChild(imgPreview);
 
-        // --- "Add to Archive" BUTTON ---
         addToArchiveBtn = document.createElement('button');
         addToArchiveBtn.textContent = 'Add to Archive';
         addToArchiveBtn.className = 'custom-button';
@@ -757,7 +751,7 @@ function addPhotoToArchive(imgSrc) {
   archivePhotos.push(imgSrc);
   localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
   renderArchivePhotos();
-  showSection('archive-section');
+  // DO NOT switch to archive tab here!
 }
 
 function renderArchivePhotos() {
@@ -787,8 +781,6 @@ function renderArchivePhotos() {
 
 // Render archive on load so it appears if any photos are already saved
 renderArchivePhotos();
-
-// ... rest of your code remains unchanged
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
