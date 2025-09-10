@@ -107,7 +107,7 @@ const geolocate = new mapboxgl.GeolocateControl({
   },
   showUserLocation: false,
 });
-map.addControl(geolocate, 'top-right'); // moved to top-right
+map.addControl(geolocate, 'top-right');
 
 const userLocationEl = document.createElement('div');
 userLocationEl.className = 'user-location-marker';
@@ -390,7 +390,6 @@ buildings.forEach((building) => {
       if (e.target === overlay) removeOverlayAndPauseVideo();
     });
 
-    // ------ CAMERA LOGIC --------
     cameraIcon.onclick = async function () {
       if (
         !(
@@ -655,7 +654,6 @@ buildings.forEach((building) => {
         addToArchiveBtn.style.color = '#333';
         addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
-          // Add photo to archive
           addPhotoToArchive(imgPreview.src);
         };
         posterContainer.appendChild(addToArchiveBtn);
@@ -690,7 +688,6 @@ buildings.forEach((building) => {
       };
     };
 
-    // *** NEW: Swap poster for video IMMEDIATELY on play ***
     playBtn.onclick = () => {
       playBtn.style.display = 'none';
       spinner.style.display = 'block';
@@ -707,7 +704,6 @@ buildings.forEach((building) => {
       videoElement.setAttribute('webkit-playsinline', '');
       videoElement.playsInline = true;
 
-      // Swap poster for video immediately
       posterContainer.replaceChild(videoElement, posterImg);
 
       videoElement.addEventListener('playing', () => {
@@ -739,7 +735,12 @@ buildings.forEach((building) => {
 // This will be a list of photo URLs (base64 data)
 let archivePhotos = [];
 
-// Find the archive section, or create it if needed
+// Load archive photos from localStorage on startup
+const savedArchivePhotos = localStorage.getItem('archivePhotos');
+if (savedArchivePhotos) {
+  archivePhotos = JSON.parse(savedArchivePhotos);
+}
+
 function ensureArchiveSection() {
   let archiveSection = document.getElementById('archive-section');
   if (!archiveSection) {
@@ -754,8 +755,8 @@ function ensureArchiveSection() {
 
 function addPhotoToArchive(imgSrc) {
   archivePhotos.push(imgSrc);
+  localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
   renderArchivePhotos();
-  // Switch to archive tab
   showSection('archive-section');
 }
 
@@ -784,7 +785,10 @@ function renderArchivePhotos() {
   archiveSection.appendChild(grid);
 }
 
-// --------------------------------------------
+// Render archive on load so it appears if any photos are already saved
+renderArchivePhotos();
+
+// ... rest of your code remains unchanged
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
@@ -887,7 +891,6 @@ function generateMapLink(latitude, longitude, zoomLevel) {
   return baseUrl + params;
 }
 
-// ----------- BOTTOM BAR NAVIGATION LOGIC -----------
 function showSection(section) {
   const sections = ['map-section', 'archive-section', 'about-section'];
   sections.forEach(id => {
@@ -897,32 +900,23 @@ function showSection(section) {
     }
   });
 
-  // Update bar button active state
   document.getElementById('bar-map').classList.toggle('active', section === 'map-section');
   document.getElementById('bar-archive').classList.toggle('active', section === 'archive-section');
   document.getElementById('bar-about').classList.toggle('active', section === 'about-section');
 
-    // --- ADD THIS! ---
   if (section === 'map-section' && window.map) {
-    // If your map variable is not global, use just map.resize();
     map.resize();
   }
 }
 
-// Initial section shown
 document.addEventListener('DOMContentLoaded', () => {
   showSection('map-section');
-
-  // Add event listeners for bottom bar
   document.getElementById('bar-map').addEventListener('click', () => showSection('map-section'));
   document.getElementById('bar-archive').addEventListener('click', () => showSection('archive-section'));
   document.getElementById('bar-about').addEventListener('click', () => showSection('about-section'));
 });
 
-// ----------------------------------------------------
-
 const stylePopup = document.createElement('style');
-
 const link = document.createElement('link');
 link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap';
 link.rel = 'stylesheet';
@@ -1057,7 +1051,6 @@ stylePopup.innerHTML = `
     white-space: nowrap;
   }
  `;
-
 document.head.appendChild(stylePopup);
 
 function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
