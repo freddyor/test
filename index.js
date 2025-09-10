@@ -799,7 +799,7 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
 
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
-  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
+  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Archive</h2>';
   if (archivePhotos.length === 0) {
     archiveSection.innerHTML += `<p style="text-align:center;">No photos added yet.</p>`;
     return;
@@ -809,6 +809,8 @@ function renderArchivePhotos() {
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
   grid.style.gap = '8px';
   grid.style.padding = '8px';
+  grid.style.alignItems = 'start'; // Make all items align at the top for consistent image row
+
   archivePhotos.forEach(({ src, name }, idx) => {
     const cell = document.createElement('div');
     cell.style.display = 'flex';
@@ -816,7 +818,7 @@ function renderArchivePhotos() {
     cell.style.alignItems = 'center';
     cell.style.position = 'relative';
 
-    // Building name above photo, small text, always full text (wraps if needed)
+    // Building name above photo, small text, always full text (wraps if needed), decreased line spacing
     const nameLabel = document.createElement('div');
     nameLabel.textContent = name;
     nameLabel.style.fontSize = '10px';
@@ -830,6 +832,7 @@ function renderArchivePhotos() {
     nameLabel.style.whiteSpace = 'normal';
     nameLabel.style.overflow = 'visible';
     nameLabel.style.textOverflow = 'unset';
+    nameLabel.style.lineHeight = '1.02'; // Decreased line spacing
 
     // Container for image and cross
     const imgContainer = document.createElement('div');
@@ -886,7 +889,6 @@ function renderArchivePhotos() {
   archiveSection.appendChild(grid);
 }
 
-// ... rest of your code unchanged ...
 // Render archive on load so it appears if any photos are already saved
 renderArchivePhotos();
 
