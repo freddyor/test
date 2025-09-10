@@ -652,11 +652,20 @@ buildings.forEach((building) => {
         addToArchiveBtn.style.margin = '10px auto 0 auto';
         addToArchiveBtn.style.background = '#e0e0e0';
         addToArchiveBtn.style.color = '#333';
+        posterContainer.appendChild(addToArchiveBtn);
+
+        // Set button to 'Archived' state if already archived
+        const alreadyArchived = findPhotoIndexByName(building.name) !== -1;
+        if (alreadyArchived) {
+          addToArchiveBtn.textContent = 'Archived';
+          addToArchiveBtn.style.background = '#4caf50';
+          addToArchiveBtn.style.color = '#fff';
+        }
+
         addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
-          addPhotoToArchive(imgPreview.src, building.name);
+          addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
         };
-        posterContainer.appendChild(addToArchiveBtn);
 
         cancelBtn = document.createElement('button');
         cancelBtn.textContent = 'Take again';
@@ -682,7 +691,6 @@ buildings.forEach((building) => {
           shutterBtn.style.display = 'block';
           textOverlay.style.display = 'block';
           cameraCloseBtn.style.display = 'flex';
-
           cameraVideo.play();
         };
       };
@@ -763,24 +771,28 @@ function ensureArchiveSection() {
   return archiveSection;
 }
 
-// Add photo to archive, only if marker not already present
-function addPhotoToArchive(imgSrc, markerName) {
+// Add photo to archive, allowing replace if needed
+function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   const idx = findPhotoIndexByName(markerName);
   if (idx !== -1) {
-    // Already have a photo for this marker
-    showArchivePhotoWarning(markerName);
-    return;
+    // Already have a photo for this marker - ask if they want to replace
+    const confirmReplace = window.confirm(
+      `You already have a photo for "${markerName}" in your archive.\nDo you want to replace it with the new photo?`
+    );
+    if (!confirmReplace) return;
+
+    archivePhotos[idx] = { src: imgSrc, name: markerName };
+  } else {
+    archivePhotos.push({ src: imgSrc, name: markerName });
   }
-  archivePhotos.push({ src: imgSrc, name: markerName });
   localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
   renderArchivePhotos();
   showSection('archive-section');
-}
-
-// Show warning if user attempts to archive second photo for same marker
-function showArchivePhotoWarning(markerName) {
-  // Use alert for simplicity, can be replaced with nice modal if you want
-  alert(`You already have a photo for "${markerName}" in your archive. Only one photo per building is allowed.`);
+  if (buttonRef) {
+    buttonRef.textContent = 'Archived';
+    buttonRef.style.background = '#4caf50';
+    buttonRef.style.color = '#fff';
+  }
 }
 
 function renderArchivePhotos() {
@@ -792,9 +804,9 @@ function renderArchivePhotos() {
   }
   const grid = document.createElement('div');
   grid.style.display = 'grid';
-  grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(220px, 1fr))';
-  grid.style.gap = '16px';
-  grid.style.padding = '16px';
+  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  grid.style.gap = '8px';
+  grid.style.padding = '8px';
   archivePhotos.forEach(({ src, name }) => {
     const cell = document.createElement('div');
     cell.style.display = 'flex';
@@ -804,13 +816,13 @@ function renderArchivePhotos() {
     // Building name above photo, small text
     const nameLabel = document.createElement('div');
     nameLabel.textContent = name;
-    nameLabel.style.fontSize = '11px';
+    nameLabel.style.fontSize = '10px';
     nameLabel.style.fontFamily = "'Poppins', sans-serif";
     nameLabel.style.color = '#8c7e5c';
     nameLabel.style.fontWeight = 'bold';
-    nameLabel.style.marginBottom = '4px';
+    nameLabel.style.marginBottom = '3px';
     nameLabel.style.textAlign = 'center';
-    nameLabel.style.maxWidth = '180px';
+    nameLabel.style.maxWidth = '110px';
     nameLabel.style.overflow = 'hidden';
     nameLabel.style.textOverflow = 'ellipsis';
     nameLabel.style.whiteSpace = 'nowrap';
@@ -818,9 +830,10 @@ function renderArchivePhotos() {
     const img = document.createElement('img');
     img.src = src;
     img.style.width = '100%';
-    img.style.maxWidth = '220px';
-    img.style.borderRadius = '10px';
-    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    img.style.maxWidth = '110px';
+    img.style.maxHeight = '80px';
+    img.style.borderRadius = '7px';
+    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
 
     cell.appendChild(nameLabel);
