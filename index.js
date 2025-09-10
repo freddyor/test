@@ -795,6 +795,8 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   }
 }
 
+// ... existing code above unchanged ...
+
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Archive</h2>';
@@ -807,11 +809,12 @@ function renderArchivePhotos() {
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
   grid.style.gap = '8px';
   grid.style.padding = '8px';
-  archivePhotos.forEach(({ src, name }) => {
+  archivePhotos.forEach(({ src, name }, idx) => {
     const cell = document.createElement('div');
     cell.style.display = 'flex';
     cell.style.flexDirection = 'column';
     cell.style.alignItems = 'center';
+    cell.style.position = 'relative';
 
     // Building name above photo, small text
     const nameLabel = document.createElement('div');
@@ -827,21 +830,62 @@ function renderArchivePhotos() {
     nameLabel.style.textOverflow = 'ellipsis';
     nameLabel.style.whiteSpace = 'nowrap';
 
+    // Container for image and cross
+    const imgContainer = document.createElement('div');
+    imgContainer.style.position = 'relative';
+    imgContainer.style.display = 'inline-block';
+    imgContainer.style.width = '110px';
+    imgContainer.style.height = '110px';
+
     const img = document.createElement('img');
     img.src = src;
     img.style.width = '100%';
-    img.style.maxWidth = '110px';
-    img.style.maxHeight = '80px';
+    img.style.height = '100%'; // Full height, no cropping
+    img.style.objectFit = 'contain'; // No crop, show all
     img.style.borderRadius = '7px';
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
 
+    // Bottom-right cross button
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '❌';
+    removeBtn.title = 'Remove from archive';
+    removeBtn.style.position = 'absolute';
+    removeBtn.style.bottom = '4px';
+    removeBtn.style.right = '4px';
+    removeBtn.style.width = '22px';
+    removeBtn.style.height = '22px';
+    removeBtn.style.background = '#000';
+    removeBtn.style.color = '#fff';
+    removeBtn.style.border = '1.5px solid #E9E8E0';
+    removeBtn.style.borderRadius = '50%';
+    removeBtn.style.cursor = 'pointer';
+    removeBtn.style.fontSize = '0.85rem';
+    removeBtn.style.zIndex = '10';
+    removeBtn.style.display = 'flex';
+    removeBtn.style.alignItems = 'center';
+    removeBtn.style.justifyContent = 'center';
+
+    removeBtn.onclick = function () {
+      const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
+      if (confirmRemove) {
+        archivePhotos.splice(idx, 1);
+        localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
+        renderArchivePhotos();
+      }
+    };
+
+    imgContainer.appendChild(img);
+    imgContainer.appendChild(removeBtn);
+
     cell.appendChild(nameLabel);
-    cell.appendChild(img);
+    cell.appendChild(imgContainer);
     grid.appendChild(cell);
   });
   archiveSection.appendChild(grid);
 }
+
+// ... rest of your code unchanged ...
 
 // Render archive on load so it appears if any photos are already saved
 renderArchivePhotos();
