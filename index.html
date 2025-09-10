@@ -8,10 +8,7 @@
     <meta name="theme-color" content="#192b4a" media="(prefers-color-scheme: dark)">
     <title>YorkMapped</title>
 
-    <!-- Optional: Remove if not necessary -->
     <link rel="icon" href="https://freddyor.github.io/british-map/videos/favicon.png" type="image/png" sizes="32x32">
-
-    <!-- Mapbox GL JS CSS (replace MapLibre) -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet" />
 
     <style>
@@ -29,7 +26,7 @@
 
         #main-content {
             width: 100vw;
-                height: calc(100vh - 64px);
+            height: calc(100vh - 64px);
             position: relative;
             display: flex;
         }
@@ -53,6 +50,7 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            position: relative;
         }
 
         #loading-screen {
@@ -100,10 +98,10 @@
             border-top: 2px solid #f0f0f0;
             box-shadow: 0 -6px 15px rgba(0, 0, 0, 0.08);
             z-index: 10001;
-    display: none; /* CHANGED from flex to none */
-    justify-content: space-around;
-    align-items: center;
-    font-family: 'Poppins', sans-serif;
+            display: none; /* hidden until loading screen is gone */
+            justify-content: space-around;
+            align-items: center;
+            font-family: 'Poppins', sans-serif;
         }
         .bar-btn {
             flex: 1 1 0;
@@ -124,7 +122,6 @@
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
         }
-        /* Optional: About section styling */
         #about-section-content {
             max-width: 400px;
             margin: 40px auto 0 auto;
@@ -158,6 +155,21 @@
             color: #9b4dca;
             margin-left: 10px;
             font-weight: bold;
+        }
+        /* Mapbox control fixes for mobile safe area */
+        .mapboxgl-ctrl-top-right {
+            top: calc(env(safe-area-inset-top, 0px) + 8px) !important;
+            right: calc(env(safe-area-inset-right, 0px) + 8px) !important;
+            position: absolute !important;
+            z-index: 10 !important;
+        }
+        .mapboxgl-ctrl-logo {
+            left: 10px !important;
+            top: 10px !important;
+            right: auto !important;
+            bottom: auto !important;
+            position: absolute !important;
+            z-index: 10 !important;
         }
     </style>
 </head>
@@ -231,9 +243,7 @@
         <button id="bar-about" class="bar-btn">About</button>
     </div>
 
-    <!-- Mapbox GL JS (replace MapLibre) -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
-    <!-- Your custom script -->
     <script type="module" src="index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
