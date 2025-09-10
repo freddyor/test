@@ -798,11 +798,32 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   }
 }
 
+// ...previous code remains unchanged...
+
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
+
+  // --- NEW TIP TEXT (same style as nameLabel) ---
+  const tipText = document.createElement('div');
+  tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
+  tipText.style.fontSize = '10px';
+  tipText.style.fontFamily = "'Poppins', sans-serif";
+  tipText.style.color = '#8c7e5c';
+  tipText.style.fontWeight = 'bold';
+  tipText.style.marginBottom = '8px';
+  tipText.style.textAlign = 'center';
+  tipText.style.maxWidth = '110px';
+  tipText.style.wordBreak = 'break-word';
+  tipText.style.whiteSpace = 'normal';
+  tipText.style.overflow = 'visible';
+  tipText.style.textOverflow = 'unset';
+  tipText.style.lineHeight = '1.02';
+
+  archiveSection.appendChild(tipText);
+
   if (archivePhotos.length === 0) {
-    archiveSection.innerHTML += `<p style="text-align:center;">No photos added yet.</p>`;
+    archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
     return;
   }
   const grid = document.createElement('div');
@@ -853,22 +874,22 @@ function renderArchivePhotos() {
     const removeBtn = document.createElement('button');
     removeBtn.textContent = '❌';
     removeBtn.title = 'Remove from archive';
-removeBtn.style.position = 'absolute';
-removeBtn.style.left = '100%';
-removeBtn.style.top = '100%';
-removeBtn.style.transform = 'translate(-50%, -50%)';
-removeBtn.style.width = '22px';
-removeBtn.style.height = '22px';
-removeBtn.style.background = '#000';
-removeBtn.style.color = '#fff';
-removeBtn.style.border = '1.5px solid #E9E8E0';
-removeBtn.style.borderRadius = '50%';
-removeBtn.style.cursor = 'pointer';
-removeBtn.style.fontSize = '0.85rem';
-removeBtn.style.zIndex = '10';
-removeBtn.style.display = 'flex';
-removeBtn.style.alignItems = 'center';
-removeBtn.style.justifyContent = 'center';
+    removeBtn.style.position = 'absolute';
+    removeBtn.style.left = '100%';
+    removeBtn.style.top = '100%';
+    removeBtn.style.transform = 'translate(-50%, -50%)';
+    removeBtn.style.width = '22px';
+    removeBtn.style.height = '22px';
+    removeBtn.style.background = '#000';
+    removeBtn.style.color = '#fff';
+    removeBtn.style.border = '1.5px solid #E9E8E0';
+    removeBtn.style.borderRadius = '50%';
+    removeBtn.style.cursor = 'pointer';
+    removeBtn.style.fontSize = '0.85rem';
+    removeBtn.style.zIndex = '10';
+    removeBtn.style.display = 'flex';
+    removeBtn.style.alignItems = 'center';
+    removeBtn.style.justifyContent = 'center';
 
     removeBtn.onclick = function () {
       const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
@@ -891,7 +912,7 @@ removeBtn.style.justifyContent = 'center';
 // Render archive on load so it appears if any photos are already saved
 renderArchivePhotos();
 
-// ... rest of your code remains unchanged
+// ...rest of your code remains unchanged...
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
