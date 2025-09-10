@@ -828,8 +828,6 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   }
 }
 
-// ... rest of code unchanged ...
-
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
@@ -839,36 +837,14 @@ function renderArchivePhotos() {
     return;
   }
 
-  // --- Add quarter-width, centered horizontal line ---
-  const hr = document.createElement('hr');
-  hr.style.width = '25%';
-  hr.style.margin = '12px auto 12px auto';
-  hr.style.border = 'none';
-  hr.style.borderTop = '1px solid #bbb';
-
-  archiveSection.appendChild(hr);
-
-  // --- Tip text (black, bigger, full width, centered) ---
-  const tipText = document.createElement('div');
-  tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
-  tipText.style.fontSize = '14px';
-  tipText.style.fontFamily = "'Poppins', sans-serif";
-  tipText.style.color = '#000';
-  tipText.style.fontWeight = 'bold';
-  tipText.style.marginBottom = '12px';
-  tipText.style.textAlign = 'center';
-  tipText.style.maxWidth = '100%';
-  tipText.style.margin = '0 auto 12px auto';
-  tipText.style.lineHeight = '1.2';
-
-  archiveSection.appendChild(tipText);
-
+  // Grid container - ensure full width
   const grid = document.createElement('div');
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
   grid.style.gap = '8px';
   grid.style.padding = '8px';
-  grid.style.alignItems = 'start'; // All images aligned at the top of the row
+  grid.style.width = '100%'; // <---- Ensure grid uses full parent width
+  grid.style.boxSizing = 'border-box';
 
   archivePhotos.forEach(({ src, name }, idx) => {
     const cell = document.createElement('div');
@@ -876,6 +852,7 @@ function renderArchivePhotos() {
     cell.style.flexDirection = 'column';
     cell.style.alignItems = 'center';
     cell.style.position = 'relative';
+    cell.style.width = '100%'; // <---- Make each grid cell fill its grid area
 
     // Building name above photo, small text, always full text, decreased line spacing
     const nameLabel = document.createElement('div');
@@ -888,16 +865,13 @@ function renderArchivePhotos() {
     nameLabel.style.textAlign = 'center';
     nameLabel.style.maxWidth = '110px';
     nameLabel.style.wordBreak = 'break-word';
-    nameLabel.style.whiteSpace = 'normal';
-    nameLabel.style.overflow = 'visible';
-    nameLabel.style.textOverflow = 'unset';
-    nameLabel.style.lineHeight = '1.02';
 
     // Container for image and cross
     const imgContainer = document.createElement('div');
     imgContainer.style.position = 'relative';
-    imgContainer.style.display = 'inline-block';
-    imgContainer.style.width = '110px';
+    imgContainer.style.display = 'block';
+    imgContainer.style.width = '110px'; // <---- Each image 110px wide
+    imgContainer.style.boxSizing = 'border-box';
 
     const img = document.createElement('img');
     img.src = src;
@@ -944,6 +918,7 @@ function renderArchivePhotos() {
     cell.appendChild(imgContainer);
     grid.appendChild(cell);
   });
+
   archiveSection.appendChild(grid);
 }
 // Render archive on load so it appears if any photos are already saved
