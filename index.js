@@ -816,7 +816,7 @@ function renderArchivePhotos() {
     cell.style.alignItems = 'center';
     cell.style.position = 'relative';
 
-    // Building name above photo, small text
+    // Building name above photo, small text, always full text (wraps if needed)
     const nameLabel = document.createElement('div');
     nameLabel.textContent = name;
     nameLabel.style.fontSize = '10px';
@@ -826,9 +826,10 @@ function renderArchivePhotos() {
     nameLabel.style.marginBottom = '3px';
     nameLabel.style.textAlign = 'center';
     nameLabel.style.maxWidth = '110px';
-    nameLabel.style.overflow = 'hidden';
-    nameLabel.style.textOverflow = 'ellipsis';
-    nameLabel.style.whiteSpace = 'nowrap';
+    nameLabel.style.wordBreak = 'break-word';
+    nameLabel.style.whiteSpace = 'normal';
+    nameLabel.style.overflow = 'visible';
+    nameLabel.style.textOverflow = 'unset';
 
     // Container for image and cross
     const imgContainer = document.createElement('div');
@@ -886,7 +887,6 @@ function renderArchivePhotos() {
 }
 
 // ... rest of your code unchanged ...
-
 // Render archive on load so it appears if any photos are already saved
 renderArchivePhotos();
 
