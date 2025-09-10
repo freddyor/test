@@ -21,7 +21,7 @@
             display: flex;
             flex-direction: column;
             background: #E9E8E0;
-            overflow: hidden;
+            overflow: hidden; /* Prevent scroll by default */
         }
 
         #main-content {
@@ -170,6 +170,12 @@
             bottom: auto !important;
             position: absolute !important;
             z-index: 10 !important;
+        }
+        /* Enable vertical scrolling for archive and about sections ONLY */
+        #archive-section, #about-section {
+            overflow-y: auto;
+            max-height: 100%;
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
