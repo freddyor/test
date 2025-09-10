@@ -64,7 +64,7 @@ function applyDimmedMarkers() {
     );
     markerEls.forEach((el) => {
       if (completedMarkers[markerKey]) {
-        el.style.filter = 'brightness(0.3) grayscale(0.6)';
+        el.style.filter = 'brightness(0.3) grayscale(0.3)';
       } else {
         el.style.filter = '';
       }
@@ -260,7 +260,7 @@ buildings.forEach((building) => {
         visitBtn.textContent = 'Visited';
         visitBtn.style.background = '#4caf50';
         visitBtn.style.color = '#fff';
-        markerElement.style.filter = 'brightness(0.3) grayscale(0.6)';
+        markerElement.style.filter = 'brightness(0.3) grayscale(0.3)';
         await saveCompletedMarker(markerKey);
       } else {
         visitBtn.textContent = 'Unvisited';
