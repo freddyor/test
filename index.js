@@ -795,8 +795,6 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   }
 }
 
-// ... existing code above unchanged ...
-
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Archive</h2>';
@@ -809,7 +807,7 @@ function renderArchivePhotos() {
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
   grid.style.gap = '8px';
   grid.style.padding = '8px';
-  grid.style.alignItems = 'start'; // Make all items align at the top for consistent image row
+  grid.style.alignItems = 'start'; // All images aligned at the top of the row
 
   archivePhotos.forEach(({ src, name }, idx) => {
     const cell = document.createElement('div');
@@ -818,7 +816,7 @@ function renderArchivePhotos() {
     cell.style.alignItems = 'center';
     cell.style.position = 'relative';
 
-    // Building name above photo, small text, always full text (wraps if needed), decreased line spacing
+    // Building name above photo, small text, always full text, decreased line spacing
     const nameLabel = document.createElement('div');
     nameLabel.textContent = name;
     nameLabel.style.fontSize = '10px';
@@ -832,20 +830,18 @@ function renderArchivePhotos() {
     nameLabel.style.whiteSpace = 'normal';
     nameLabel.style.overflow = 'visible';
     nameLabel.style.textOverflow = 'unset';
-    nameLabel.style.lineHeight = '1.02'; // Decreased line spacing
+    nameLabel.style.lineHeight = '1.02';
 
     // Container for image and cross
     const imgContainer = document.createElement('div');
     imgContainer.style.position = 'relative';
     imgContainer.style.display = 'inline-block';
     imgContainer.style.width = '110px';
-    imgContainer.style.height = '110px';
 
     const img = document.createElement('img');
     img.src = src;
     img.style.width = '100%';
-    img.style.height = '100%'; // Full height, no cropping
-    img.style.objectFit = 'contain'; // No crop, show all
+    img.style.height = 'auto'; // Show full height - not cropped, not forced square
     img.style.borderRadius = '7px';
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
@@ -888,7 +884,6 @@ function renderArchivePhotos() {
   });
   archiveSection.appendChild(grid);
 }
-
 // Render archive on load so it appears if any photos are already saved
 renderArchivePhotos();
 
