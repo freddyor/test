@@ -414,25 +414,51 @@ buildings.forEach((building) => {
       const overlayInset = 32;
       const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
 
-      const textOverlay = document.createElement('div');
-      textOverlay.textContent = markerText;
-      textOverlay.style.position = 'absolute';
-      textOverlay.style.top = '50px';
-      textOverlay.style.left = '50%';
-      textOverlay.style.transform = 'translateX(-50%)';
-      textOverlay.style.background = 'rgba(0,0,0,0.4)';
-      textOverlay.style.color = '#fff';
-      textOverlay.style.padding = overlayInnerPadding;
-      textOverlay.style.borderRadius = '8px';
-      textOverlay.style.fontSize = '12px';
-      textOverlay.style.fontWeight = 'bold';
-      textOverlay.style.pointerEvents = 'none';
-      textOverlay.style.zIndex = 20;
-      textOverlay.style.fontFamily = "'Poppins', sans-serif";
-      textOverlay.style.textAlign = "center";
-      textOverlay.style.lineHeight = "1";
-      textOverlay.style.width = `calc(90vw - ${2 * overlayInset}px)`;
-      posterContainer.appendChild(textOverlay);
+      // ---- TEXT OVERLAY LOGIC ----
+      let textOverlay = null;
+      if (markerText && markerText.trim().length > 0) {
+        textOverlay = document.createElement('div');
+        textOverlay.textContent = markerText;
+        textOverlay.style.position = 'absolute';
+        textOverlay.style.top = '50px';
+        textOverlay.style.left = '50%';
+        textOverlay.style.transform = 'translateX(-50%)';
+        textOverlay.style.background = 'rgba(0,0,0,0.4)';
+        textOverlay.style.color = '#fff';
+        textOverlay.style.borderRadius = '8px';
+        textOverlay.style.fontSize = '12px';
+        textOverlay.style.fontWeight = 'bold';
+        textOverlay.style.pointerEvents = 'none';
+        textOverlay.style.zIndex = 20;
+        textOverlay.style.fontFamily = "'Poppins', sans-serif";
+        textOverlay.style.textAlign = "center";
+        textOverlay.style.lineHeight = "1";
+        textOverlay.style.padding = overlayInnerPadding;
+
+        // Set width to just fit text, but max out at 90vw - 2*overlayInset
+        // First, measure the text width
+        const tempSpan = document.createElement('span');
+        tempSpan.textContent = markerText;
+        tempSpan.style.fontFamily = textOverlay.style.fontFamily;
+        tempSpan.style.fontWeight = textOverlay.style.fontWeight;
+        tempSpan.style.fontSize = textOverlay.style.fontSize;
+        tempSpan.style.lineHeight = textOverlay.style.lineHeight;
+        tempSpan.style.position = 'absolute';
+        tempSpan.style.visibility = 'hidden';
+        tempSpan.style.whiteSpace = 'pre';
+        document.body.appendChild(tempSpan);
+
+        // Padding for both sides
+        const paddingX = overlayPaddingX * 2;
+        let textWidth = tempSpan.offsetWidth + paddingX;
+        let maxWidth = window.innerWidth * 0.90 - 2 * overlayInset;
+
+        textOverlay.style.width = Math.min(textWidth, maxWidth) + "px";
+
+        document.body.removeChild(tempSpan);
+
+        posterContainer.appendChild(textOverlay);
+      }
 
       const cameraVideo = document.createElement('video');
       cameraVideo.autoplay = true;
@@ -558,84 +584,86 @@ buildings.forEach((building) => {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
-        const overlayRect = textOverlay.getBoundingClientRect();
-        const videoRect = cameraVideo.getBoundingClientRect();
-        const computedStyle = window.getComputedStyle(textOverlay);
+        let showTextOverlay = textOverlay && markerText && markerText.trim().length > 0;
+        if (showTextOverlay) {
+          const overlayRect = textOverlay.getBoundingClientRect();
+          const videoRect = cameraVideo.getBoundingClientRect();
+          const computedStyle = window.getComputedStyle(textOverlay);
 
-        let topPx = overlayRect.top - videoRect.top;
-        let leftPx = overlayRect.left - videoRect.left;
-        let overlayWidthPx = overlayRect.width;
-        let overlayHeightPx = overlayRect.height;
+          let topPx = overlayRect.top - videoRect.top;
+          let leftPx = overlayRect.left - videoRect.left;
+          let overlayWidthPx = overlayRect.width;
+          let overlayHeightPx = overlayRect.height;
 
-        let fontSizePx = parseFloat(computedStyle.fontSize);
-        let fontFamily = computedStyle.fontFamily;
-        let fontWeight = computedStyle.fontWeight;
-        let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
+          let fontSizePx = parseFloat(computedStyle.fontSize);
+          let fontFamily = computedStyle.fontFamily;
+          let fontWeight = computedStyle.fontWeight;
+          let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
 
-        let scaleX = canvas.width / videoRect.width;
-        let scaleY = canvas.height / videoRect.height;
+          let scaleX = canvas.width / videoRect.width;
+          let scaleY = canvas.height / videoRect.height;
 
-        let textBoxX = leftPx * scaleX;
-        let textBoxY = topPx * scaleY;
-        let textBoxWidth = overlayWidthPx * scaleX;
-        let textBoxHeight = overlayHeightPx * scaleY;
+          let textBoxX = leftPx * scaleX;
+          let textBoxY = topPx * scaleY;
+          let textBoxWidth = overlayWidthPx * scaleX;
+          let textBoxHeight = overlayHeightPx * scaleY;
 
-        const canvasPaddingY = overlayPaddingY * scaleY;
-        const canvasPaddingX = overlayPaddingX * scaleX;
+          const canvasPaddingY = overlayPaddingY * scaleY;
+          const canvasPaddingX = overlayPaddingX * scaleX;
 
-        ctx.save();
-        ctx.globalAlpha = 0.4;
-        ctx.fillStyle = "#000";
-        ctx.beginPath();
-        if (ctx.roundRect) {
-          ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
-        } else {
-          ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
-        }
-        ctx.fill();
-        ctx.restore();
+          ctx.save();
+          ctx.globalAlpha = 0.4;
+          ctx.fillStyle = "#000";
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
+          } else {
+            ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
+          }
+          ctx.fill();
+          ctx.restore();
 
-        const canvasFontSize = fontSizePx * scaleY;
-        const canvasLineHeight = canvasFontSize * 1.1;
-        ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "#fff";
+          const canvasFontSize = fontSizePx * scaleY;
+          const canvasLineHeight = canvasFontSize * 1.1;
+          ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "#fff";
 
-        const wrappedLines = wrapCanvasText(
-          ctx,
-          markerText,
-          textBoxWidth - 2 * canvasPaddingX
-        );
-
-        const totalLines = wrappedLines.length;
-        const totalTextHeight = totalLines * canvasLineHeight;
-        let y = textBoxY + canvasPaddingY + (textBoxHeight - 2 * canvasPaddingY - totalTextHeight) / 2 + canvasLineHeight / 2;
-
-        for (let i = 0; i < wrappedLines.length; i++) {
-          ctx.fillText(
-            wrappedLines[i],
-            textBoxX + textBoxWidth / 2,
-            y + i * canvasLineHeight
+          const wrappedLines = wrapCanvasText(
+            ctx,
+            markerText,
+            textBoxWidth - 2 * canvasPaddingX
           );
-        }
-        ctx.restore();
 
+          const totalLines = wrappedLines.length;
+          const totalTextHeight = totalLines * canvasLineHeight;
+          let y = textBoxY + canvasPaddingY + (textBoxHeight - 2 * canvasPaddingY - totalTextHeight) / 2 + canvasLineHeight / 2;
+
+          for (let i = 0; i < wrappedLines.length; i++) {
+            ctx.fillText(
+              wrappedLines[i],
+              textBoxX + textBoxWidth / 2,
+              y + i * canvasLineHeight
+            );
+          }
+          ctx.restore();
+        }
         // --- TIP TEXT ABOVE PHOTO ---
         const tipText = document.createElement('div');
         tipText.textContent = 'Tap and hold image to save';
-tipText.style.display = 'block';
-tipText.style.margin = '16px auto 0 auto';
-tipText.style.fontSize = '13px';
-tipText.style.fontFamily = "'Poppins', sans-serif";
-tipText.style.textAlign = 'center';
-tipText.style.color = '#7C6E4D';
-tipText.style.fontWeight = 'bold';
-tipText.style.background = '#eae7de'; // less bright
-tipText.style.borderRadius = '8px';
-tipText.style.padding = '6px 7px'; // sides closer to text
-tipText.style.lineHeight = '1.02'; // decreased line spacing
-tipText.style.maxWidth = '90vw';
+        tipText.style.display = 'block';
+        tipText.style.margin = '16px auto 0 auto';
+        tipText.style.fontSize = '13px';
+        tipText.style.fontFamily = "'Poppins', sans-serif";
+        tipText.style.textAlign = 'center';
+        tipText.style.color = '#7C6E4D';
+        tipText.style.fontWeight = 'bold';
+        tipText.style.background = '#eae7de'; // less bright
+        tipText.style.borderRadius = '8px';
+        tipText.style.padding = '6px 7px'; // sides closer to text
+        tipText.style.lineHeight = '1.02'; // decreased line spacing
+        tipText.style.maxWidth = '90vw';
         posterContainer.appendChild(tipText);
 
         imgPreview = document.createElement('img');
@@ -682,7 +710,7 @@ tipText.style.maxWidth = '90vw';
 
         cameraVideo.style.display = 'none';
         shutterBtn.style.display = 'none';
-        textOverlay.style.display = 'none';
+        if (textOverlay) textOverlay.style.display = 'none';
         cameraCloseBtn.style.display = 'none';
 
         cancelBtn.onclick = function () {
@@ -693,7 +721,7 @@ tipText.style.maxWidth = '90vw';
 
           cameraVideo.style.display = 'block';
           shutterBtn.style.display = 'block';
-          textOverlay.style.display = 'block';
+          if (textOverlay) textOverlay.style.display = 'block';
           cameraCloseBtn.style.display = 'flex';
           cameraVideo.play();
         };
