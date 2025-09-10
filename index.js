@@ -831,6 +831,12 @@ function showSection(section) {
   document.getElementById('bar-map').classList.toggle('active', section === 'map-section');
   document.getElementById('bar-archive').classList.toggle('active', section === 'archive-section');
   document.getElementById('bar-about').classList.toggle('active', section === 'about-section');
+
+    // --- ADD THIS! ---
+  if (section === 'map-section' && window.map) {
+    // If your map variable is not global, use just map.resize();
+    map.resize();
+  }
 }
 
 // Initial section shown
