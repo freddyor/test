@@ -799,7 +799,7 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
 
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
-  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Archive</h2>';
+  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
   if (archivePhotos.length === 0) {
     archiveSection.innerHTML += `<p style="text-align:center;">No photos added yet.</p>`;
     return;
