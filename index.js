@@ -803,6 +803,8 @@ function ensureArchiveSection() {
   return archiveSection;
 }
 
+// ... previous code unchanged ...
+
 function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   const idx = findPhotoIndexByName(markerName);
   if (idx !== -1) {
@@ -818,7 +820,7 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   }
   localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
   renderArchivePhotos();
-  // Removed: showSection('archive-section');
+  showSection('archive-section');  // <--- FIX: always show archive after adding
   if (buttonRef) {
     buttonRef.textContent = 'Archived';
     buttonRef.style.background = '#4caf50';
@@ -826,7 +828,7 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   }
 }
 
-// ...previous code remains unchanged...
+// ... rest of code unchanged ...
 
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
