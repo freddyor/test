@@ -621,17 +621,18 @@ buildings.forEach((building) => {
         // --- TIP TEXT ABOVE PHOTO ---
         const tipText = document.createElement('div');
         tipText.textContent = 'TIP: hold the image to save or share (it would look really cool on your Instagram story :)';
-        tipText.style.display = 'block';
-        tipText.style.margin = '16px auto 0 auto';
-        tipText.style.fontSize = '13px';
-        tipText.style.fontFamily = "'Poppins', sans-serif";
-        tipText.style.textAlign = 'center';
-        tipText.style.color = '#7C6E4D';
-        tipText.style.fontWeight = 'bold';
-        tipText.style.background = '#F9F7F3';
-        tipText.style.borderRadius = '8px';
-        tipText.style.padding = '6px 12px';
-        tipText.style.maxWidth = '90vw';
+tipText.style.display = 'block';
+tipText.style.margin = '16px auto 0 auto';
+tipText.style.fontSize = '13px';
+tipText.style.fontFamily = "'Poppins', sans-serif";
+tipText.style.textAlign = 'center';
+tipText.style.color = '#7C6E4D';
+tipText.style.fontWeight = 'bold';
+tipText.style.background = '#eae7de'; // less bright
+tipText.style.borderRadius = '8px';
+tipText.style.padding = '6px 7px'; // sides closer to text
+tipText.style.lineHeight = '1.02'; // decreased line spacing
+tipText.style.maxWidth = '90vw';
         posterContainer.appendChild(tipText);
 
         imgPreview = document.createElement('img');
