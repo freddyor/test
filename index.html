@@ -16,7 +16,7 @@
             margin: 0;
             padding: 0;
             width: 100vw;
-            height: 100vh;
+            height: 100dvh;
             font-family: 'Poppins', sans-serif;
             display: flex;
             flex-direction: column;
@@ -25,18 +25,19 @@
             box-sizing: border-box;
         }
 
-        body {
-            /* Push all content below iOS status bar (safe area) */
+        body,
+        #main-content,
+        #map-section,
+        #map {
             padding-top: env(safe-area-inset-top, 0px);
+            box-sizing: border-box;
         }
 
         #main-content {
             width: 100vw;
-            height: calc(100vh - 44.8px - env(safe-area-inset-top, 0px));
+            height: calc(100dvh - 44.8px - env(safe-area-inset-top, 0px));
             position: relative;
             display: flex;
-            padding-top: 0; /* already handled by body */
-            box-sizing: border-box;
         }
 
         #map-section, #archive-section, #about-section {
@@ -49,6 +50,8 @@
             bottom: 0;
             display: none;
             background: #E9E8E0;
+            padding-top: env(safe-area-inset-top, 0px);
+            box-sizing: border-box;
         }
         #map-section {
             display: block;
@@ -60,6 +63,8 @@
             padding: 0;
             position: relative;
             box-sizing: border-box;
+            /* Optional: for extra safety on iOS 16+ */
+            /* height: calc(100dvh - 44.8px - env(safe-area-inset-top, 0px)); */
         }
 
         #loading-screen {
@@ -67,7 +72,7 @@
             top: 0;
             left: 0;
             width: 100vw;
-            height: 100vh;
+            height: 100dvh;
             background-color: #192b4a;
             display: flex;
             flex-direction: column;
@@ -104,18 +109,17 @@
             right: 0;
             bottom: 0;
             width: 100vw;
-            height: 44.8px; /* Reduced by 30% from 64px */
+            height: 44.8px;
             background: #fff;
             border-top: 2px solid #f0f0f0;
             box-shadow: 0 -6px 15px rgba(0, 0, 0, 0.08);
             z-index: 10001;
-            display: none; /* hidden until loading screen is gone */
+            display: none;
             display: flex;
             justify-content: space-between;
             align-items: stretch;
             font-family: 'Poppins', sans-serif;
             user-select: none;
-            /* Ensure safe area for bottom (iPhone X+) */
             padding-bottom: env(safe-area-inset-bottom, 0px);
             box-sizing: border-box;
         }
@@ -178,7 +182,6 @@
             margin-left: 10px;
             font-weight: bold;
         }
-        /* Mapbox control fixes for mobile safe area */
 
         .mapboxgl-ctrl-logo {
             left: 10px !important;
@@ -190,7 +193,6 @@
             opacity: 1 !important;
             pointer-events: auto !important;
         }
-        /* Enable vertical scrolling for archive and about sections ONLY */
         #archive-section, #about-section {
             overflow-y: auto;
             max-height: 100%;
@@ -274,7 +276,6 @@
     <script type="module" src="index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script>
-    // --- Update bottom bar tab logic for new structure ---
     document.addEventListener('DOMContentLoaded', () => {
         function showSection(section) {
             const sections = ['map-section', 'archive-section', 'about-section'];
@@ -295,7 +296,6 @@
         document.getElementById('bar-map').addEventListener('click', () => showSection('map-section'));
         document.getElementById('bar-archive').addEventListener('click', () => showSection('archive-section'));
         document.getElementById('bar-about').addEventListener('click', () => showSection('about-section'));
-        // Initially show map section
         showSection('map-section');
     });
     </script>
