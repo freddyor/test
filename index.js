@@ -802,23 +802,20 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
 
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
-  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
+  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 📸</h2>';
 
   // --- NEW TIP TEXT (same style as nameLabel) ---
   const tipText = document.createElement('div');
-  tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
-  tipText.style.fontSize = '10px';
-  tipText.style.fontFamily = "'Poppins', sans-serif";
-  tipText.style.color = '#8c7e5c';
-  tipText.style.fontWeight = 'bold';
-  tipText.style.marginBottom = '8px';
-  tipText.style.textAlign = 'center';
-  tipText.style.maxWidth = '110px';
-  tipText.style.wordBreak = 'break-word';
-  tipText.style.whiteSpace = 'normal';
-  tipText.style.overflow = 'visible';
-  tipText.style.textOverflow = 'unset';
-  tipText.style.lineHeight = '1.02';
+  tipText.textContent = 'Some of these would look really cool on your Instagram story 🙂';
+tipText.style.fontSize = '14px';
+tipText.style.fontFamily = "'Poppins', sans-serif";
+tipText.style.color = '#000'; // black
+tipText.style.fontWeight = 'bold';
+tipText.style.marginBottom = '12px';
+tipText.style.textAlign = 'center';
+tipText.style.maxWidth = '100%'; // full width
+tipText.style.margin = '0 auto 12px auto'; // center horizontally
+tipText.style.lineHeight = '1.2';
 
   archiveSection.appendChild(tipText);
 
