@@ -64,7 +64,7 @@ function applyDimmedMarkers() {
     );
     markerEls.forEach((el) => {
       if (completedMarkers[markerKey]) {
-        el.style.filter = 'brightness(0.4) grayscale(0.1)';
+        el.style.filter = 'brightness(0.3) grayscale(0.3)';
       } else {
         el.style.filter = '';
       }
@@ -267,7 +267,7 @@ buildings.forEach((building) => {
         visitBtn.textContent = 'Visited';
         visitBtn.style.background = '#4caf50';
         visitBtn.style.color = '#fff';
-        markerElement.style.filter = 'brightness(0.4) grayscale(0.1)';
+        markerElement.style.filter = 'brightness(0.3) grayscale(0.3)';
         await saveCompletedMarker(markerKey);
       } else {
         visitBtn.textContent = 'Unvisited';
@@ -802,27 +802,37 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
 
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
-  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 📸</h2>';
-
-  // --- NEW TIP TEXT (same style as nameLabel) ---
-  const tipText = document.createElement('div');
-  tipText.textContent = 'Some of these would look really cool on your Instagram story 🙂';
-tipText.style.fontSize = '14px';
-tipText.style.fontFamily = "'Poppins', sans-serif";
-tipText.style.color = '#000'; // black
-tipText.style.fontWeight = 'bold';
-tipText.style.marginBottom = '12px';
-tipText.style.textAlign = 'center';
-tipText.style.maxWidth = '100%'; // full width
-tipText.style.margin = '0 auto 12px auto'; // center horizontally
-tipText.style.lineHeight = '1.2';
-
-  archiveSection.appendChild(tipText);
+  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
 
   if (archivePhotos.length === 0) {
     archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
     return;
   }
+
+  // --- Add quarter-width, centered horizontal line ---
+  const hr = document.createElement('hr');
+  hr.style.width = '25%';
+  hr.style.margin = '12px auto 12px auto';
+  hr.style.border = 'none';
+  hr.style.borderTop = '1px solid #bbb';
+
+  archiveSection.appendChild(hr);
+
+  // --- Tip text (black, bigger, full width, centered) ---
+  const tipText = document.createElement('div');
+  tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
+  tipText.style.fontSize = '14px';
+  tipText.style.fontFamily = "'Poppins', sans-serif";
+  tipText.style.color = '#000';
+  tipText.style.fontWeight = 'bold';
+  tipText.style.marginBottom = '12px';
+  tipText.style.textAlign = 'center';
+  tipText.style.maxWidth = '100%';
+  tipText.style.margin = '0 auto 12px auto';
+  tipText.style.lineHeight = '1.2';
+
+  archiveSection.appendChild(tipText);
+
   const grid = document.createElement('div');
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
