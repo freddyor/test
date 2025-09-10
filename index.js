@@ -654,7 +654,7 @@ buildings.forEach((building) => {
         addToArchiveBtn.style.color = '#333';
         addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
-          addPhotoToArchive(imgPreview.src);
+          addPhotoToArchive(imgPreview.src, building.name);
         };
         posterContainer.appendChild(addToArchiveBtn);
 
@@ -732,13 +732,23 @@ buildings.forEach((building) => {
 });
 
 // ----------- ADD TO ARCHIVE LOGIC -----------
-// This will be a list of photo URLs (base64 data)
+// This will be a list of photo objects: { src, name }
 let archivePhotos = [];
 
 // Load archive photos from localStorage on startup
 const savedArchivePhotos = localStorage.getItem('archivePhotos');
 if (savedArchivePhotos) {
-  archivePhotos = JSON.parse(savedArchivePhotos);
+  try {
+    archivePhotos = JSON.parse(savedArchivePhotos);
+    if (!Array.isArray(archivePhotos)) archivePhotos = [];
+  } catch (e) {
+    archivePhotos = [];
+  }
+}
+
+// Helper: find photo index by building name
+function findPhotoIndexByName(name) {
+  return archivePhotos.findIndex(p => p.name === name);
 }
 
 function ensureArchiveSection() {
@@ -753,11 +763,24 @@ function ensureArchiveSection() {
   return archiveSection;
 }
 
-function addPhotoToArchive(imgSrc) {
-  archivePhotos.push(imgSrc);
+// Add photo to archive, only if marker not already present
+function addPhotoToArchive(imgSrc, markerName) {
+  const idx = findPhotoIndexByName(markerName);
+  if (idx !== -1) {
+    // Already have a photo for this marker
+    showArchivePhotoWarning(markerName);
+    return;
+  }
+  archivePhotos.push({ src: imgSrc, name: markerName });
   localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
   renderArchivePhotos();
   showSection('archive-section');
+}
+
+// Show warning if user attempts to archive second photo for same marker
+function showArchivePhotoWarning(markerName) {
+  // Use alert for simplicity, can be replaced with nice modal if you want
+  alert(`You already have a photo for "${markerName}" in your archive. Only one photo per building is allowed.`);
 }
 
 function renderArchivePhotos() {
@@ -772,7 +795,26 @@ function renderArchivePhotos() {
   grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(220px, 1fr))';
   grid.style.gap = '16px';
   grid.style.padding = '16px';
-  archivePhotos.forEach((src) => {
+  archivePhotos.forEach(({ src, name }) => {
+    const cell = document.createElement('div');
+    cell.style.display = 'flex';
+    cell.style.flexDirection = 'column';
+    cell.style.alignItems = 'center';
+
+    // Building name above photo, small text
+    const nameLabel = document.createElement('div');
+    nameLabel.textContent = name;
+    nameLabel.style.fontSize = '11px';
+    nameLabel.style.fontFamily = "'Poppins', sans-serif";
+    nameLabel.style.color = '#8c7e5c';
+    nameLabel.style.fontWeight = 'bold';
+    nameLabel.style.marginBottom = '4px';
+    nameLabel.style.textAlign = 'center';
+    nameLabel.style.maxWidth = '180px';
+    nameLabel.style.overflow = 'hidden';
+    nameLabel.style.textOverflow = 'ellipsis';
+    nameLabel.style.whiteSpace = 'nowrap';
+
     const img = document.createElement('img');
     img.src = src;
     img.style.width = '100%';
@@ -780,7 +822,10 @@ function renderArchivePhotos() {
     img.style.borderRadius = '10px';
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
     img.style.display = 'block';
-    grid.appendChild(img);
+
+    cell.appendChild(nameLabel);
+    cell.appendChild(img);
+    grid.appendChild(cell);
   });
   archiveSection.appendChild(grid);
 }
