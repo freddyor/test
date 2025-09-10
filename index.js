@@ -26,19 +26,6 @@ const auth = getAuth(app);
 let firebaseUser = null;
 let completedMarkers = {};
 
-// Archive photos, keyed by markerKey
-let archivePhotos = {};
-
-// Load archive photos from localStorage on startup
-const savedArchivePhotos = localStorage.getItem('archivePhotos');
-if (savedArchivePhotos) {
-  try {
-    archivePhotos = JSON.parse(savedArchivePhotos);
-  } catch (e) {
-    archivePhotos = {};
-  }
-}
-
 signInAnonymously(auth);
 
 onAuthStateChanged(auth, async (user) => {
@@ -46,7 +33,6 @@ onAuthStateChanged(auth, async (user) => {
     firebaseUser = user;
     await loadCompletedMarkers();
     applyDimmedMarkers();
-    renderArchivePhotos();
   }
 });
 
@@ -85,6 +71,9 @@ function applyDimmedMarkers() {
     });
   });
 }
+
+let firstVideoLoadedThisSession = false;
+function showFirstVideoWaitMessage(videoElement) {}
 
 const yorkBounds = [
   [-1.170, 53.930],
@@ -213,6 +202,7 @@ buildings.forEach((building) => {
     posterContainer.style.flexDirection = 'column';
     posterContainer.style.alignItems = 'center';
 
+    // Create camera, visit, close buttons but DO NOT append yet!
     const cameraIcon = document.createElement('button');
     cameraIcon.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -242,6 +232,7 @@ buildings.forEach((building) => {
     const markerKey = 'completed-marker-' + building.name;
     let isVisited = completedMarkers[markerKey] ? true : false;
 
+    // --- NEW BUTTON (visitBtn) ---
     const visitBtn = document.createElement('button');
     visitBtn.textContent = isVisited ? 'Visited' : 'Unvisited';
     visitBtn.style.position = 'absolute';
@@ -315,7 +306,6 @@ buildings.forEach((building) => {
     }
 
     closeBtn.onclick = () => removeOverlayAndPauseVideo();
-
     let startY;
     overlay.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) startY = e.touches[0].clientY;
@@ -333,6 +323,7 @@ buildings.forEach((building) => {
       startY = undefined;
     });
 
+    // spinner, playBtn, etc.
     const playBtn = document.createElement('button');
     playBtn.innerHTML = '▶';
     playBtn.style.position = 'absolute';
@@ -370,6 +361,7 @@ buildings.forEach((building) => {
     spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
     document.head.appendChild(spinnerStyle);
 
+    // Only the poster image is appended initially!
     const posterImg = document.createElement('img');
     posterImg.src = posterUrl || '';
     posterImg.alt = 'Video cover';
@@ -378,6 +370,7 @@ buildings.forEach((building) => {
     posterImg.style.borderRadius = '14px';
     posterImg.style.display = 'block';
 
+    // Only after the poster loads, append the controls/buttons
     posterImg.addEventListener('load', () => {
       posterImg.style.border = '1.5px solid #E9E8E0';
       posterContainer.appendChild(cameraIcon);
@@ -504,7 +497,7 @@ buildings.forEach((building) => {
       };
       posterContainer.appendChild(cameraCloseBtn);
 
-      let imgPreview = null, archiveBtn = null, cancelBtn = null;
+      let imgPreview = null, addToArchiveBtn = null, cancelBtn = null;
       let cameraStream = null;
 
       async function startCameraStream() {
@@ -550,7 +543,7 @@ buildings.forEach((building) => {
         cameraVideo.pause();
 
         if (imgPreview) imgPreview.remove();
-        if (archiveBtn) archiveBtn.remove();
+        if (addToArchiveBtn) addToArchiveBtn.remove();
         if (cancelBtn) cancelBtn.remove();
 
         shutterBtn.style.display = 'none';
@@ -625,6 +618,7 @@ buildings.forEach((building) => {
         }
         ctx.restore();
 
+        // --- TIP TEXT ABOVE PHOTO ---
         const tipText = document.createElement('div');
         tipText.textContent = 'tip; hold the image to share or save to photos';
         tipText.style.display = 'block';
@@ -650,43 +644,19 @@ buildings.forEach((building) => {
         imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
         posterContainer.appendChild(imgPreview);
 
-        // --- ARCHIVE BUTTON ---
-        archiveBtn = document.createElement('button');
-        archiveBtn.className = 'custom-button';
-        archiveBtn.style.display = 'block';
-        archiveBtn.style.margin = '10px auto 0 auto';
-        archiveBtn.style.border = '2px solid #f0f0f0';
-        archiveBtn.style.borderRadius = '20px';
-        archiveBtn.style.width = '105px';
-        archiveBtn.style.height = '38px';
-        archiveBtn.style.fontWeight = 'bold';
-        archiveBtn.style.fontSize = '15px';
-        archiveBtn.style.cursor = 'pointer';
-        archiveBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
-        archiveBtn.style.zIndex = 12;
-
-        if (archivePhotos[markerKey]) {
-          archiveBtn.textContent = 'Archived';
-          archiveBtn.style.background = '#4caf50';
-          archiveBtn.style.color = '#fff';
-          archiveBtn.disabled = true;
-        } else {
-          archiveBtn.textContent = 'Add to Archive';
-          archiveBtn.style.background = '#e0e0e0';
-          archiveBtn.style.color = '#333';
-          archiveBtn.disabled = false;
-          archiveBtn.onclick = function (e) {
-            e.preventDefault();
-            archivePhotos[markerKey] = imgPreview.src;
-            localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-            renderArchivePhotos();
-            archiveBtn.textContent = 'Archived';
-            archiveBtn.style.background = '#4caf50';
-            archiveBtn.style.color = '#fff';
-            archiveBtn.disabled = true;
-          };
-        }
-        posterContainer.appendChild(archiveBtn);
+        // --- "Add to Archive" BUTTON ---
+        addToArchiveBtn = document.createElement('button');
+        addToArchiveBtn.textContent = 'Add to Archive';
+        addToArchiveBtn.className = 'custom-button';
+        addToArchiveBtn.style.display = 'block';
+        addToArchiveBtn.style.margin = '10px auto 0 auto';
+        addToArchiveBtn.style.background = '#e0e0e0';
+        addToArchiveBtn.style.color = '#333';
+        addToArchiveBtn.onclick = function (e) {
+          e.preventDefault();
+          addPhotoToArchive(imgPreview.src);
+        };
+        posterContainer.appendChild(addToArchiveBtn);
 
         cancelBtn = document.createElement('button');
         cancelBtn.textContent = 'Take again';
@@ -704,7 +674,7 @@ buildings.forEach((building) => {
 
         cancelBtn.onclick = function () {
           if (imgPreview) imgPreview.remove();
-          if (archiveBtn) archiveBtn.remove();
+          if (addToArchiveBtn) addToArchiveBtn.remove();
           if (cancelBtn) cancelBtn.remove();
           if (tipText) tipText.remove();
 
@@ -761,7 +731,15 @@ buildings.forEach((building) => {
   });
 });
 
-// ----------- ARCHIVE TAB -----------
+// ----------- ADD TO ARCHIVE LOGIC -----------
+// This will be a list of photo URLs (base64 data)
+let archivePhotos = [];
+
+// Load archive photos from localStorage on startup
+const savedArchivePhotos = localStorage.getItem('archivePhotos');
+if (savedArchivePhotos) {
+  archivePhotos = JSON.parse(savedArchivePhotos);
+}
 
 function ensureArchiveSection() {
   let archiveSection = document.getElementById('archive-section');
@@ -775,11 +753,17 @@ function ensureArchiveSection() {
   return archiveSection;
 }
 
+function addPhotoToArchive(imgSrc) {
+  archivePhotos.push(imgSrc);
+  localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
+  renderArchivePhotos();
+  showSection('archive-section');
+}
+
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Archive</h2>';
-  const keys = Object.keys(archivePhotos);
-  if (keys.length === 0) {
+  if (archivePhotos.length === 0) {
     archiveSection.innerHTML += `<p style="text-align:center;">No photos added yet.</p>`;
     return;
   }
@@ -788,39 +772,23 @@ function renderArchivePhotos() {
   grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(220px, 1fr))';
   grid.style.gap = '16px';
   grid.style.padding = '16px';
-  keys.forEach((markerKey) => {
-    const imgSrc = archivePhotos[markerKey];
+  archivePhotos.forEach((src) => {
     const img = document.createElement('img');
-    img.src = imgSrc;
+    img.src = src;
     img.style.width = '100%';
     img.style.maxWidth = '220px';
     img.style.borderRadius = '10px';
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
     img.style.display = 'block';
-
-    // show marker name
-    const label = document.createElement('div');
-    label.textContent = markerKey.replace('completed-marker-', '');
-    label.style.fontSize = '13px';
-    label.style.fontWeight = 'bold';
-    label.style.textAlign = 'center';
-    label.style.marginTop = '6px';
-    label.style.color = '#9b4dca';
-
-    const wrapper = document.createElement('div');
-    wrapper.style.display = 'flex';
-    wrapper.style.flexDirection = 'column';
-    wrapper.style.alignItems = 'center';
-    wrapper.appendChild(img);
-    wrapper.appendChild(label);
-
-    grid.appendChild(wrapper);
+    grid.appendChild(img);
   });
   archiveSection.appendChild(grid);
 }
 
 // Render archive on load so it appears if any photos are already saved
 renderArchivePhotos();
+
+// ... rest of your code remains unchanged
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
