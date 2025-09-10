@@ -390,6 +390,7 @@ buildings.forEach((building) => {
       if (e.target === overlay) removeOverlayAndPauseVideo();
     });
 
+    // ------ CAMERA LOGIC --------
     cameraIcon.onclick = async function () {
       if (
         !(
@@ -497,7 +498,7 @@ buildings.forEach((building) => {
       };
       posterContainer.appendChild(cameraCloseBtn);
 
-      let imgPreview = null, downloadBtn = null, cancelBtn = null;
+      let imgPreview = null, addToArchiveBtn = null, cancelBtn = null;
       let cameraStream = null;
 
       async function startCameraStream() {
@@ -543,7 +544,7 @@ buildings.forEach((building) => {
         cameraVideo.pause();
 
         if (imgPreview) imgPreview.remove();
-        if (downloadBtn) downloadBtn.remove();
+        if (addToArchiveBtn) addToArchiveBtn.remove();
         if (cancelBtn) cancelBtn.remove();
 
         shutterBtn.style.display = 'none';
@@ -618,28 +619,46 @@ buildings.forEach((building) => {
         }
         ctx.restore();
 
+        // --- TIP TEXT ABOVE PHOTO ---
+        const tipText = document.createElement('div');
+        tipText.textContent = 'tip; hold the image to share or save to photos';
+        tipText.style.display = 'block';
+        tipText.style.margin = '16px auto 0 auto';
+        tipText.style.fontSize = '13px';
+        tipText.style.fontFamily = "'Poppins', sans-serif";
+        tipText.style.textAlign = 'center';
+        tipText.style.color = '#7C6E4D';
+        tipText.style.fontWeight = 'bold';
+        tipText.style.background = '#F9F7F3';
+        tipText.style.borderRadius = '8px';
+        tipText.style.padding = '6px 12px';
+        tipText.style.maxWidth = '90vw';
+        posterContainer.appendChild(tipText);
+
         imgPreview = document.createElement('img');
         imgPreview.src = canvas.toDataURL('image/png');
         imgPreview.style.display = 'block';
-        imgPreview.style.margin = '16px auto 8px auto';
+        imgPreview.style.margin = '8px auto 8px auto';
         imgPreview.style.maxWidth = '90vw';
         imgPreview.style.maxHeight = '60vh';
         imgPreview.style.borderRadius = '12px';
         imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
         posterContainer.appendChild(imgPreview);
 
-        downloadBtn = document.createElement('button');
-        downloadBtn.textContent = 'Hold photo to share or save to photos';
-        downloadBtn.className = 'custom-button';
-        downloadBtn.style.display = 'block';
-        downloadBtn.style.margin = '10px auto 0 auto';
-        downloadBtn.style.background = '#e0e0e0';
-        downloadBtn.style.color = '#333';
-        downloadBtn.onclick = function (e) {
+        // --- "Add to Archive" BUTTON ---
+        addToArchiveBtn = document.createElement('button');
+        addToArchiveBtn.textContent = 'Add to Archive';
+        addToArchiveBtn.className = 'custom-button';
+        addToArchiveBtn.style.display = 'block';
+        addToArchiveBtn.style.margin = '10px auto 0 auto';
+        addToArchiveBtn.style.background = '#e0e0e0';
+        addToArchiveBtn.style.color = '#333';
+        addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
-          return false;
+          // Add photo to archive
+          addPhotoToArchive(imgPreview.src);
         };
-        posterContainer.appendChild(downloadBtn);
+        posterContainer.appendChild(addToArchiveBtn);
 
         cancelBtn = document.createElement('button');
         cancelBtn.textContent = 'Take again';
@@ -657,8 +676,9 @@ buildings.forEach((building) => {
 
         cancelBtn.onclick = function () {
           if (imgPreview) imgPreview.remove();
-          if (downloadBtn) downloadBtn.remove();
+          if (addToArchiveBtn) addToArchiveBtn.remove();
           if (cancelBtn) cancelBtn.remove();
+          if (tipText) tipText.remove();
 
           cameraVideo.style.display = 'block';
           shutterBtn.style.display = 'block';
@@ -715,6 +735,56 @@ buildings.forEach((building) => {
   });
 });
 
+// ----------- ADD TO ARCHIVE LOGIC -----------
+// This will be a list of photo URLs (base64 data)
+let archivePhotos = [];
+
+// Find the archive section, or create it if needed
+function ensureArchiveSection() {
+  let archiveSection = document.getElementById('archive-section');
+  if (!archiveSection) {
+    archiveSection = document.createElement('div');
+    archiveSection.id = 'archive-section';
+    archiveSection.style.display = 'none';
+    archiveSection.style.padding = '18px 0 0 0';
+    document.body.appendChild(archiveSection);
+  }
+  return archiveSection;
+}
+
+function addPhotoToArchive(imgSrc) {
+  archivePhotos.push(imgSrc);
+  renderArchivePhotos();
+  // Switch to archive tab
+  showSection('archive-section');
+}
+
+function renderArchivePhotos() {
+  const archiveSection = ensureArchiveSection();
+  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Archive</h2>';
+  if (archivePhotos.length === 0) {
+    archiveSection.innerHTML += `<p style="text-align:center;">No photos added yet.</p>`;
+    return;
+  }
+  const grid = document.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(220px, 1fr))';
+  grid.style.gap = '16px';
+  grid.style.padding = '16px';
+  archivePhotos.forEach((src) => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.style.width = '100%';
+    img.style.maxWidth = '220px';
+    img.style.borderRadius = '10px';
+    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    img.style.display = 'block';
+    grid.appendChild(img);
+  });
+  archiveSection.appendChild(grid);
+}
+
+// --------------------------------------------
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
