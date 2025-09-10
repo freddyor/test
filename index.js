@@ -195,12 +195,19 @@ buildings.forEach((building) => {
     overlay.style.alignItems = 'center';
     overlay.style.justifyContent = 'center';
     overlay.style.zIndex = 100000;
+
     const posterContainer = document.createElement('div');
     posterContainer.style.position = 'relative';
     posterContainer.style.marginTop = '-60px';
     posterContainer.style.display = 'flex';
     posterContainer.style.flexDirection = 'column';
     posterContainer.style.alignItems = 'center';
+
+    // Add overlay click handler that works for all overlay content (camera, photo, etc)
+    overlay.addEventListener('mousedown', function (e) {
+      // Close if clicking outside the modal content (posterContainer)
+      if (!posterContainer.contains(e.target)) removeOverlayAndPauseVideo();
+    });
 
     // Create camera, visit, close buttons but DO NOT append yet!
     const cameraIcon = document.createElement('button');
@@ -385,10 +392,6 @@ buildings.forEach((building) => {
     posterContainer.appendChild(posterImg);
     overlay.appendChild(posterContainer);
     document.body.appendChild(overlay);
-
-    overlay.addEventListener('mousedown', function (e) {
-      if (e.target === overlay) removeOverlayAndPauseVideo();
-    });
 
     cameraIcon.onclick = async function () {
       if (
