@@ -165,12 +165,23 @@
             font-weight: bold;
         }
         /* Mapbox control fixes for mobile safe area */
-        .mapboxgl-ctrl-top-right {
-            top: calc(env(safe-area-inset-top, 0px) + 8px) !important;
-            right: calc(env(safe-area-inset-right, 0px) + 8px) !important;
-            position: absolute !important;
-            z-index: 10 !important;
-        }
+.mapboxgl-ctrl-top-right {
+    position: absolute !important;
+    top: max(8px, env(safe-area-inset-top, 0px)) !important;
+    right: max(8px, env(safe-area-inset-right, 0px)) !important;
+    z-index: 10002 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    pointer-events: auto !important;
+    opacity: 1 !important;
+}
+        .mapboxgl-ctrl-geolocate {
+    display: block !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 10003 !important;
+}
 .mapboxgl-ctrl-logo {
     left: 10px !important;
     top: 10px !important;
