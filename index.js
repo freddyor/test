@@ -620,7 +620,7 @@ buildings.forEach((building) => {
 
         // --- TIP TEXT ABOVE PHOTO ---
         const tipText = document.createElement('div');
-        tipText.textContent = 'tip; hold the image to share or save to photos';
+        tipText.textContent = 'TIP: hold the image to save or share (it would look really cool on your Instagram story :)';
         tipText.style.display = 'block';
         tipText.style.margin = '16px auto 0 auto';
         tipText.style.fontSize = '13px';
