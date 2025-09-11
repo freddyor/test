@@ -107,7 +107,7 @@ const geolocate = new mapboxgl.GeolocateControl({
   },
   showUserLocation: false,
 });
-map.addControl(geolocate, 'top-right');
+map.addControl(geolocate);
 
 const userLocationEl = document.createElement('div');
 userLocationEl.className = 'user-location-marker';
@@ -497,7 +497,7 @@ buildings.forEach((building) => {
       };
       posterContainer.appendChild(cameraCloseBtn);
 
-      let imgPreview = null, addToArchiveBtn = null, cancelBtn = null;
+      let imgPreview = null, downloadBtn = null, cancelBtn = null;
       let cameraStream = null;
 
       async function startCameraStream() {
@@ -543,7 +543,7 @@ buildings.forEach((building) => {
         cameraVideo.pause();
 
         if (imgPreview) imgPreview.remove();
-        if (addToArchiveBtn) addToArchiveBtn.remove();
+        if (downloadBtn) downloadBtn.remove();
         if (cancelBtn) cancelBtn.remove();
 
         shutterBtn.style.display = 'none';
@@ -618,54 +618,28 @@ buildings.forEach((building) => {
         }
         ctx.restore();
 
-        // --- TIP TEXT ABOVE PHOTO ---
-        const tipText = document.createElement('div');
-        tipText.textContent = 'tip; hold the image to share or save to photos';
-        tipText.style.display = 'block';
-        tipText.style.margin = '16px auto 0 auto';
-        tipText.style.fontSize = '13px';
-        tipText.style.fontFamily = "'Poppins', sans-serif";
-        tipText.style.textAlign = 'center';
-        tipText.style.color = '#7C6E4D';
-        tipText.style.fontWeight = 'bold';
-        tipText.style.background = '#F9F7F3';
-        tipText.style.borderRadius = '8px';
-        tipText.style.padding = '6px 12px';
-        tipText.style.maxWidth = '90vw';
-        posterContainer.appendChild(tipText);
-
         imgPreview = document.createElement('img');
         imgPreview.src = canvas.toDataURL('image/png');
         imgPreview.style.display = 'block';
-        imgPreview.style.margin = '8px auto 8px auto';
+        imgPreview.style.margin = '16px auto 8px auto';
         imgPreview.style.maxWidth = '90vw';
         imgPreview.style.maxHeight = '60vh';
         imgPreview.style.borderRadius = '12px';
         imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
         posterContainer.appendChild(imgPreview);
 
-        // --- "Add to Archive" BUTTON ---
-        addToArchiveBtn = document.createElement('button');
-        addToArchiveBtn.textContent = 'Add to Archive';
-        addToArchiveBtn.className = 'custom-button';
-        addToArchiveBtn.style.display = 'block';
-        addToArchiveBtn.style.margin = '10px auto 0 auto';
-        addToArchiveBtn.style.background = '#e0e0e0';
-        addToArchiveBtn.style.color = '#333';
-        posterContainer.appendChild(addToArchiveBtn);
-
-        // Set button to 'Archived' state if already archived
-        const alreadyArchived = findPhotoIndexByName(building.name) !== -1;
-        if (alreadyArchived) {
-          addToArchiveBtn.textContent = 'Archived';
-          addToArchiveBtn.style.background = '#4caf50';
-          addToArchiveBtn.style.color = '#fff';
-        }
-
-        addToArchiveBtn.onclick = function (e) {
+        downloadBtn = document.createElement('button');
+        downloadBtn.textContent = 'Hold photo to share or save to photos';
+        downloadBtn.className = 'custom-button';
+        downloadBtn.style.display = 'block';
+        downloadBtn.style.margin = '10px auto 0 auto';
+        downloadBtn.style.background = '#e0e0e0';
+        downloadBtn.style.color = '#333';
+        downloadBtn.onclick = function (e) {
           e.preventDefault();
-          addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
+          return false;
         };
+        posterContainer.appendChild(downloadBtn);
 
         cancelBtn = document.createElement('button');
         cancelBtn.textContent = 'Take again';
@@ -683,19 +657,20 @@ buildings.forEach((building) => {
 
         cancelBtn.onclick = function () {
           if (imgPreview) imgPreview.remove();
-          if (addToArchiveBtn) addToArchiveBtn.remove();
+          if (downloadBtn) downloadBtn.remove();
           if (cancelBtn) cancelBtn.remove();
-          if (tipText) tipText.remove();
 
           cameraVideo.style.display = 'block';
           shutterBtn.style.display = 'block';
           textOverlay.style.display = 'block';
           cameraCloseBtn.style.display = 'flex';
+
           cameraVideo.play();
         };
       };
     };
 
+    // *** NEW: Swap poster for video IMMEDIATELY on play ***
     playBtn.onclick = () => {
       playBtn.style.display = 'none';
       spinner.style.display = 'block';
@@ -712,6 +687,7 @@ buildings.forEach((building) => {
       videoElement.setAttribute('webkit-playsinline', '');
       videoElement.playsInline = true;
 
+      // Swap poster for video immediately
       posterContainer.replaceChild(videoElement, posterImg);
 
       videoElement.addEventListener('playing', () => {
@@ -739,158 +715,6 @@ buildings.forEach((building) => {
   });
 });
 
-// ----------- ADD TO ARCHIVE LOGIC -----------
-// This will be a list of photo objects: { src, name }
-let archivePhotos = [];
-
-// Load archive photos from localStorage on startup
-const savedArchivePhotos = localStorage.getItem('archivePhotos');
-if (savedArchivePhotos) {
-  try {
-    archivePhotos = JSON.parse(savedArchivePhotos);
-    if (!Array.isArray(archivePhotos)) archivePhotos = [];
-  } catch (e) {
-    archivePhotos = [];
-  }
-}
-
-// Helper: find photo index by building name
-function findPhotoIndexByName(name) {
-  return archivePhotos.findIndex(p => p.name === name);
-}
-
-function ensureArchiveSection() {
-  let archiveSection = document.getElementById('archive-section');
-  if (!archiveSection) {
-    archiveSection = document.createElement('div');
-    archiveSection.id = 'archive-section';
-    archiveSection.style.display = 'none';
-    archiveSection.style.padding = '18px 0 0 0';
-    document.body.appendChild(archiveSection);
-  }
-  return archiveSection;
-}
-
-// Add photo to archive, allowing replace if needed
-function addPhotoToArchive(imgSrc, markerName, buttonRef) {
-  const idx = findPhotoIndexByName(markerName);
-  if (idx !== -1) {
-    // Already have a photo for this marker - ask if they want to replace
-    const confirmReplace = window.confirm(
-      `You already have a photo for "${markerName}" in your archive.\nDo you want to replace it with the new photo?`
-    );
-    if (!confirmReplace) return;
-
-    archivePhotos[idx] = { src: imgSrc, name: markerName };
-  } else {
-    archivePhotos.push({ src: imgSrc, name: markerName });
-  }
-  localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-  renderArchivePhotos();
-  showSection('archive-section');
-  if (buttonRef) {
-    buttonRef.textContent = 'Archived';
-    buttonRef.style.background = '#4caf50';
-    buttonRef.style.color = '#fff';
-  }
-}
-
-// ... existing code above unchanged ...
-
-function renderArchivePhotos() {
-  const archiveSection = ensureArchiveSection();
-  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Archive</h2>';
-  if (archivePhotos.length === 0) {
-    archiveSection.innerHTML += `<p style="text-align:center;">No photos added yet.</p>`;
-    return;
-  }
-  const grid = document.createElement('div');
-  grid.style.display = 'grid';
-  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-  grid.style.gap = '8px';
-  grid.style.padding = '8px';
-  archivePhotos.forEach(({ src, name }, idx) => {
-    const cell = document.createElement('div');
-    cell.style.display = 'flex';
-    cell.style.flexDirection = 'column';
-    cell.style.alignItems = 'center';
-    cell.style.position = 'relative';
-
-    // Building name above photo, small text, always full text (wraps if needed)
-    const nameLabel = document.createElement('div');
-    nameLabel.textContent = name;
-    nameLabel.style.fontSize = '10px';
-    nameLabel.style.fontFamily = "'Poppins', sans-serif";
-    nameLabel.style.color = '#8c7e5c';
-    nameLabel.style.fontWeight = 'bold';
-    nameLabel.style.marginBottom = '3px';
-    nameLabel.style.textAlign = 'center';
-    nameLabel.style.maxWidth = '110px';
-    nameLabel.style.wordBreak = 'break-word';
-    nameLabel.style.whiteSpace = 'normal';
-    nameLabel.style.overflow = 'visible';
-    nameLabel.style.textOverflow = 'unset';
-
-    // Container for image and cross
-    const imgContainer = document.createElement('div');
-    imgContainer.style.position = 'relative';
-    imgContainer.style.display = 'inline-block';
-    imgContainer.style.width = '110px';
-    imgContainer.style.height = '110px';
-
-    const img = document.createElement('img');
-    img.src = src;
-    img.style.width = '100%';
-    img.style.height = '100%'; // Full height, no cropping
-    img.style.objectFit = 'contain'; // No crop, show all
-    img.style.borderRadius = '7px';
-    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
-    img.style.display = 'block';
-
-    // Bottom-right cross button
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = '❌';
-    removeBtn.title = 'Remove from archive';
-    removeBtn.style.position = 'absolute';
-    removeBtn.style.bottom = '4px';
-    removeBtn.style.right = '4px';
-    removeBtn.style.width = '22px';
-    removeBtn.style.height = '22px';
-    removeBtn.style.background = '#000';
-    removeBtn.style.color = '#fff';
-    removeBtn.style.border = '1.5px solid #E9E8E0';
-    removeBtn.style.borderRadius = '50%';
-    removeBtn.style.cursor = 'pointer';
-    removeBtn.style.fontSize = '0.85rem';
-    removeBtn.style.zIndex = '10';
-    removeBtn.style.display = 'flex';
-    removeBtn.style.alignItems = 'center';
-    removeBtn.style.justifyContent = 'center';
-
-    removeBtn.onclick = function () {
-      const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
-      if (confirmRemove) {
-        archivePhotos.splice(idx, 1);
-        localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-        renderArchivePhotos();
-      }
-    };
-
-    imgContainer.appendChild(img);
-    imgContainer.appendChild(removeBtn);
-
-    cell.appendChild(nameLabel);
-    cell.appendChild(imgContainer);
-    grid.appendChild(cell);
-  });
-  archiveSection.appendChild(grid);
-}
-
-// ... rest of your code unchanged ...
-// Render archive on load so it appears if any photos are already saved
-renderArchivePhotos();
-
-// ... rest of your code remains unchanged
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
@@ -928,20 +752,16 @@ map.on('load', () => {
   geolocate.trigger();
 
   const loadingScreen = document.getElementById('loading-screen');
-  const bottomBar = document.getElementById('bottom-bar');
   const elapsed = Date.now() - loadingScreenStart;
   const minDuration = 5000;
 
-  function showBottomBar() {
-    loadingScreen.style.display = 'none';
-    if (bottomBar) bottomBar.style.display = 'flex';
-  }
-
   if (loadingScreen) {
     if (elapsed >= minDuration) {
-      showBottomBar();
+      loadingScreen.style.display = 'none';
     } else {
-      setTimeout(showBottomBar, minDuration - elapsed);
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+      }, minDuration - elapsed);
     }
   }
 });
@@ -993,32 +813,19 @@ function generateMapLink(latitude, longitude, zoomLevel) {
   return baseUrl + params;
 }
 
-function showSection(section) {
-  const sections = ['map-section', 'archive-section', 'about-section'];
-  sections.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.style.display = (id === section) ? 'block' : 'none';
-    }
-  });
-
-  document.getElementById('bar-map').classList.toggle('active', section === 'map-section');
-  document.getElementById('bar-archive').classList.toggle('active', section === 'archive-section');
-  document.getElementById('bar-about').classList.toggle('active', section === 'about-section');
-
-  if (section === 'map-section' && window.map) {
-    map.resize();
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  showSection('map-section');
-  document.getElementById('bar-map').addEventListener('click', () => showSection('map-section'));
-  document.getElementById('bar-archive').addEventListener('click', () => showSection('archive-section'));
-  document.getElementById('bar-about').addEventListener('click', () => showSection('about-section'));
-});
+const buttonGroup = document.createElement('div');
+buttonGroup.id = 'button-group';
+buttonGroup.style.position = 'fixed';
+buttonGroup.style.left = '50%';
+buttonGroup.style.top = '50px';
+buttonGroup.style.transform = 'translateX(-50%)';
+buttonGroup.style.zIndex = '1000';
+buttonGroup.style.display = 'flex';
+buttonGroup.style.gap = '10px';
+document.body.appendChild(buttonGroup);
 
 const stylePopup = document.createElement('style');
+
 const link = document.createElement('link');
 link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap';
 link.rel = 'stylesheet';
@@ -1153,6 +960,7 @@ stylePopup.innerHTML = `
     white-space: nowrap;
   }
  `;
+
 document.head.appendChild(stylePopup);
 
 function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
@@ -1258,28 +1066,4 @@ function createPopupContent(location, isFirebase = false) {
                     ${eventsData
                       .map(
                         (event) => `
-                        <div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-                            <strong style="color: #7C6E4D; font-size: 15px;">${event.date || event.label}</strong>: <span style="font-size: 15px;">${event.description}</span>
-                        </div>
-                    `
-                      )
-                      .join('')}
-                </div>
-            ` : ''}
-            ${videoUrl ? `
-                <div style="margin-top: 10px; margin-bottom: 10px; text-align: center;">
-                    <video 
-                        width="300" 
-                        height="464" 
-                        autoplay 
-                        controlsList="nodownload nofullscreen noremoteplayback" 
-                        controls 
-                        style="display: block; margin: 0 auto;">
-                        <source src="${videoUrl}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-            ` : ''}
-        </div>
-    `;
-}
+                        <div style="background: #f9f
