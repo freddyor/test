@@ -64,7 +64,7 @@ function applyDimmedMarkers() {
     );
     markerEls.forEach((el) => {
       if (completedMarkers[markerKey]) {
-        el.style.filter = 'brightness(0.3) grayscale(0.3)';
+        el.style.filter = 'brightness(0.6) grayscale(0.3)';
       } else {
         el.style.filter = '';
       }
@@ -195,19 +195,12 @@ buildings.forEach((building) => {
     overlay.style.alignItems = 'center';
     overlay.style.justifyContent = 'center';
     overlay.style.zIndex = 100000;
-
     const posterContainer = document.createElement('div');
     posterContainer.style.position = 'relative';
     posterContainer.style.marginTop = '-60px';
     posterContainer.style.display = 'flex';
     posterContainer.style.flexDirection = 'column';
     posterContainer.style.alignItems = 'center';
-
-    // Add overlay click handler that works for all overlay content (camera, photo, etc)
-    overlay.addEventListener('mousedown', function (e) {
-      // Close if clicking outside the modal content (posterContainer)
-      if (!posterContainer.contains(e.target)) removeOverlayAndPauseVideo();
-    });
 
     // Create camera, visit, close buttons but DO NOT append yet!
     const cameraIcon = document.createElement('button');
@@ -267,7 +260,7 @@ buildings.forEach((building) => {
         visitBtn.textContent = 'Visited';
         visitBtn.style.background = '#4caf50';
         visitBtn.style.color = '#fff';
-        markerElement.style.filter = 'brightness(0.3) grayscale(0.3)';
+        markerElement.style.filter = 'brightness(0.6) grayscale(0.3)';
         await saveCompletedMarker(markerKey);
       } else {
         visitBtn.textContent = 'Unvisited';
@@ -393,6 +386,10 @@ buildings.forEach((building) => {
     overlay.appendChild(posterContainer);
     document.body.appendChild(overlay);
 
+    overlay.addEventListener('mousedown', function (e) {
+      if (e.target === overlay) removeOverlayAndPauseVideo();
+    });
+
     cameraIcon.onclick = async function () {
       if (
         !(
@@ -414,51 +411,25 @@ buildings.forEach((building) => {
       const overlayInset = 32;
       const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
 
-      // ---- TEXT OVERLAY LOGIC ----
-      let textOverlay = null;
-      if (markerText && markerText.trim().length > 0) {
-        textOverlay = document.createElement('div');
-        textOverlay.textContent = markerText;
-        textOverlay.style.position = 'absolute';
-        textOverlay.style.top = '50px';
-        textOverlay.style.left = '50%';
-        textOverlay.style.transform = 'translateX(-50%)';
-        textOverlay.style.background = 'rgba(0,0,0,0.4)';
-        textOverlay.style.color = '#fff';
-        textOverlay.style.borderRadius = '8px';
-        textOverlay.style.fontSize = '12px';
-        textOverlay.style.fontWeight = 'bold';
-        textOverlay.style.pointerEvents = 'none';
-        textOverlay.style.zIndex = 20;
-        textOverlay.style.fontFamily = "'Poppins', sans-serif";
-        textOverlay.style.textAlign = "center";
-        textOverlay.style.lineHeight = "1";
-        textOverlay.style.padding = overlayInnerPadding;
-
-        // Set width to just fit text, but max out at 90vw - 2*overlayInset
-        // First, measure the text width
-        const tempSpan = document.createElement('span');
-        tempSpan.textContent = markerText;
-        tempSpan.style.fontFamily = textOverlay.style.fontFamily;
-        tempSpan.style.fontWeight = textOverlay.style.fontWeight;
-        tempSpan.style.fontSize = textOverlay.style.fontSize;
-        tempSpan.style.lineHeight = textOverlay.style.lineHeight;
-        tempSpan.style.position = 'absolute';
-        tempSpan.style.visibility = 'hidden';
-        tempSpan.style.whiteSpace = 'pre';
-        document.body.appendChild(tempSpan);
-
-        // Padding for both sides
-        const paddingX = overlayPaddingX * 2;
-        let textWidth = tempSpan.offsetWidth + paddingX;
-        let maxWidth = window.innerWidth * 0.90 - 2 * overlayInset;
-
-        textOverlay.style.width = Math.min(textWidth, maxWidth) + "px";
-
-        document.body.removeChild(tempSpan);
-
-        posterContainer.appendChild(textOverlay);
-      }
+      const textOverlay = document.createElement('div');
+      textOverlay.textContent = markerText;
+      textOverlay.style.position = 'absolute';
+      textOverlay.style.top = '50px';
+      textOverlay.style.left = '50%';
+      textOverlay.style.transform = 'translateX(-50%)';
+      textOverlay.style.background = 'rgba(0,0,0,0.4)';
+      textOverlay.style.color = '#fff';
+      textOverlay.style.padding = overlayInnerPadding;
+      textOverlay.style.borderRadius = '8px';
+      textOverlay.style.fontSize = '12px';
+      textOverlay.style.fontWeight = 'bold';
+      textOverlay.style.pointerEvents = 'none';
+      textOverlay.style.zIndex = 20;
+      textOverlay.style.fontFamily = "'Poppins', sans-serif";
+      textOverlay.style.textAlign = "center";
+      textOverlay.style.lineHeight = "1";
+      textOverlay.style.width = `calc(90vw - ${2 * overlayInset}px)`;
+      posterContainer.appendChild(textOverlay);
 
       const cameraVideo = document.createElement('video');
       cameraVideo.autoplay = true;
@@ -584,74 +555,72 @@ buildings.forEach((building) => {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
-        let showTextOverlay = textOverlay && markerText && markerText.trim().length > 0;
-        if (showTextOverlay) {
-          const overlayRect = textOverlay.getBoundingClientRect();
-          const videoRect = cameraVideo.getBoundingClientRect();
-          const computedStyle = window.getComputedStyle(textOverlay);
+        const overlayRect = textOverlay.getBoundingClientRect();
+        const videoRect = cameraVideo.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(textOverlay);
 
-          let topPx = overlayRect.top - videoRect.top;
-          let leftPx = overlayRect.left - videoRect.left;
-          let overlayWidthPx = overlayRect.width;
-          let overlayHeightPx = overlayRect.height;
+        let topPx = overlayRect.top - videoRect.top;
+        let leftPx = overlayRect.left - videoRect.left;
+        let overlayWidthPx = overlayRect.width;
+        let overlayHeightPx = overlayRect.height;
 
-          let fontSizePx = parseFloat(computedStyle.fontSize);
-          let fontFamily = computedStyle.fontFamily;
-          let fontWeight = computedStyle.fontWeight;
-          let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
+        let fontSizePx = parseFloat(computedStyle.fontSize);
+        let fontFamily = computedStyle.fontFamily;
+        let fontWeight = computedStyle.fontWeight;
+        let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
 
-          let scaleX = canvas.width / videoRect.width;
-          let scaleY = canvas.height / videoRect.height;
+        let scaleX = canvas.width / videoRect.width;
+        let scaleY = canvas.height / videoRect.height;
 
-          let textBoxX = leftPx * scaleX;
-          let textBoxY = topPx * scaleY;
-          let textBoxWidth = overlayWidthPx * scaleX;
-          let textBoxHeight = overlayHeightPx * scaleY;
+        let textBoxX = leftPx * scaleX;
+        let textBoxY = topPx * scaleY;
+        let textBoxWidth = overlayWidthPx * scaleX;
+        let textBoxHeight = overlayHeightPx * scaleY;
 
-          const canvasPaddingY = overlayPaddingY * scaleY;
-          const canvasPaddingX = overlayPaddingX * scaleX;
+        const canvasPaddingY = overlayPaddingY * scaleY;
+        const canvasPaddingX = overlayPaddingX * scaleX;
 
-          ctx.save();
-          ctx.globalAlpha = 0.4;
-          ctx.fillStyle = "#000";
-          ctx.beginPath();
-          if (ctx.roundRect) {
-            ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
-          } else {
-            ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
-          }
-          ctx.fill();
-          ctx.restore();
-
-          const canvasFontSize = fontSizePx * scaleY;
-          const canvasLineHeight = canvasFontSize * 1.1;
-          ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillStyle = "#fff";
-
-          const wrappedLines = wrapCanvasText(
-            ctx,
-            markerText,
-            textBoxWidth - 2 * canvasPaddingX
-          );
-
-          const totalLines = wrappedLines.length;
-          const totalTextHeight = totalLines * canvasLineHeight;
-          let y = textBoxY + canvasPaddingY + (textBoxHeight - 2 * canvasPaddingY - totalTextHeight) / 2 + canvasLineHeight / 2;
-
-          for (let i = 0; i < wrappedLines.length; i++) {
-            ctx.fillText(
-              wrappedLines[i],
-              textBoxX + textBoxWidth / 2,
-              y + i * canvasLineHeight
-            );
-          }
-          ctx.restore();
+        ctx.save();
+        ctx.globalAlpha = 0.4;
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
+        } else {
+          ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
         }
+        ctx.fill();
+        ctx.restore();
+
+        const canvasFontSize = fontSizePx * scaleY;
+        const canvasLineHeight = canvasFontSize * 1.1;
+        ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#fff";
+
+        const wrappedLines = wrapCanvasText(
+          ctx,
+          markerText,
+          textBoxWidth - 2 * canvasPaddingX
+        );
+
+        const totalLines = wrappedLines.length;
+        const totalTextHeight = totalLines * canvasLineHeight;
+        let y = textBoxY + canvasPaddingY + (textBoxHeight - 2 * canvasPaddingY - totalTextHeight) / 2 + canvasLineHeight / 2;
+
+        for (let i = 0; i < wrappedLines.length; i++) {
+          ctx.fillText(
+            wrappedLines[i],
+            textBoxX + textBoxWidth / 2,
+            y + i * canvasLineHeight
+          );
+        }
+        ctx.restore();
+
         // --- TIP TEXT ABOVE PHOTO ---
         const tipText = document.createElement('div');
-        tipText.textContent = 'Tap and hold image to save';
+        tipText.textContent = 'tip; hold the image to share or save to photos';
         tipText.style.display = 'block';
         tipText.style.margin = '16px auto 0 auto';
         tipText.style.fontSize = '13px';
@@ -659,10 +628,9 @@ buildings.forEach((building) => {
         tipText.style.textAlign = 'center';
         tipText.style.color = '#7C6E4D';
         tipText.style.fontWeight = 'bold';
-        tipText.style.background = '#eae7de'; // less bright
+        tipText.style.background = '#F9F7F3';
         tipText.style.borderRadius = '8px';
-        tipText.style.padding = '6px 7px'; // sides closer to text
-        tipText.style.lineHeight = '1.02'; // decreased line spacing
+        tipText.style.padding = '6px 12px';
         tipText.style.maxWidth = '90vw';
         posterContainer.appendChild(tipText);
 
@@ -710,7 +678,7 @@ buildings.forEach((building) => {
 
         cameraVideo.style.display = 'none';
         shutterBtn.style.display = 'none';
-        if (textOverlay) textOverlay.style.display = 'none';
+        textOverlay.style.display = 'none';
         cameraCloseBtn.style.display = 'none';
 
         cancelBtn.onclick = function () {
@@ -721,7 +689,7 @@ buildings.forEach((building) => {
 
           cameraVideo.style.display = 'block';
           shutterBtn.style.display = 'block';
-          if (textOverlay) textOverlay.style.display = 'block';
+          textOverlay.style.display = 'block';
           cameraCloseBtn.style.display = 'flex';
           cameraVideo.play();
         };
@@ -803,11 +771,8 @@ function ensureArchiveSection() {
   return archiveSection;
 }
 
-/** --- REVISED: addPhotoToArchive always allows multiple photos in archive --- */
+// Add photo to archive, allowing replace if needed
 function addPhotoToArchive(imgSrc, markerName, buttonRef) {
-  if (typeof archivePhotos === 'undefined' || !Array.isArray(archivePhotos)) {
-    archivePhotos = [];
-  }
   const idx = findPhotoIndexByName(markerName);
   if (idx !== -1) {
     // Already have a photo for this marker - ask if they want to replace
@@ -815,6 +780,7 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
       `You already have a photo for "${markerName}" in your archive.\nDo you want to replace it with the new photo?`
     );
     if (!confirmReplace) return;
+
     archivePhotos[idx] = { src: imgSrc, name: markerName };
   } else {
     archivePhotos.push({ src: imgSrc, name: markerName });
@@ -829,23 +795,21 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   }
 }
 
+// ... existing code above unchanged ...
+
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
-  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
-
-  if (!archivePhotos || archivePhotos.length === 0) {
-    archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
+  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Archive</h2>';
+  if (archivePhotos.length === 0) {
+    archiveSection.innerHTML += `<p style="text-align:center;">No photos added yet.</p>`;
     return;
   }
-
-  // Grid container - ensure full width
   const grid = document.createElement('div');
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
   grid.style.gap = '8px';
   grid.style.padding = '8px';
-  grid.style.width = '100%'; // <---- Ensure grid uses full parent width
-  grid.style.boxSizing = 'border-box';
+  grid.style.alignItems = 'start'; // Make all items align at the top for consistent image row
 
   archivePhotos.forEach(({ src, name }, idx) => {
     const cell = document.createElement('div');
@@ -853,9 +817,8 @@ function renderArchivePhotos() {
     cell.style.flexDirection = 'column';
     cell.style.alignItems = 'center';
     cell.style.position = 'relative';
-    cell.style.width = '100%'; // <---- Make each grid cell fill its grid area
 
-    // Building name above photo, small text, always full text, decreased line spacing
+    // Building name above photo, small text, always full text (wraps if needed), decreased line spacing
     const nameLabel = document.createElement('div');
     nameLabel.textContent = name;
     nameLabel.style.fontSize = '10px';
@@ -866,18 +829,23 @@ function renderArchivePhotos() {
     nameLabel.style.textAlign = 'center';
     nameLabel.style.maxWidth = '110px';
     nameLabel.style.wordBreak = 'break-word';
+    nameLabel.style.whiteSpace = 'normal';
+    nameLabel.style.overflow = 'visible';
+    nameLabel.style.textOverflow = 'unset';
+    nameLabel.style.lineHeight = '1.02'; // Decreased line spacing
 
     // Container for image and cross
     const imgContainer = document.createElement('div');
     imgContainer.style.position = 'relative';
-    imgContainer.style.display = 'block';
-    imgContainer.style.width = '110px'; // <---- Each image 110px wide
-    imgContainer.style.boxSizing = 'border-box';
+    imgContainer.style.display = 'inline-block';
+    imgContainer.style.width = '110px';
+    imgContainer.style.height = '110px';
 
     const img = document.createElement('img');
     img.src = src;
     img.style.width = '100%';
-    img.style.height = 'auto'; // Show full height - not cropped, not forced square
+    img.style.height = '100%'; // Full height, no cropping
+    img.style.objectFit = 'contain'; // No crop, show all
     img.style.borderRadius = '7px';
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
@@ -887,9 +855,8 @@ function renderArchivePhotos() {
     removeBtn.textContent = '❌';
     removeBtn.title = 'Remove from archive';
     removeBtn.style.position = 'absolute';
-    removeBtn.style.left = '100%';
-    removeBtn.style.top = '100%';
-    removeBtn.style.transform = 'translate(-50%, -50%)';
+    removeBtn.style.bottom = '4px';
+    removeBtn.style.right = '4px';
     removeBtn.style.width = '22px';
     removeBtn.style.height = '22px';
     removeBtn.style.background = '#000';
@@ -919,13 +886,13 @@ function renderArchivePhotos() {
     cell.appendChild(imgContainer);
     grid.appendChild(cell);
   });
-
   archiveSection.appendChild(grid);
 }
+
 // Render archive on load so it appears if any photos are already saved
 renderArchivePhotos();
 
-// ...rest of your code remains unchanged...
+// ... rest of your code remains unchanged
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
@@ -1047,10 +1014,6 @@ function showSection(section) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Always hide bottom bar while loading screen is up
-  const bottomBar = document.getElementById('bottom-bar');
-  if (bottomBar) bottomBar.style.display = 'none';
-
   showSection('map-section');
   document.getElementById('bar-map').addEventListener('click', () => showSection('map-section'));
   document.getElementById('bar-archive').addEventListener('click', () => showSection('archive-section'));
