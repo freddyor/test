@@ -820,7 +820,6 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   }
   localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
   renderArchivePhotos();
-  showSection('archive-section');  // <--- FIX: always show archive after adding
   if (buttonRef) {
     buttonRef.textContent = 'Archived';
     buttonRef.style.background = '#4caf50';
