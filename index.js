@@ -831,6 +831,14 @@ function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
 
+  // --- Divider line ---
+  const divider = document.createElement('div');
+  divider.style.width = '25vw';         // About a quarter of the screen width
+  divider.style.height = '1px';         // Thin line
+  divider.style.background = '#b7ab8b'; // Soft neutral color
+  divider.style.margin = '8px auto 12px auto'; // Spacing, centered
+  archiveSection.appendChild(divider);
+
   // --- Tip text (black, bigger, full width, centered) ---
   const tipText = document.createElement('div');
   tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
