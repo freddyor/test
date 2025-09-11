@@ -803,9 +803,11 @@ function ensureArchiveSection() {
   return archiveSection;
 }
 
-// ... previous code unchanged ...
-
+/** --- REVISED: addPhotoToArchive always allows multiple photos in archive --- */
 function addPhotoToArchive(imgSrc, markerName, buttonRef) {
+  if (typeof archivePhotos === 'undefined' || !Array.isArray(archivePhotos)) {
+    archivePhotos = [];
+  }
   const idx = findPhotoIndexByName(markerName);
   if (idx !== -1) {
     // Already have a photo for this marker - ask if they want to replace
@@ -813,14 +815,13 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
       `You already have a photo for "${markerName}" in your archive.\nDo you want to replace it with the new photo?`
     );
     if (!confirmReplace) return;
-
     archivePhotos[idx] = { src: imgSrc, name: markerName };
   } else {
     archivePhotos.push({ src: imgSrc, name: markerName });
   }
   localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
   renderArchivePhotos();
-  showSection('archive-section');  // <--- FIX: always show archive after adding
+  showSection('archive-section');
   if (buttonRef) {
     buttonRef.textContent = 'Archived';
     buttonRef.style.background = '#4caf50';
@@ -832,7 +833,7 @@ function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
 
-  if (archivePhotos.length === 0) {
+  if (!archivePhotos || archivePhotos.length === 0) {
     archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
     return;
   }
