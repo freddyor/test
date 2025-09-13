@@ -258,7 +258,7 @@ exploreButton.onclick = function() {
   img.className = 'explore-popup-img';
   img.alt = building.name;
   img.title = building.name;
-  img.style.width = '96px';
+  img.style.width = '102px';
   img.style.height = 'auto'; // Let image use natural height
   img.style.objectFit = 'contain'; // show entire image, never crop
   img.style.borderRadius = '10px';
@@ -674,25 +674,6 @@ buildings.forEach((building) => {
 
     // --- VISIT BUTTON LOCATION CHECK ---
     visitBtn.onclick = async function () {
-      const buildingLat = building.coords[1];
-      const buildingLng = building.coords[0];
-      const thresholdMeters = 50; // 50 meters
-
-      // Check user location
-      if (!currentUserLocation) {
-        alert("We couldn't detect your location. Please enable location services and try again.");
-        return;
-      }
-
-      const distance = getDistanceMeters(
-        currentUserLocation.lat, currentUserLocation.lng,
-        buildingLat, buildingLng
-      );
-
-      if (distance > thresholdMeters) {
-        alert(`You must be within ${thresholdMeters} meters of this location to confirm your visit. You're currently ${Math.round(distance)} meters away.`);
-        return;
-      }
 
       // ...existing logic to toggle Visited
       isVisited = !isVisited;
