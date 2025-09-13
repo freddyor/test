@@ -112,12 +112,32 @@ progressBarContainer.addEventListener('click', function (e) {
   }
 });
 
-// ... (previous code unchanged)
-
+// --- Show Progress Bar Hint Popup ---
 function showProgressBarHint() {
   // Remove existing if any
-  const existing = document.getElementById('progress-bar-popup');
-  if (existing) existing.remove();
+  const existingPopup = document.getElementById('progress-bar-popup');
+  if (existingPopup) existingPopup.remove();
+  const existingOverlay = document.getElementById('progress-bar-popup-overlay');
+  if (existingOverlay) existingOverlay.remove();
+
+  // Add overlay for click outside
+  const overlay = document.createElement('div');
+  overlay.id = 'progress-bar-popup-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.background = 'rgba(0,0,0,0.1)';
+  overlay.style.zIndex = '10009';
+
+  // Remove popup and overlay when clicking outside
+  overlay.onclick = function (e) {
+    if (e.target === overlay) {
+      popup.remove();
+      overlay.remove();
+    }
+  };
 
   const popup = document.createElement('div');
   popup.id = 'progress-bar-popup';
@@ -142,27 +162,9 @@ function showProgressBarHint() {
   popup.style.color = '#111';
   popup.style.userSelect = 'none';
 
-  // Add overlay for click outside
-  const overlay = document.createElement('div');
-  overlay.id = 'progress-bar-popup-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.background = 'rgba(0,0,0,0.1)';
-  overlay.style.zIndex = '10009';
-
-  overlay.onclick = function (e) {
-    if (e.target === overlay) {
-      popup.remove();
-      overlay.remove();
-    }
-  };
-
   // Message text
   const text = document.createElement('span');
-  text.textContent = "Press the visit button on a marker to confirm you're visit!";
+  text.textContent = "This is the your Visited Progress Bar. Press the 'Unvisited' button on a marker to confirm your first visit!";
   text.style.flex = '1';
   text.style.textAlign = 'center';
 
@@ -197,8 +199,6 @@ function showProgressBarHint() {
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
 }
-
-// ... (rest of code unchanged)
 
 signInAnonymously(auth);
 
@@ -306,40 +306,26 @@ const userLocationMarker = new mapboxgl.Marker({ element: userLocationEl })
 geolocate.on('error', (e) => {
   if (e.code === 1) console.log('Location access denied by user');
 });
+
+// Store current user location globally
+let currentUserLocation = null;
 geolocate.on('geolocate', (e) => {
+  currentUserLocation = { lat: e.coords.latitude, lng: e.coords.longitude };
   userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
 });
 
-// Helper function: stops all modal videos except the specified one (or all if none specified)
-function stopAllModalVideos(except = null) {
-  activeModalVideos.forEach((video) => {
-    if (!except || video !== except) {
-      video.pause();
-      video.currentTime = 0;
-      if (video.parentNode) {
-        // Remove video controls if modal is not up
-        video.controls = false;
-      }
-    }
-  });
-}
-
-// Remove any modal overlay and stop videos if leaving modal
-function removeOverlayAndPauseVideo() {
-  // Stop all modal videos
-  stopAllModalVideos();
-  // Remove overlay
-  document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
-}
-
-// Remove modal overlay and stop video for a specific video element
-function removeSpecificOverlayAndPause(videoElement, overlay) {
-  if (videoElement) {
-    videoElement.pause();
-    videoElement.currentTime = 0;
-    activeModalVideos.delete(videoElement);
-  }
-  if (overlay) overlay.remove();
+// Helper: Haversine formula (returns meters)
+function getDistanceMeters(lat1, lng1, lat2, lng2) {
+    const R = 6371000; // Radius of Earth in meters
+    const toRad = x => x * Math.PI / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
 }
 
 locations.forEach((location) => {
@@ -467,7 +453,29 @@ buildings.forEach((building) => {
     visitBtn.style.display = 'flex';
     visitBtn.style.zIndex = 11;
 
+    // --- VISIT BUTTON LOCATION CHECK ---
     visitBtn.onclick = async function () {
+      const buildingLat = building.coords[1];
+      const buildingLng = building.coords[0];
+      const thresholdMeters = 50; // 50 meters
+
+      // Check user location
+      if (!currentUserLocation) {
+        alert("We couldn't detect your location. Please enable location services and try again.");
+        return;
+      }
+
+      const distance = getDistanceMeters(
+        currentUserLocation.lat, currentUserLocation.lng,
+        buildingLat, buildingLng
+      );
+
+      if (distance > thresholdMeters) {
+        alert(`You must be within ${thresholdMeters} meters of this location to confirm your visit. You're currently ${Math.round(distance)} meters away.`);
+        return;
+      }
+
+      // ...existing logic to toggle Visited
       isVisited = !isVisited;
       if (isVisited) {
         visitBtn.textContent = 'Visited';
@@ -507,6 +515,22 @@ buildings.forEach((building) => {
 
     let videoElement = null;
     let cameraStream = null;
+
+    function removeOverlayAndPauseVideo() {
+      // Stop all modal videos
+      stopAllModalVideos();
+      // Remove overlay
+      document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
+    }
+
+    function removeSpecificOverlayAndPause(videoElement, overlay) {
+      if (videoElement) {
+        videoElement.pause();
+        videoElement.currentTime = 0;
+        activeModalVideos.delete(videoElement);
+      }
+      if (overlay) overlay.remove();
+    }
 
     closeBtn.onclick = () => removeSpecificOverlayAndPause(videoElement, overlay);
     let startY;
@@ -1130,6 +1154,20 @@ function renderArchivePhotos() {
 }
 renderArchivePhotos();
 
+// --- Helper for video modals: Stop all modal videos except optionally one
+function stopAllModalVideos(except = null) {
+  activeModalVideos.forEach((video) => {
+    if (!except || video !== except) {
+      video.pause();
+      video.currentTime = 0;
+      if (video.parentNode) {
+        video.controls = false;
+      }
+    }
+  });
+}
+
+// --- Marker scaling ---
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
   const markerSize = zoomLevel - 13;
