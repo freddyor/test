@@ -201,7 +201,7 @@ closeBtn.style.right = '-14px';
   closeBtn.style.border = 'none';
   closeBtn.style.borderRadius = '50%';
   closeBtn.style.color = '#fff';
-  closeBtn.style.fontSize = '17px';
+  closeBtn.style.fontSize = '13px';
   closeBtn.style.fontFamily = 'inherit';
   closeBtn.style.cursor = 'pointer';
   closeBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
@@ -215,57 +215,106 @@ closeBtn.style.right = '-14px';
   // Grid
   const grid = document.createElement('div');
   grid.id = 'explore-popup-grid';
-  grid.style.display = 'grid';
-  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-  grid.style.gap = '4px';
-  grid.style.marginTop = '8px';
-  grid.style.justifyItems = 'center';
-  grid.style.alignItems = 'start';
-  grid.style.overflowY = 'auto';
+grid.style.display = 'grid';
+grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+grid.style.columnGap = '8px'; // horizontal gap
+grid.style.rowGap = '4px';    // vertical gap, reduce further for less space
+grid.style.marginTop = '8px';
+grid.style.justifyItems = 'center';
+grid.style.alignItems = 'start';
+grid.style.overflowY = 'auto';
 
-  // Populate grid with all building markers
-  buildings.forEach((building, idx) => {
-    const cell = document.createElement('div');
-    cell.style.display = 'flex';
-    cell.style.flexDirection = 'column';
-    cell.style.alignItems = 'center';
+buildings.forEach((building, idx) => {
+  const cell = document.createElement('div');
+  cell.style.display = 'flex';
+  cell.style.flexDirection = 'column';
+  cell.style.alignItems = 'center';
+  cell.style.justifyContent = 'center';
+  cell.style.position = 'relative';
 
-    // Poster image - show full height, uncropped
-    const img = document.createElement('img');
-    img.src = building.posterUrl || building.image;
-    img.className = 'explore-popup-img';
-    img.alt = building.name;
-    img.title = building.name;
-    img.style.width = '96px';
-    img.style.height = 'auto'; // Allow full height
-    img.style.maxHeight = 'calc(70vh - 60px)'; // Responsive, but show full available height
-    img.style.objectFit = 'contain'; // Show entire image, no cropping
-    img.style.borderRadius = '10px';
-    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-    img.style.border = '2px solid #111';
-    img.style.background = '#e0e0e0';
-    img.style.cursor = 'pointer';
-    img.style.transition = 'transform 0.12s';
-    img.onmouseover = () => img.style.transform = 'scale(1.07)';
-    img.onmouseout = () => img.style.transform = 'scale(1)';
+  // Create image container with border
+  const imgContainer = document.createElement('div');
+  imgContainer.style.width = '112px';
+  imgContainer.style.height = '150px'; // set desired height so spinner is centered
+  imgContainer.style.background = '#e0e0e0';
+  imgContainer.style.border = '2px solid #111';
+  imgContainer.style.borderRadius = '10px';
+  imgContainer.style.display = 'flex';
+  imgContainer.style.alignItems = 'center';
+  imgContainer.style.justifyContent = 'center';
+  imgContainer.style.position = 'relative';
+  imgContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
 
-    // Click: zoom to marker location
-    img.onclick = function() {
-      overlay.remove();
-      map.flyTo({
-        center: building.coords,
-        zoom: 17,
-        pitch: 45,
-        bearing: -17.6,
-        speed: 1.2,
-        curve: 1,
-        essential: true
-      });
-    };
+  // Spinner (buffer loading thing)
+  const spinner = document.createElement('div');
+  spinner.style.width = '36px';
+  spinner.style.height = '36px';
+  spinner.style.border = '5px solid #eee';
+  spinner.style.borderTop = '5px solid #9b4dca';
+  spinner.style.borderRadius = '50%';
+  spinner.style.animation = 'spin 1s linear infinite';
 
-    cell.appendChild(img);
-    grid.appendChild(cell);
-  });
+  // Add keyframes if needed
+  if (!document.getElementById('posterimg-spinner-keyframes')) {
+    const style = document.createElement('style');
+    style.id = 'posterimg-spinner-keyframes';
+    style.innerHTML = `@keyframes spin {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}`;
+    document.head.appendChild(style);
+  }
+
+  imgContainer.appendChild(spinner);
+
+  // Poster image
+  const img = document.createElement('img');
+  img.src = building.posterUrl || building.image;
+  img.className = 'explore-popup-img';
+  img.alt = building.name;
+  img.title = building.name;
+  img.style.width = '112px';
+  img.style.height = 'auto';
+  img.style.maxHeight = '140px'; // keep a bit smaller than container for padding
+  img.style.objectFit = 'contain';
+  img.style.borderRadius = '10px';
+  img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+  img.style.border = 'none'; // border handled by container
+  img.style.background = 'transparent';
+  img.style.cursor = 'pointer';
+  img.style.transition = 'transform 0.12s';
+  img.style.position = 'absolute';
+  img.style.top = '0';
+  img.style.left = '0';
+  img.style.display = 'none'; // hide until loaded
+
+  img.onload = () => {
+    spinner.style.display = 'none';
+    img.style.display = 'block';
+  };
+
+  img.onerror = () => {
+    spinner.style.borderTop = '5px solid red';
+    spinner.title = 'Image failed to load';
+  };
+
+  img.onmouseover = () => img.style.transform = 'scale(1.07)';
+  img.onmouseout = () => img.style.transform = 'scale(1)';
+
+  img.onclick = function() {
+    overlay.remove();
+    map.flyTo({
+      center: building.coords,
+      zoom: 17,
+      pitch: 45,
+      bearing: -17.6,
+      speed: 1.2,
+      curve: 1,
+      essential: true
+    });
+  };
+
+  imgContainer.appendChild(img);
+  cell.appendChild(imgContainer);
+  grid.appendChild(cell);
+});
 
   popup.appendChild(grid);
   overlay.appendChild(popup);
