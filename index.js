@@ -827,10 +827,17 @@ buildings.forEach((building) => {
         const addToArchiveBtn = document.createElement('button');
         addToArchiveBtn.className = 'add-to-archive-btn custom-button';
         addToArchiveBtn.textContent = 'Add to Archive';
-        addToArchiveBtn.style.display = 'block';
-        addToArchiveBtn.style.margin = '10px auto 0 auto';
-        addToArchiveBtn.style.background = '#e0e0e0';
-        addToArchiveBtn.style.color = '#333';
+addToArchiveBtn.style.fontSize = '13px';
+addToArchiveBtn.style.fontFamily = "'Poppins', sans-serif";
+addToArchiveBtn.style.textAlign = 'center';
+addToArchiveBtn.style.background = '#e0e0e0'; // <-- keep your button color!
+addToArchiveBtn.style.color = '#333'; // <-- keep your button color!
+addToArchiveBtn.style.borderRadius = '8px';
+addToArchiveBtn.style.padding = '6px 7px';
+addToArchiveBtn.style.lineHeight = '1.02';
+addToArchiveBtn.style.display = 'block';
+addToArchiveBtn.style.margin = '10px auto 0 auto'; // keep spacing
+addToArchiveBtn.style.fontWeight = 'bold';
         addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
           addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
@@ -840,10 +847,17 @@ buildings.forEach((building) => {
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'cancel-btn custom-button';
         cancelBtn.textContent = 'Take again';
-        cancelBtn.style.display = 'block';
-        cancelBtn.style.margin = '10px auto 0 auto';
-        cancelBtn.style.background = '#9b4dca';
-        cancelBtn.style.color = '#fff';
+cancelBtn.style.fontSize = '13px';
+cancelBtn.style.fontFamily = "'Poppins', sans-serif";
+cancelBtn.style.textAlign = 'center';
+cancelBtn.style.background = '#9b4dca'; // <-- keep your button color!
+cancelBtn.style.color = '#fff'; // <-- keep your button color!
+cancelBtn.style.borderRadius = '8px';
+cancelBtn.style.padding = '6px 7px';
+cancelBtn.style.lineHeight = '1.02';
+cancelBtn.style.display = 'block';
+cancelBtn.style.margin = '10px auto 0 auto';
+cancelBtn.style.fontWeight = 'bold';
         cancelBtn.onclick = function () {
           imgPreview.remove();
           addToArchiveBtn.remove();
