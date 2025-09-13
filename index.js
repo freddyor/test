@@ -1,12 +1,10 @@
 import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
-// --- Firebase imports ---
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-// --- Firebase config ---
 const firebaseConfig = {
   apiKey: "AIzaSyDjv5uUNOx86FvYsXdKSMkl8vui2Jynt7M",
   authDomain: "britmap-64cb3.firebaseapp.com",
@@ -21,17 +19,14 @@ const bottomBar = document.getElementById('bottom-bar');
 if (bottomBar) { bottomBar.style.display = 'none'; }
 
 const loadingScreenStart = Date.now();
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
 let firebaseUser = null;
 let completedMarkers = {};
-
 let activeModalVideos = new Set();
 
-// --- Progress Bar and Explore Button ---
 const progressBarWrapper = document.createElement('div');
 progressBarWrapper.id = 'progress-bar-wrapper';
 progressBarWrapper.style.position = 'fixed';
