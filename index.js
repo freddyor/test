@@ -30,12 +30,21 @@ let completedMarkers = {};
 let activeModalVideos = new Set();
 
 // --- Progress Bar Element (Clash of Clans Style, geolocate button height, only active on map, hidden on loading screen) ---
+// Create wrapper for progress bar and explore button
+const progressBarWrapper = document.createElement('div');
+progressBarWrapper.id = 'progress-bar-wrapper';
+progressBarWrapper.style.position = 'fixed';
+progressBarWrapper.style.top = '10px';
+progressBarWrapper.style.left = '10px';
+progressBarWrapper.style.zIndex = '10001';
+progressBarWrapper.style.display = 'flex';
+progressBarWrapper.style.flexDirection = 'row';
+progressBarWrapper.style.alignItems = 'center';
+progressBarWrapper.style.gap = '8px';
+
+// Progress bar container (only the bar, not the button!)
 const progressBarContainer = document.createElement('div');
 progressBarContainer.id = 'progress-bar-container';
-progressBarContainer.style.position = 'fixed';
-progressBarContainer.style.top = '10px';
-progressBarContainer.style.left = '10px';
-progressBarContainer.style.zIndex = '10001';
 progressBarContainer.style.height = '28px';
 progressBarContainer.style.background = '#e0e0e0';
 progressBarContainer.style.borderRadius = '14px';
@@ -106,9 +115,12 @@ exploreButton.style.justifyContent = 'center';
 progressBar.appendChild(progressFill);
 progressBar.appendChild(progressBarLabel);
 progressBarContainer.appendChild(progressBar);
-progressBarContainer.appendChild(exploreButton);
 
-document.body.appendChild(progressBarContainer);
+// Put the progress bar and button side by side (button outside the bar!)
+progressBarWrapper.appendChild(progressBarContainer);
+progressBarWrapper.appendChild(exploreButton);
+
+document.body.appendChild(progressBarWrapper);
 
 // --- Explore Locations Popup Logic ---
 exploreButton.onclick = function() {
@@ -139,7 +151,7 @@ exploreButton.onclick = function() {
   galleryPopup.style.flexDirection = 'column';
 
   // Position between progress bar and bottom bar
-  const progressBarRect = progressBarContainer.getBoundingClientRect();
+  const progressBarRect = progressBarWrapper.getBoundingClientRect();
   const bottomBar = document.getElementById('bottom-bar');
   let bottomBarHeight = bottomBar && bottomBar.offsetHeight ? bottomBar.offsetHeight : 54;
   galleryPopup.style.top = `${progressBarRect.bottom + 8}px`;
@@ -1382,7 +1394,7 @@ map.on('load', () => {
     if (bottomBar) bottomBar.style.display = 'flex';
     // After loading screen, show progress bar ONLY if map-section is active
     if (document.getElementById('map-section')?.style.display !== 'none') {
-      progressBarContainer.style.display = 'flex';
+      progressBarWrapper.style.display = 'flex';
     }
   }
 
@@ -1459,15 +1471,15 @@ function showSection(section) {
   // Only show progress bar if map-section is active AND loading screen is hidden
   const loadingScreen = document.getElementById('loading-screen');
   if (section === 'map-section' && (!loadingScreen || loadingScreen.style.display === 'none')) {
-    progressBarContainer.style.display = 'flex';
+    progressBarWrapper.style.display = 'flex';
     map.resize();
   } else {
-    progressBarContainer.style.display = 'none';
+    progressBarWrapper.style.display = 'none';
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  progressBarContainer.style.display = 'none';
+  progressBarWrapper.style.display = 'none';
   showSection('map-section');
   document.getElementById('bar-map').addEventListener('click', () => showSection('map-section'));
   document.getElementById('bar-archive').addEventListener('click', () => showSection('archive-section'));
