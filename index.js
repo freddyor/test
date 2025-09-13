@@ -26,19 +26,19 @@ const auth = getAuth(app);
 let firebaseUser = null;
 let completedMarkers = {};
 
-// --- Progress Bar Element (Clash of Clans Style) ---
+// --- Progress Bar Element (Clash of Clans Style, geolocate button height, only active on map, hidden on loading screen) ---
 const progressBarContainer = document.createElement('div');
 progressBarContainer.id = 'progress-bar-container';
 progressBarContainer.style.position = 'fixed';
 progressBarContainer.style.top = '10px';         // Match geolocation control
 progressBarContainer.style.left = '10px';        // Mirror right side
 progressBarContainer.style.zIndex = '10001';
-progressBarContainer.style.height = '40px';      // Match geolocation button height
-progressBarContainer.style.width = '160px';      // Or more, for label
+progressBarContainer.style.height = '28px';      // Match geolocation button height
+progressBarContainer.style.width = '140px';      // Or more, for label
 progressBarContainer.style.background = '#e0e0e0';
 progressBarContainer.style.borderRadius = '14px';
-progressBarContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-progressBarContainer.style.border = '3px solid #111';
+progressBarContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+progressBarContainer.style.border = '2px solid #111';
 progressBarContainer.style.display = 'none';
 progressBarContainer.style.alignItems = 'center';
 progressBarContainer.style.justifyContent = 'center';
@@ -74,7 +74,7 @@ progressBarLabel.style.width = '100%';
 progressBarLabel.style.textAlign = 'center';
 progressBarLabel.style.fontFamily = "'Poppins', sans-serif";
 progressBarLabel.style.fontWeight = 'bold';
-progressBarLabel.style.fontSize = '17px';
+progressBarLabel.style.fontSize = '15px';
 progressBarLabel.style.color = '#111';
 progressBarLabel.style.userSelect = 'none';
 
@@ -1036,6 +1036,10 @@ map.on('load', () => {
   function showBottomBar() {
     loadingScreen.style.display = 'none';
     if (bottomBar) bottomBar.style.display = 'flex';
+    // After loading screen, show progress bar ONLY if map-section is active
+    if (document.getElementById('map-section')?.style.display !== 'none') {
+      progressBarContainer.style.display = 'flex';
+    }
   }
 
   if (loadingScreen) {
@@ -1046,6 +1050,7 @@ map.on('load', () => {
     }
   }
 });
+
 function getUrlParameter(name) {
   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
   var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
@@ -1107,19 +1112,18 @@ function showSection(section) {
   document.getElementById('bar-archive').classList.toggle('active', section === 'archive-section');
   document.getElementById('bar-about').classList.toggle('active', section === 'about-section');
 
-  // Show/hide progress bar based on section
-  if (section === 'map-section') {
-    progressBarContainer.style.display = 'flex'; // Show on map
+  // Only show progress bar if map-section is active AND loading screen is hidden
+  const loadingScreen = document.getElementById('loading-screen');
+  if (section === 'map-section' && (!loadingScreen || loadingScreen.style.display === 'none')) {
+    progressBarContainer.style.display = 'flex';
     map.resize();
   } else {
-    progressBarContainer.style.display = 'none'; // Hide elsewhere
+    progressBarContainer.style.display = 'none';
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const bottomBar = document.getElementById('bottom-bar');
-  if (bottomBar) bottomBar.style.display = 'none';
-
+  progressBarContainer.style.display = 'none';
   showSection('map-section');
   document.getElementById('bar-map').addEventListener('click', () => showSection('map-section'));
   document.getElementById('bar-archive').addEventListener('click', () => showSection('archive-section'));
