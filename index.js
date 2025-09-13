@@ -1837,42 +1837,6 @@ function showGalleryPopup() {
 
 galleryButton.onclick = showGalleryPopup;
 
-// Zoom modal for gallery images
-function showZoomModal(imgSrc) {
-  // Remove previous
-  if (document.getElementById('gallery-zoom-modal')) {
-    document.getElementById('gallery-zoom-modal').remove();
-  }
-  const modal = document.createElement('div');
-  modal.id = 'gallery-zoom-modal';
-
-  const img = document.createElement('img');
-  img.id = 'gallery-zoom-img';
-  img.src = imgSrc;
-  img.alt = 'Zoomed photo';
-
-  // Close button
-  const closeBtn = document.createElement('button');
-  closeBtn.id = 'gallery-zoom-close-btn';
-  closeBtn.innerHTML = '❌';
-  closeBtn.title = 'Close';
-
-  closeBtn.onclick = function() {
-    modal.remove();
-  };
-
-  modal.appendChild(img);
-  modal.appendChild(closeBtn);
-
-  document.body.appendChild(modal);
-
-  // Close on click outside image
-  modal.onclick = function(e) {
-    if (e.target === modal) {
-      modal.remove();
-    }
-  };
-}
 
 // ---------------------- END GALLERY POPUP LOGIC ----------------------
 
