@@ -217,8 +217,8 @@ closeBtn.style.right = '-14px';
   grid.id = 'explore-popup-grid';
 grid.style.display = 'grid';
 grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-grid.style.columnGap = '8px'; // horizontal gap
-grid.style.rowGap = '4px';    // vertical gap, reduce further for less space
+grid.style.columnGap = '8px';
+grid.style.rowGap = '4px'; // Vertical gap reduced
 grid.style.marginTop = '8px';
 grid.style.justifyItems = 'center';
 grid.style.alignItems = 'start';
@@ -232,19 +232,6 @@ buildings.forEach((building, idx) => {
   cell.style.justifyContent = 'center';
   cell.style.position = 'relative';
 
-  // Create image container with border
-  const imgContainer = document.createElement('div');
-  imgContainer.style.width = '112px';
-  imgContainer.style.height = '150px'; // set desired height so spinner is centered
-  imgContainer.style.background = '#e0e0e0';
-  imgContainer.style.border = '2px solid #111';
-  imgContainer.style.borderRadius = '10px';
-  imgContainer.style.display = 'flex';
-  imgContainer.style.alignItems = 'center';
-  imgContainer.style.justifyContent = 'center';
-  imgContainer.style.position = 'relative';
-  imgContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-
   // Spinner (buffer loading thing)
   const spinner = document.createElement('div');
   spinner.style.width = '36px';
@@ -253,6 +240,7 @@ buildings.forEach((building, idx) => {
   spinner.style.borderTop = '5px solid #9b4dca';
   spinner.style.borderRadius = '50%';
   spinner.style.animation = 'spin 1s linear infinite';
+  spinner.style.margin = '32px 0'; // optional vertical padding for spinner
 
   // Add keyframes if needed
   if (!document.getElementById('posterimg-spinner-keyframes')) {
@@ -262,7 +250,7 @@ buildings.forEach((building, idx) => {
     document.head.appendChild(style);
   }
 
-  imgContainer.appendChild(spinner);
+  cell.appendChild(spinner);
 
   // Poster image
   const img = document.createElement('img');
@@ -272,17 +260,14 @@ buildings.forEach((building, idx) => {
   img.title = building.name;
   img.style.width = '112px';
   img.style.height = 'auto';
-  img.style.maxHeight = '140px'; // keep a bit smaller than container for padding
+  img.style.maxHeight = '140px';
   img.style.objectFit = 'contain';
   img.style.borderRadius = '10px';
   img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-  img.style.border = 'none'; // border handled by container
-  img.style.background = 'transparent';
+  img.style.border = '2px solid #111'; // border only appears when photo loads
+  img.style.background = '#e0e0e0';
   img.style.cursor = 'pointer';
   img.style.transition = 'transform 0.12s';
-  img.style.position = 'absolute';
-  img.style.top = '0';
-  img.style.left = '0';
   img.style.display = 'none'; // hide until loaded
 
   img.onload = () => {
@@ -311,8 +296,7 @@ buildings.forEach((building, idx) => {
     });
   };
 
-  imgContainer.appendChild(img);
-  cell.appendChild(imgContainer);
+  cell.appendChild(img);
   grid.appendChild(cell);
 });
 
