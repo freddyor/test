@@ -1209,18 +1209,11 @@ function findPhotoIndexByName(name) {
   return archivePhotos.findIndex(p => p.name === name);
 }
 
-// This is the updated function for descending order (most recent at top/left)
+// ... (all your previous code remains unchanged above) ...
+
 function addPhotoToArchive(imgSrc, markerName, buttonRef) {
-  const idx = findPhotoIndexByName(markerName);
-  if (idx !== -1) {
-    const confirmReplace = window.confirm(
-      `You already have a photo for "${markerName}" in your archive.\nDo you want to replace it with the new photo?`
-    );
-    if (!confirmReplace) return;
-    // Remove old entry
-    archivePhotos.splice(idx, 1);
-  }
-  // Add new photo to the front (most recent first)
+  // REMOVE: check for existing photo for this marker
+  // Instead, just add the new photo - allow multiple per marker
   archivePhotos.unshift({ src: imgSrc, name: markerName });
 
   localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
@@ -1230,18 +1223,6 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
     buttonRef.style.background = '#4caf50';
     buttonRef.style.color = '#fff';
   }
-}
-
-function ensureArchiveSection() {
-  let archiveSection = document.getElementById('archive-section');
-  if (!archiveSection) {
-    archiveSection = document.createElement('div');
-    archiveSection.id = 'archive-section';
-    archiveSection.style.display = 'none';
-    archiveSection.style.padding = '18px 0 0 0';
-    document.body.appendChild(archiveSection);
-  }
-  return archiveSection;
 }
 
 function renderArchivePhotos() {
@@ -1260,7 +1241,6 @@ function renderArchivePhotos() {
     return;
   }
 
-  // Only show tipText if there is at least one photo
   const tipText = document.createElement('div');
   tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
   tipText.style.fontSize = '14px';
@@ -1355,6 +1335,8 @@ function renderArchivePhotos() {
 
   archiveSection.appendChild(grid);
 }
+
+// ... (rest of your code remains unchanged) ...
 renderArchivePhotos();
 
 // --- Helper for video modals: Stop all modal videos except optionally one
