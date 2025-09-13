@@ -1097,10 +1097,10 @@ buildings.forEach((building) => {
         addToArchiveBtn.style.color = '#333';
         posterContainer.appendChild(addToArchiveBtn);
 
-        // REMOVE THE BUTTON CHANGE FEATURE: just add to archive, do not modify button text/style after click
+        // No longer check if already archived for this marker, just allow multiple
         addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
-          addPhotoToArchive(imgPreview.src, building.name);
+          addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
         };
 
         cancelBtn = document.createElement('button');
@@ -1200,12 +1200,17 @@ if (savedArchivePhotos) {
 }
 
 // REMOVE THE LIMIT: This function now simply adds to the archive, allowing duplicates
-function addPhotoToArchive(imgSrc, markerName) {
+function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   // No longer check for existing photo per marker, just push a new entry
   archivePhotos.unshift({ src: imgSrc, name: markerName });
 
   localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
   renderArchivePhotos();
+  if (buttonRef) {
+    buttonRef.textContent = 'Archived';
+    buttonRef.style.background = '#4caf50';
+    buttonRef.style.color = '#fff';
+  }
 }
 
 // Optionally, you can remove the findPhotoIndexByName function entirely
