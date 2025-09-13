@@ -26,6 +26,68 @@ const auth = getAuth(app);
 let firebaseUser = null;
 let completedMarkers = {};
 
+// --- Progress Bar Element ---
+const progressBarContainer = document.createElement('div');
+progressBarContainer.id = 'progress-bar-container';
+progressBarContainer.style.position = 'fixed';
+progressBarContainer.style.top = '20px';
+progressBarContainer.style.left = '20px';
+progressBarContainer.style.zIndex = '10001';
+progressBarContainer.style.background = 'rgba(255,255,255,0.85)';
+progressBarContainer.style.borderRadius = '10px';
+progressBarContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+progressBarContainer.style.padding = '8px 16px 8px 16px';
+progressBarContainer.style.display = 'flex';
+progressBarContainer.style.alignItems = 'center';
+progressBarContainer.style.minWidth = '120px';
+
+const progressBarLabel = document.createElement('span');
+progressBarLabel.id = 'progress-bar-label';
+progressBarLabel.style.fontFamily = "'Poppins', sans-serif";
+progressBarLabel.style.fontWeight = 'bold';
+progressBarLabel.style.fontSize = '15px';
+progressBarLabel.style.marginRight = '12px';
+progressBarLabel.style.color = '#4caf50';
+
+const progressBar = document.createElement('div');
+progressBar.id = 'progress-bar';
+progressBar.style.flexGrow = '1';
+progressBar.style.height = '18px';
+progressBar.style.background = '#e0e0e0';
+progressBar.style.borderRadius = '9px';
+progressBar.style.overflow = 'hidden';
+progressBar.style.position = 'relative';
+
+const progressFill = document.createElement('div');
+progressFill.id = 'progress-fill';
+progressFill.style.height = '100%';
+progressFill.style.width = '0%';
+progressFill.style.background = 'linear-gradient(90deg, #4caf50 60%, #81c784 100%)';
+progressFill.style.transition = 'width 0.3s ease';
+progressFill.style.borderRadius = '9px';
+
+progressBar.appendChild(progressFill);
+progressBarContainer.appendChild(progressBarLabel);
+progressBarContainer.appendChild(progressBar);
+
+document.body.appendChild(progressBarContainer);
+
+// Update the progress bar whenever visited markers change
+function updateProgressBar() {
+  // Only "building" markers are tracked for visited state
+  const totalMarkers = buildings.length;
+  const visitedMarkers = buildings.filter(
+    b => completedMarkers['completed-marker-' + b.name]
+  ).length;
+
+  // Update label
+  progressBarLabel.textContent = `${visitedMarkers} / ${totalMarkers}`;
+
+  // Update bar fill
+  const percent = totalMarkers > 0 ? Math.round((visitedMarkers / totalMarkers) * 100) : 0;
+  progressFill.style.width = percent + '%';
+}
+
 signInAnonymously(auth);
 
 onAuthStateChanged(auth, async (user) => {
@@ -33,6 +95,7 @@ onAuthStateChanged(auth, async (user) => {
     firebaseUser = user;
     await loadCompletedMarkers();
     applyDimmedMarkers();
+    updateProgressBar();
   }
 });
 
@@ -54,6 +117,7 @@ async function saveCompletedMarker(markerKey) {
   completedMarkers[markerKey] = true;
   const docRef = doc(db, "users", firebaseUser.uid);
   await setDoc(docRef, { completedMarkers }, { merge: true });
+  updateProgressBar();
 }
 
 function applyDimmedMarkers() {
@@ -277,6 +341,7 @@ buildings.forEach((building) => {
         completedMarkers[markerKey] = false;
         const docRef = doc(db, "users", firebaseUser.uid);
         await setDoc(docRef, { completedMarkers }, { merge: true });
+        updateProgressBar();
       }
     };
 
@@ -1343,3 +1408,6 @@ function createPopupContent(location, isFirebase = false) {
         </div>
     `;
 }
+
+// Optionally, update the progress bar on initial script load to set the correct state
+updateProgressBar();
