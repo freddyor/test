@@ -39,7 +39,7 @@ progressBarContainer.style.background = '#e0e0e0';
 progressBarContainer.style.borderRadius = '14px';
 progressBarContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
 progressBarContainer.style.border = '3px solid #111';
-progressBarContainer.style.display = 'flex';
+progressBarContainer.style.display = 'none';
 progressBarContainer.style.alignItems = 'center';
 progressBarContainer.style.justifyContent = 'center';
 progressBarContainer.style.overflow = 'hidden';
@@ -1107,8 +1107,12 @@ function showSection(section) {
   document.getElementById('bar-archive').classList.toggle('active', section === 'archive-section');
   document.getElementById('bar-about').classList.toggle('active', section === 'about-section');
 
-  if (section === 'map-section' && window.map) {
+  // Show/hide progress bar based on section
+  if (section === 'map-section') {
+    progressBarContainer.style.display = 'flex'; // Show on map
     map.resize();
+  } else {
+    progressBarContainer.style.display = 'none'; // Hide elsewhere
   }
 }
 
