@@ -18,9 +18,7 @@ const firebaseConfig = {
 };
 
 const bottomBar = document.getElementById('bottom-bar');
-if (bottomBar) {
-  bottomBar.style.display = 'none';
-}
+if (bottomBar) { bottomBar.style.display = 'none'; }
 
 const loadingScreenStart = Date.now();
 
@@ -31,7 +29,6 @@ const auth = getAuth(app);
 let firebaseUser = null;
 let completedMarkers = {};
 
-// Track all active video elements for modal videos
 let activeModalVideos = new Set();
 
 // --- Progress Bar and Explore Button ---
@@ -46,7 +43,6 @@ progressBarWrapper.style.flexDirection = 'row';
 progressBarWrapper.style.alignItems = 'center';
 progressBarWrapper.style.gap = '8px';
 
-// Progress Bar Container
 const progressBarContainer = document.createElement('div');
 progressBarContainer.id = 'progress-bar-container';
 progressBarContainer.style.height = '28px';
@@ -64,7 +60,6 @@ progressBarContainer.style.overflow = 'hidden';
 progressBarContainer.style.width = 'auto';
 progressBarContainer.style.gap = '8px';
 
-// Progress Bar
 const progressBar = document.createElement('div');
 progressBar.id = 'progress-bar';
 progressBar.style.position = 'relative';
@@ -87,7 +82,6 @@ progressFill.style.zIndex = '1';
 
 const progressBarLabel = document.createElement('span');
 progressBarLabel.id = 'progress-bar-label';
-// Center label using flex and absolute
 progressBarLabel.style.position = 'absolute';
 progressBarLabel.style.top = '0';
 progressBarLabel.style.left = '0';
@@ -104,7 +98,6 @@ progressBarLabel.style.color = '#111';
 progressBarLabel.style.userSelect = 'none';
 progressBarLabel.style.zIndex = '2';
 
-// Explore Locations Button - same style as progress bar
 const exploreButton = document.createElement('button');
 exploreButton.id = 'explore-locations-button';
 exploreButton.textContent = 'Explore locations 🔍';
@@ -134,7 +127,6 @@ exploreButton.style.justifyContent = 'center';
 exploreButton.style.marginLeft = '12px';
 exploreButton.style.transition = 'box-shadow 0.2s';
 
-// Build the progress bar container
 progressBar.appendChild(progressFill);
 progressBar.appendChild(progressBarLabel);
 progressBarContainer.appendChild(progressBar);
@@ -142,15 +134,12 @@ progressBarWrapper.appendChild(progressBarContainer);
 progressBarWrapper.appendChild(exploreButton);
 document.body.appendChild(progressBarWrapper);
 
-// --- Explore Locations Popup Logic (updated) ---
 exploreButton.onclick = function() {
   if (document.getElementById('explore-popup-overlay')) {
     document.getElementById('explore-popup-overlay').remove();
   }
   const bottomBar = document.getElementById('bottom-bar');
   let bottomBarHeight = bottomBar && bottomBar.offsetHeight ? bottomBar.offsetHeight : 54;
-
-  // Overlay with blur
   const overlay = document.createElement('div');
   overlay.id = 'explore-popup-overlay';
   overlay.style.position = 'fixed';
@@ -166,7 +155,6 @@ exploreButton.onclick = function() {
   overlay.style.alignItems = 'flex-end';
   overlay.style.justifyContent = 'center';
 
-  // Popup
   const popup = document.createElement('div');
   popup.id = 'explore-popup';
   popup.style.position = 'fixed';
@@ -187,7 +175,6 @@ exploreButton.onclick = function() {
   popup.style.flexDirection = 'column';
   popup.style.fontFamily = "'Poppins', sans-serif";
 
-  // Close button
   const closeBtn = document.createElement('button');
   closeBtn.id = 'explore-popup-close-btn';
   closeBtn.innerHTML = '❌';
@@ -200,8 +187,8 @@ exploreButton.onclick = function() {
   closeBtn.style.background = '#111';
   closeBtn.style.border = 'none';
   closeBtn.style.borderRadius = '50%';
-  closeBtn.style.color = '#ff4444'; // make X red
-  closeBtn.style.fontSize = '13px'; // smaller X
+  closeBtn.style.color = '#ff4444';
+  closeBtn.style.fontSize = '13px';
   closeBtn.style.fontFamily = 'inherit';
   closeBtn.style.cursor = 'pointer';
   closeBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
@@ -212,19 +199,17 @@ exploreButton.onclick = function() {
   closeBtn.onclick = () => overlay.remove();
   popup.appendChild(closeBtn);
 
-  // Grid
   const grid = document.createElement('div');
   grid.id = 'explore-popup-grid';
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-  grid.style.columnGap = '8px'; // horizontal gap
-  grid.style.rowGap = '4px';    // vertical gap, reduced
+  grid.style.columnGap = '8px';
+  grid.style.rowGap = '4px';
   grid.style.marginTop = '8px';
   grid.style.justifyItems = 'center';
   grid.style.alignItems = 'start';
   grid.style.overflowY = 'auto';
 
-  // Add spinner keyframes only once
   if (!document.getElementById('posterimg-spinner-keyframes')) {
     const style = document.createElement('style');
     style.id = 'posterimg-spinner-keyframes';
@@ -232,72 +217,71 @@ exploreButton.onclick = function() {
     document.head.appendChild(style);
   }
 
- buildings.forEach((building, idx) => {
-  const cell = document.createElement('div');
-  cell.style.display = 'flex';
-  cell.style.flexDirection = 'column';
-  cell.style.alignItems = 'center';
-  cell.style.justifyContent = 'center';
-  cell.style.position = 'relative';
+  buildings.forEach((building, idx) => {
+    const cell = document.createElement('div');
+    cell.style.display = 'flex';
+    cell.style.flexDirection = 'column';
+    cell.style.alignItems = 'center';
+    cell.style.justifyContent = 'center';
+    cell.style.position = 'relative';
 
-  // Spinner (buffer loading thing)
-  const spinner = document.createElement('div');
-  spinner.style.width = '32px';
-  spinner.style.height = '32px';
-  spinner.style.border = '5px solid #eee';
-  spinner.style.borderTop = '5px solid #9b4dca';
-  spinner.style.borderRadius = '50%';
-  spinner.style.animation = 'spin 1s linear infinite';
-  spinner.style.margin = '24px 0';
+    const spinner = document.createElement('div');
+    spinner.style.width = '32px';
+    spinner.style.height = '32px';
+    spinner.style.border = '5px solid #eee';
+    spinner.style.borderTop = '5px solid #9b4dca';
+    spinner.style.borderRadius = '50%';
+    spinner.style.animation = 'spin 1s linear infinite';
+    spinner.style.margin = '24px 0';
 
-  cell.appendChild(spinner);
+    cell.appendChild(spinner);
 
-  // Poster image
-  const img = document.createElement('img');
-  img.src = building.posterUrl || building.image;
-  img.className = 'explore-popup-img';
-  img.alt = building.name;
-  img.title = building.name;
-  img.style.width = '98px';
-  img.style.height = 'auto'; // Let image use natural height
-  img.style.objectFit = 'contain'; // show entire image, never crop
-  img.style.borderRadius = '10px';
-  img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-  img.style.border = '2px solid #111';
-  img.style.background = '#e0e0e0';
-  img.style.cursor = 'pointer';
-  img.style.transition = 'transform 0.12s';
-  img.style.display = 'none'; // hide until loaded
+    const img = document.createElement('img');
+    img.src = building.posterUrl || building.image;
+    img.className = 'explore-popup-img';
+    img.alt = building.name;
+    img.title = building.name;
+    img.style.width = '98px';
+    img.style.height = 'auto';
+    img.style.objectFit = 'contain';
+    img.style.borderRadius = '10px';
+    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    img.style.border = '2px solid #111';
+    img.style.background = '#e0e0e0';
+    img.style.cursor = 'pointer';
+    img.style.transition = 'transform 0.12s';
+    img.style.display = 'none';
 
-  img.onload = () => {
-    spinner.style.display = 'none';
-    img.style.display = 'block';
-  };
+    img.onload = () => {
+      spinner.style.display = 'none';
+      img.style.display = 'block';
+    };
 
-  img.onerror = () => {
-    spinner.style.borderTop = '5px solid red';
-    spinner.title = 'Image failed to load';
-  };
+    img.onerror = () => {
+      spinner.style.borderTop = '5px solid red';
+      spinner.title = 'Image failed to load';
+    };
 
-  img.onmouseover = () => img.style.transform = 'scale(1.07)';
-  img.onmouseout = () => img.style.transform = 'scale(1)';
+    img.onmouseover = () => img.style.transform = 'scale(1.07)';
+    img.onmouseout = () => img.style.transform = 'scale(1)';
 
-  img.onclick = function() {
-    overlay.remove();
-    map.flyTo({
-      center: building.coords,
-      zoom: 17,
-      pitch: 45,
-      bearing: -17.6,
-      speed: 1.2,
-      curve: 1,
-      essential: true
-    });
-  };
+    img.onclick = function() {
+      overlay.remove();
+      map.flyTo({
+        center: building.coords,
+        zoom: 17,
+        pitch: 45,
+        bearing: -17.6,
+        speed: 1.2,
+        curve: 1,
+        essential: true
+      });
+    };
 
-  cell.appendChild(img);
-  grid.appendChild(cell);
-});
+    cell.appendChild(img);
+    grid.appendChild(cell);
+  });
+
   popup.appendChild(grid);
   overlay.appendChild(popup);
   document.body.appendChild(overlay);
@@ -309,7 +293,6 @@ exploreButton.onclick = function() {
   };
 };
 
-// Update the progress bar whenever visited markers change
 function updateProgressBar() {
   const totalMarkers = buildings.length;
   const visitedMarkers = buildings.filter(
@@ -321,7 +304,6 @@ function updateProgressBar() {
   progressFill.style.width = percent + '%';
 }
 
-// --- Progress Bar 0-click popup logic ---
 progressBarContainer.addEventListener('click', function (e) {
   if (e.target === exploreButton) return;
   const totalMarkers = buildings.length;
@@ -334,7 +316,6 @@ progressBarContainer.addEventListener('click', function (e) {
   }
 });
 
-// --- Show Progress Bar Hint Popup ---
 function showProgressBarHint() {
   const existingPopup = document.getElementById('progress-bar-popup');
   if (existingPopup) existingPopup.remove();
@@ -467,9 +448,6 @@ function applyDimmedMarkers() {
   });
 }
 
-let firstVideoLoadedThisSession = false;
-function showFirstVideoWaitMessage(videoElement) {}
-
 const yorkBounds = [
   [-1.170, 53.930],
   [-1.010, 54.010]
@@ -526,16 +504,14 @@ geolocate.on('error', (e) => {
   if (e.code === 1) console.log('Location access denied by user');
 });
 
-// Store current user location globally
 let currentUserLocation = null;
 geolocate.on('geolocate', (e) => {
   currentUserLocation = { lat: e.coords.latitude, lng: e.coords.longitude };
   userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
 });
 
-// Helper: Haversine formula (returns meters)
 function getDistanceMeters(lat1, lng1, lat2, lng2) {
-    const R = 6371000; // Radius of Earth in meters
+    const R = 6371000;
     const toRad = x => x * Math.PI / 180;
     const dLat = toRad(lat2 - lat1);
     const dLng = toRad(lng2 - lng1);
@@ -593,8 +569,8 @@ buildings.forEach((building) => {
       console.error('Video URL not available for this building.');
       return;
     }
-    // Before showing a new modal, stop all videos in modals that are up (and remove overlays)
-    removeOverlayAndPauseVideo();
+    document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
+    stopAllModalVideos();
 
     const overlay = document.createElement('div');
     overlay.className = 'video-modal-overlay';
@@ -619,7 +595,7 @@ buildings.forEach((building) => {
     posterContainer.style.alignItems = 'center';
 
     overlay.addEventListener('mousedown', function (e) {
-      if (!posterContainer.contains(e.target)) removeSpecificOverlayAndPause(null, overlay);
+      if (!posterContainer.contains(e.target)) { stopAllModalVideos(); overlay.remove(); }
     });
 
     const cameraIcon = document.createElement('button');
@@ -672,10 +648,7 @@ buildings.forEach((building) => {
     visitBtn.style.display = 'flex';
     visitBtn.style.zIndex = 11;
 
-    // --- VISIT BUTTON LOCATION CHECK ---
     visitBtn.onclick = async function () {
-
-      // ...existing logic to toggle Visited
       isVisited = !isVisited;
       if (isVisited) {
         visitBtn.textContent = 'Visited';
@@ -712,43 +685,187 @@ buildings.forEach((building) => {
     closeBtn.style.display = 'flex';
     closeBtn.style.alignItems = 'center';
     closeBtn.style.justifyContent = 'center';
+    closeBtn.onclick = () => { closeBtn.parentElement.parentElement.remove(); };
 
-    let videoElement = null;
-    let cameraStream = null;
+    cameraIcon.onclick = async function () {
+      posterContainer.innerHTML = '';
+      const cameraVideo = document.createElement('video');
+      cameraVideo.autoplay = true;
+      cameraVideo.playsInline = true;
+      cameraVideo.style.width = '90vw';
+      cameraVideo.style.height = '160vw';
+      cameraVideo.style.objectFit = 'contain';
+      cameraVideo.style.borderRadius = '14px';
+      cameraVideo.style.display = 'block';
+      cameraVideo.style.margin = '0 auto';
+      cameraVideo.style.position = 'relative';
+      posterContainer.appendChild(cameraVideo);
 
-    function removeOverlayAndPauseVideo() {
-      // Stop all modal videos
-      stopAllModalVideos();
-      // Remove overlay
-      document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
-    }
+      const shutterBtn = document.createElement('button');
+      shutterBtn.title = 'Take Photo';
+      shutterBtn.className = 'custom-shutter-btn';
+      shutterBtn.style.position = 'absolute';
+      shutterBtn.style.left = '50%';
+      shutterBtn.style.bottom = '20px';
+      shutterBtn.style.transform = 'translateX(-50%)';
+      shutterBtn.style.width = '64px';
+      shutterBtn.style.height = '64px';
+      shutterBtn.style.background = 'white';
+      shutterBtn.style.border = '4px solid #ccc';
+      shutterBtn.style.borderRadius = '50%';
+      shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+      shutterBtn.style.display = 'flex';
+      shutterBtn.style.alignItems = 'center';
+      shutterBtn.style.justifyContent = 'center';
+      shutterBtn.style.cursor = 'pointer';
+      shutterBtn.style.zIndex = '12';
+      shutterBtn.style.outline = 'none';
+      shutterBtn.style.transition = 'box-shadow 0.1s';
+      const innerCircle = document.createElement('div');
+      innerCircle.style.width = '44px';
+      innerCircle.style.height = '44px';
+      innerCircle.style.background = '#fff';
+      innerCircle.style.borderRadius = '50%';
+      innerCircle.style.boxShadow = '0 0 0 2px #eee';
+      shutterBtn.appendChild(innerCircle);
+      posterContainer.appendChild(shutterBtn);
 
-    function removeSpecificOverlayAndPause(videoElement, overlay) {
-      if (videoElement) {
-        videoElement.pause();
-        videoElement.currentTime = 0;
-        activeModalVideos.delete(videoElement);
-      }
-      if (overlay) overlay.remove();
-    }
+      const cameraCloseBtn = document.createElement('button');
+      cameraCloseBtn.textContent = '❌';
+      cameraCloseBtn.style.position = 'absolute';
+      cameraCloseBtn.style.top = '-8px';
+      cameraCloseBtn.style.right = '-8px';
+      cameraCloseBtn.style.width = '25px';
+      cameraCloseBtn.style.height = '25px';
+      cameraCloseBtn.style.background = '#000';
+      cameraCloseBtn.style.color = '#fff';
+      cameraCloseBtn.style.border = '1.5px solid #E9E8E0';
+      cameraCloseBtn.style.borderRadius = '50%';
+      cameraCloseBtn.style.cursor = 'pointer';
+      cameraCloseBtn.style.fontSize = '0.7rem';
+      cameraCloseBtn.style.zIndex = '100001';
+      cameraCloseBtn.style.display = 'flex';
+      cameraCloseBtn.style.alignItems = 'center';
+      cameraCloseBtn.style.justifyContent = 'center';
+      cameraCloseBtn.onclick = () => {
+        if (cameraVideo.srcObject) {
+          cameraVideo.srcObject.getTracks().forEach((track) => track.stop());
+        }
+        overlay.remove();
+      };
+      posterContainer.appendChild(cameraCloseBtn);
 
-    closeBtn.onclick = () => removeSpecificOverlayAndPause(videoElement, overlay);
-    let startY;
-    overlay.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) startY = e.touches[0].clientY;
-    });
-    overlay.addEventListener('touchmove', (e) => {
-      if (startY !== undefined && e.touches.length === 1) {
-        const dy = e.touches[0].clientY - startY;
-        if (dy > 70) {
-          removeSpecificOverlayAndPause(videoElement, overlay);
-          startY = undefined;
+      let cameraStream = null;
+      async function startCameraStream() {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+          });
+          cameraVideo.srcObject = cameraStream;
+        } catch (err) {
+          try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            cameraVideo.srcObject = cameraStream;
+          } catch (err2) {
+            alert('Could not access camera: ' + err2.message);
+          }
         }
       }
-    });
-    overlay.addEventListener('touchend', () => {
-      startY = undefined;
-    });
+      await startCameraStream();
+
+      function wrapCanvasText(ctx, text, maxWidth) {
+        const words = text.split(' ');
+        let lines = [];
+        let line = '';
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line + (line ? ' ' : '') + words[n];
+          const metrics = ctx.measureText(testLine);
+          if (metrics.width > maxWidth && line) {
+            lines.push(line);
+            line = words[n];
+          } else {
+            line = testLine;
+          }
+        }
+        lines.push(line);
+        return lines;
+      }
+
+      shutterBtn.onclick = function () {
+        cameraVideo.pause();
+        posterContainer.querySelectorAll('.img-preview, .add-to-archive-btn, .cancel-btn, .tip-text').forEach(el => el.remove());
+
+        const canvas = document.createElement('canvas');
+        canvas.width = cameraVideo.videoWidth;
+        canvas.height = cameraVideo.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+
+        const tipText = document.createElement('div');
+        tipText.className = 'tip-text';
+        tipText.textContent = 'Tap and hold image to save';
+        tipText.style.display = 'block';
+        tipText.style.margin = '16px auto 0 auto';
+        tipText.style.fontSize = '13px';
+        tipText.style.fontFamily = "'Poppins', sans-serif";
+        tipText.style.textAlign = 'center';
+        tipText.style.color = '#7C6E4D';
+        tipText.style.fontWeight = 'bold';
+        tipText.style.background = '#eae7de';
+        tipText.style.borderRadius = '8px';
+        tipText.style.padding = '6px 7px';
+        tipText.style.lineHeight = '1.02';
+        tipText.style.maxWidth = '90vw';
+        posterContainer.appendChild(tipText);
+
+        const imgPreview = document.createElement('img');
+        imgPreview.className = 'img-preview';
+        imgPreview.src = canvas.toDataURL('image/png');
+        imgPreview.style.display = 'block';
+        imgPreview.style.margin = '8px auto 8px auto';
+        imgPreview.style.maxWidth = '90vw';
+        imgPreview.style.maxHeight = '60vh';
+        imgPreview.style.borderRadius = '12px';
+        imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+        posterContainer.appendChild(imgPreview);
+
+        const addToArchiveBtn = document.createElement('button');
+        addToArchiveBtn.className = 'add-to-archive-btn custom-button';
+        addToArchiveBtn.textContent = 'Add to Archive';
+        addToArchiveBtn.style.display = 'block';
+        addToArchiveBtn.style.margin = '10px auto 0 auto';
+        addToArchiveBtn.style.background = '#e0e0e0';
+        addToArchiveBtn.style.color = '#333';
+        addToArchiveBtn.onclick = function (e) {
+          e.preventDefault();
+          addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
+        };
+        posterContainer.appendChild(addToArchiveBtn);
+
+        const cancelBtn = document.createElement('button');
+        cancelBtn.className = 'cancel-btn custom-button';
+        cancelBtn.textContent = 'Take again';
+        cancelBtn.style.display = 'block';
+        cancelBtn.style.margin = '10px auto 0 auto';
+        cancelBtn.style.background = '#9b4dca';
+        cancelBtn.style.color = '#fff';
+        cancelBtn.onclick = function () {
+          imgPreview.remove();
+          addToArchiveBtn.remove();
+          cancelBtn.remove();
+          tipText.remove();
+          cameraVideo.style.display = 'block';
+          shutterBtn.style.display = 'block';
+          cameraCloseBtn.style.display = 'flex';
+          cameraVideo.play();
+        };
+        posterContainer.appendChild(cancelBtn);
+
+        cameraVideo.style.display = 'none';
+        shutterBtn.style.display = 'none';
+        cameraCloseBtn.style.display = 'none';
+      };
+    };
 
     const playBtn = document.createElement('button');
     playBtn.innerHTML = '▶';
@@ -810,333 +927,10 @@ buildings.forEach((building) => {
     overlay.appendChild(posterContainer);
     document.body.appendChild(overlay);
 
-    cameraIcon.onclick = async function () {
-      if (
-        !(
-          navigator.mediaDevices &&
-          typeof navigator.mediaDevices.getUserMedia === 'function'
-        )
-      ) {
-        alert(
-          "Camera access is not supported on this browser/device. If you're on iPhone, please use Safari (not Chrome or an in-app browser), and make sure your iOS version is up to date."
-        );
-        return;
-      }
-
-      cameraIcon.remove();
-      posterContainer.innerHTML = '';
-
-      const overlayPaddingY = 6;
-      const overlayPaddingX = 12;
-      const overlayInset = 32;
-      const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
-
-      let textOverlay = null;
-      if (markerText && markerText.trim().length > 0) {
-        textOverlay = document.createElement('div');
-        textOverlay.textContent = markerText;
-        textOverlay.style.position = 'absolute';
-        textOverlay.style.top = '50px';
-        textOverlay.style.left = '50%';
-        textOverlay.style.transform = 'translateX(-50%)';
-        textOverlay.style.background = 'rgba(0,0,0,0.4)';
-        textOverlay.style.color = '#fff';
-        textOverlay.style.borderRadius = '8px';
-        textOverlay.style.fontSize = '12px';
-        textOverlay.style.fontWeight = 'bold';
-        textOverlay.style.pointerEvents = 'none';
-        textOverlay.style.zIndex = 20;
-        textOverlay.style.fontFamily = "'Poppins', sans-serif";
-        textOverlay.style.textAlign = "center";
-        textOverlay.style.lineHeight = "1";
-        textOverlay.style.padding = overlayInnerPadding;
-
-        const tempSpan = document.createElement('span');
-        tempSpan.textContent = markerText;
-        tempSpan.style.fontFamily = textOverlay.style.fontFamily;
-        tempSpan.style.fontWeight = textOverlay.style.fontWeight;
-        tempSpan.style.fontSize = textOverlay.style.fontSize;
-        tempSpan.style.lineHeight = textOverlay.style.lineHeight;
-        tempSpan.style.position = 'absolute';
-        tempSpan.style.visibility = 'hidden';
-        tempSpan.style.whiteSpace = 'pre';
-        document.body.appendChild(tempSpan);
-
-        const paddingX = overlayPaddingX * 2;
-        let textWidth = tempSpan.offsetWidth + paddingX;
-        let maxWidth = window.innerWidth * 0.90 - 2 * overlayInset;
-
-        textOverlay.style.width = Math.min(textWidth, maxWidth) + "px";
-
-        document.body.removeChild(tempSpan);
-
-        posterContainer.appendChild(textOverlay);
-      }
-
-      const cameraVideo = document.createElement('video');
-      cameraVideo.autoplay = true;
-      cameraVideo.playsInline = true;
-      cameraVideo.style.width = '90vw';
-      cameraVideo.style.height = '160vw';
-      cameraVideo.style.objectFit = 'contain';
-      cameraVideo.style.borderRadius = '14px';
-      cameraVideo.style.display = 'block';
-      cameraVideo.style.margin = '0 auto';
-      cameraVideo.style.position = 'relative';
-      posterContainer.appendChild(cameraVideo);
-
-      const shutterBtn = document.createElement('button');
-      shutterBtn.title = 'Take Photo';
-      shutterBtn.className = 'custom-shutter-btn';
-      shutterBtn.style.position = 'absolute';
-      shutterBtn.style.left = '50%';
-      shutterBtn.style.bottom = '20px';
-      shutterBtn.style.transform = 'translateX(-50%)';
-      shutterBtn.style.width = '64px';
-      shutterBtn.style.height = '64px';
-      shutterBtn.style.background = 'white';
-      shutterBtn.style.border = '4px solid #ccc';
-      shutterBtn.style.borderRadius = '50%';
-      shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-      shutterBtn.style.display = 'flex';
-      shutterBtn.style.alignItems = 'center';
-      shutterBtn.style.justifyContent = 'center';
-      shutterBtn.style.cursor = 'pointer';
-      shutterBtn.style.zIndex = 12;
-      shutterBtn.style.outline = 'none';
-      shutterBtn.style.transition = 'box-shadow 0.1s';
-      const innerCircle = document.createElement('div');
-      innerCircle.style.width = '44px';
-      innerCircle.style.height = '44px';
-      innerCircle.style.background = '#fff';
-      innerCircle.style.borderRadius = '50%';
-      innerCircle.style.boxShadow = '0 0 0 2px #eee';
-      shutterBtn.appendChild(innerCircle);
-      posterContainer.appendChild(shutterBtn);
-
-      const cameraCloseBtn = document.createElement('button');
-      cameraCloseBtn.textContent = '❌';
-      cameraCloseBtn.style.position = 'absolute';
-      cameraCloseBtn.style.top = '-8px';
-      cameraCloseBtn.style.right = '-8px';
-      cameraCloseBtn.style.width = '25px';
-      cameraCloseBtn.style.height = '25px';
-      cameraCloseBtn.style.background = '#000';
-      cameraCloseBtn.style.color = '#fff';
-      cameraCloseBtn.style.border = '1.5px solid #E9E8E0';
-      cameraCloseBtn.style.borderRadius = '50%';
-      cameraCloseBtn.style.cursor = 'pointer';
-      cameraCloseBtn.style.fontSize = '0.7rem';
-      cameraCloseBtn.style.zIndex = '100001';
-      cameraCloseBtn.style.display = 'flex';
-      cameraCloseBtn.style.alignItems = 'center';
-      cameraCloseBtn.style.justifyContent = 'center';
-      cameraCloseBtn.onclick = () => {
-        if (cameraStream) {
-          cameraStream.getTracks().forEach((track) => track.stop());
-        }
-        overlay.remove();
-      };
-      posterContainer.appendChild(cameraCloseBtn);
-
-      let imgPreview = null, addToArchiveBtn = null, cancelBtn = null;
-      let cameraStream = null;
-
-      async function startCameraStream() {
-        try {
-          cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: { 
-              facingMode: { ideal: 'environment' },
-              width: { ideal: 1920 },
-              height: { ideal: 1080 }
-            }
-          });
-          cameraVideo.srcObject = cameraStream;
-        } catch (err) {
-          try {
-            cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-            cameraVideo.srcObject = cameraStream;
-          } catch (err2) {
-            alert('Could not access camera: ' + err2.message);
-          }
-        }
-      }
-      await startCameraStream();
-
-      function wrapCanvasText(ctx, text, maxWidth) {
-        const words = text.split(' ');
-        let lines = [];
-        let line = '';
-        for (let n = 0; n < words.length; n++) {
-          const testLine = line + (line ? ' ' : '') + words[n];
-          const metrics = ctx.measureText(testLine);
-          if (metrics.width > maxWidth && line) {
-            lines.push(line);
-            line = words[n];
-          } else {
-            line = testLine;
-          }
-        }
-        lines.push(line);
-        return lines;
-      }
-
-      shutterBtn.onclick = function () {
-        cameraVideo.pause();
-
-        if (imgPreview) imgPreview.remove();
-        if (addToArchiveBtn) addToArchiveBtn.remove();
-        if (cancelBtn) cancelBtn.remove();
-
-        shutterBtn.style.display = 'none';
-        cameraCloseBtn.style.display = 'none';
-
-        const canvas = document.createElement('canvas');
-        canvas.width = cameraVideo.videoWidth;
-        canvas.height = cameraVideo.videoHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
-
-        let showTextOverlay = textOverlay && markerText && markerText.trim().length > 0;
-        if (showTextOverlay) {
-          const overlayRect = textOverlay.getBoundingClientRect();
-          const videoRect = cameraVideo.getBoundingClientRect();
-          const computedStyle = window.getComputedStyle(textOverlay);
-
-          let topPx = overlayRect.top - videoRect.top;
-          let leftPx = overlayRect.left - videoRect.left;
-          let overlayWidthPx = overlayRect.width;
-          let overlayHeightPx = overlayRect.height;
-
-          let fontSizePx = parseFloat(computedStyle.fontSize);
-          let fontFamily = computedStyle.fontFamily;
-          let fontWeight = computedStyle.fontWeight;
-          let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
-
-          let scaleX = canvas.width / videoRect.width;
-          let scaleY = canvas.height / videoRect.height;
-
-          let textBoxX = leftPx * scaleX;
-          let textBoxY = topPx * scaleY;
-          let textBoxWidth = overlayWidthPx * scaleX;
-          let textBoxHeight = overlayHeightPx * scaleY;
-
-          const canvasPaddingY = overlayPaddingY * scaleY;
-          const canvasPaddingX = overlayPaddingX * scaleX;
-
-          ctx.save();
-          ctx.globalAlpha = 0.4;
-          ctx.fillStyle = "#000";
-          ctx.beginPath();
-          if (ctx.roundRect) {
-            ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
-          } else {
-            ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
-          }
-          ctx.fill();
-          ctx.restore();
-
-          const canvasFontSize = fontSizePx * scaleY;
-          const canvasLineHeight = canvasFontSize * 1.1;
-          ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillStyle = "#fff";
-
-          const wrappedLines = wrapCanvasText(
-            ctx,
-            markerText,
-            textBoxWidth - 2 * canvasPaddingX
-          );
-
-          const totalLines = wrappedLines.length;
-          const totalTextHeight = totalLines * canvasLineHeight;
-          let y = textBoxY + canvasPaddingY + (textBoxHeight - 2 * canvasPaddingY - totalTextHeight) / 2 + canvasLineHeight / 2;
-
-          for (let i = 0; i < wrappedLines.length; i++) {
-            ctx.fillText(
-              wrappedLines[i],
-              textBoxX + textBoxWidth / 2,
-              y + i * canvasLineHeight
-            );
-          }
-          ctx.restore();
-        }
-        const tipText = document.createElement('div');
-        tipText.textContent = 'Tap and hold image to save';
-        tipText.style.display = 'block';
-        tipText.style.margin = '16px auto 0 auto';
-        tipText.style.fontSize = '13px';
-        tipText.style.fontFamily = "'Poppins', sans-serif";
-        tipText.style.textAlign = 'center';
-        tipText.style.color = '#7C6E4D';
-        tipText.style.fontWeight = 'bold';
-        tipText.style.background = '#eae7de';
-        tipText.style.borderRadius = '8px';
-        tipText.style.padding = '6px 7px';
-        tipText.style.lineHeight = '1.02';
-        tipText.style.maxWidth = '90vw';
-        posterContainer.appendChild(tipText);
-
-        imgPreview = document.createElement('img');
-        imgPreview.src = canvas.toDataURL('image/png');
-        imgPreview.style.display = 'block';
-        imgPreview.style.margin = '8px auto 8px auto';
-        imgPreview.style.maxWidth = '90vw';
-        imgPreview.style.maxHeight = '60vh';
-        imgPreview.style.borderRadius = '12px';
-        imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-        posterContainer.appendChild(imgPreview);
-
-        addToArchiveBtn = document.createElement('button');
-        addToArchiveBtn.textContent = 'Add to Archive';
-        addToArchiveBtn.className = 'custom-button';
-        addToArchiveBtn.style.display = 'block';
-        addToArchiveBtn.style.margin = '10px auto 0 auto';
-        addToArchiveBtn.style.background = '#e0e0e0';
-        addToArchiveBtn.style.color = '#333';
-        posterContainer.appendChild(addToArchiveBtn);
-
-        // No longer check if already archived for this marker, just allow multiple
-        addToArchiveBtn.onclick = function (e) {
-          e.preventDefault();
-          addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
-        };
-
-        cancelBtn = document.createElement('button');
-        cancelBtn.textContent = 'Take again';
-        cancelBtn.className = 'custom-button';
-        cancelBtn.style.display = 'block';
-        cancelBtn.style.margin = '10px auto 0 auto';
-        cancelBtn.style.background = '#9b4dca';
-        cancelBtn.style.color = '#fff';
-        posterContainer.appendChild(cancelBtn);
-
-        cameraVideo.style.display = 'none';
-        shutterBtn.style.display = 'none';
-        if (textOverlay) textOverlay.style.display = 'none';
-        cameraCloseBtn.style.display = 'none';
-
-        cancelBtn.onclick = function () {
-          if (imgPreview) imgPreview.remove();
-          if (addToArchiveBtn) addToArchiveBtn.remove();
-          if (cancelBtn) cancelBtn.remove();
-          if (tipText) tipText.remove();
-
-          cameraVideo.style.display = 'block';
-          shutterBtn.style.display = 'block';
-          if (textOverlay) textOverlay.style.display = 'block';
-          cameraCloseBtn.style.display = 'flex';
-          cameraVideo.play();
-        };
-      };
-    };
-
     playBtn.onclick = () => {
       playBtn.style.display = 'none';
       spinner.style.display = 'block';
-
-      videoElement = document.createElement('video');
+      const videoElement = document.createElement('video');
       videoElement.src = videoUrl;
       if (posterUrl) videoElement.poster = posterUrl;
       videoElement.style.border = '1.5px solid #E9E8E0';
@@ -1151,34 +945,26 @@ buildings.forEach((building) => {
 
       posterContainer.replaceChild(videoElement, posterImg);
 
-      // Add to active modal videos set
       activeModalVideos.add(videoElement);
 
-      videoElement.addEventListener('playing', () => {
-        spinner.style.display = 'none';
-      });
-
-      videoElement.addEventListener('waiting', () => {
-        spinner.style.display = 'block';
-      });
-
+      videoElement.addEventListener('playing', () => { spinner.style.display = 'none'; });
+      videoElement.addEventListener('waiting', () => { spinner.style.display = 'block'; });
       videoElement.addEventListener('error', () => {
         spinner.style.display = 'none';
         playBtn.style.display = 'block';
         alert('Video failed to load.');
       });
-
       videoElement.addEventListener('ended', () => {
-        removeSpecificOverlayAndPause(videoElement, overlay);
+        videoElement.parentElement.parentElement.remove();
       });
-
       videoElement.addEventListener('click', () => {
         videoElement.controls = true;
       });
 
-      // If overlay is removed for any reason, stop the video
       overlay.addEventListener('remove', () => {
-        removeSpecificOverlayAndPause(videoElement, overlay);
+        videoElement.pause();
+        videoElement.currentTime = 0;
+        activeModalVideos.delete(videoElement);
       });
 
       videoElement.load();
@@ -1186,9 +972,7 @@ buildings.forEach((building) => {
   });
 });
 
-// ----------- ADD TO ARCHIVE LOGIC -----------
 let archivePhotos = [];
-
 const savedArchivePhotos = localStorage.getItem('archivePhotos');
 if (savedArchivePhotos) {
   try {
@@ -1199,11 +983,8 @@ if (savedArchivePhotos) {
   }
 }
 
-// REMOVE THE LIMIT: This function now simply adds to the archive, allowing duplicates
 function addPhotoToArchive(imgSrc, markerName, buttonRef) {
-  // No longer check for existing photo per marker, just push a new entry
   archivePhotos.unshift({ src: imgSrc, name: markerName });
-
   localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
   renderArchivePhotos();
   if (buttonRef) {
@@ -1212,9 +993,6 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
     buttonRef.style.color = '#fff';
   }
 }
-
-// Optionally, you can remove the findPhotoIndexByName function entirely
-// function findPhotoIndexByName(name) { ... } // not needed anymore
 
 function ensureArchiveSection() {
   let archiveSection = document.getElementById('archive-section');
@@ -1244,7 +1022,6 @@ function renderArchivePhotos() {
     return;
   }
 
-  // Only show tipText if there is at least one photo
   const tipText = document.createElement('div');
   tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
   tipText.style.fontSize = '14px';
@@ -1258,7 +1035,6 @@ function renderArchivePhotos() {
   tipText.style.lineHeight = '1.2';
   archiveSection.appendChild(tipText);
 
-  // Clear the grid before rendering
   const grid = document.createElement('div');
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
@@ -1320,18 +1096,17 @@ function renderArchivePhotos() {
     removeBtn.style.alignItems = 'center';
     removeBtn.style.justifyContent = 'center';
 
-removeBtn.onclick = function () {
-  const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
-  if (confirmRemove) {
-    // Find the correct photo by src and name
-    const removeIndex = archivePhotos.findIndex(p => p.src === src && p.name === name);
-    if (removeIndex !== -1) {
-      archivePhotos.splice(removeIndex, 1);
-      localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-      renderArchivePhotos();
-    }
-  }
-};
+    removeBtn.onclick = function () {
+      const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
+      if (confirmRemove) {
+        const removeIndex = archivePhotos.findIndex(p => p.src === src && p.name === name);
+        if (removeIndex !== -1) {
+          archivePhotos.splice(removeIndex, 1);
+          localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
+          renderArchivePhotos();
+        }
+      }
+    };
 
     imgContainer.appendChild(img);
     imgContainer.appendChild(removeBtn);
@@ -1345,7 +1120,6 @@ removeBtn.onclick = function () {
 }
 renderArchivePhotos();
 
-// --- Helper for video modals: Stop all modal videos except optionally one
 function stopAllModalVideos(except = null) {
   activeModalVideos.forEach((video) => {
     if (!except || video !== except) {
@@ -1358,7 +1132,6 @@ function stopAllModalVideos(except = null) {
   });
 }
 
-// --- Marker scaling ---
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
   const markerSize = zoomLevel - 13;
@@ -1401,7 +1174,6 @@ map.on('load', () => {
   function showBottomBar() {
     loadingScreen.style.display = 'none';
     if (bottomBar) bottomBar.style.display = 'flex';
-    // After loading screen, show progress bar ONLY if map-section is active
     if (document.getElementById('map-section')?.style.display !== 'none') {
       progressBarWrapper.style.display = 'flex';
     }
@@ -1477,7 +1249,6 @@ function showSection(section) {
   document.getElementById('bar-archive').classList.toggle('active', section === 'archive-section');
   document.getElementById('bar-about').classList.toggle('active', section === 'about-section');
 
-  // Only show progress bar if map-section is active AND loading screen is hidden
   const loadingScreen = document.getElementById('loading-screen');
   if (section === 'map-section' && (!loadingScreen || loadingScreen.style.display === 'none')) {
     progressBarWrapper.style.display = 'flex';
@@ -1555,7 +1326,6 @@ let isBottomSheetOpen = false;
 function toggleBottomSheet(contentHTML) {
   if (isBottomSheetOpen) {
     bottomSheet.style.bottom = '-100%';
-    // Stop any <video> in bottomSheet when hiding
     bottomSheet.querySelectorAll('video').forEach((video) => {
       video.pause();
       video.currentTime = 0;
@@ -1581,7 +1351,6 @@ function toggleBottomSheet(contentHTML) {
     bottomSheet.style.bottom = '0';
 
     document.getElementById('close-bottom-sheet').addEventListener('click', () => {
-      // Stop any <video> in bottomSheet when closing
       bottomSheet.querySelectorAll('video').forEach((video) => {
         video.pause();
         video.currentTime = 0;
