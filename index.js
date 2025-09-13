@@ -47,6 +47,32 @@ progressBarContainer.style.alignItems = 'center';
 progressBarContainer.style.justifyContent = 'center';
 progressBarContainer.style.overflow = 'hidden';
 
+// --- Gallery Button ---
+const galleryButton = document.createElement('button');
+galleryButton.id = 'gallery-button';
+galleryButton.title = 'Open Gallery';
+galleryButton.textContent = '🖼️';
+galleryButton.style.position = 'absolute';
+galleryButton.style.right = '-40px';
+galleryButton.style.top = '50%';
+galleryButton.style.transform = 'translateY(-50%)';
+galleryButton.style.background = '#e0e0e0';
+galleryButton.style.border = '2px solid #111';
+galleryButton.style.borderRadius = '14px';
+galleryButton.style.height = '28px';
+galleryButton.style.width = '34px';
+galleryButton.style.fontSize = '18px';
+galleryButton.style.cursor = 'pointer';
+galleryButton.style.zIndex = '10002';
+galleryButton.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+galleryButton.style.display = 'flex';
+galleryButton.style.alignItems = 'center';
+galleryButton.style.justifyContent = 'center';
+galleryButton.style.padding = '0';
+
+// Insert gallery button adjacent to progress bar
+progressBarContainer.appendChild(galleryButton);
+
 const progressBar = document.createElement('div');
 progressBar.id = 'progress-bar';
 progressBar.style.position = 'absolute';
@@ -102,6 +128,7 @@ function updateProgressBar() {
 
 // --- Progress Bar 0-click popup logic ---
 progressBarContainer.addEventListener('click', function (e) {
+  if (e.target === galleryButton) return; // Don't trigger progress bar hint when clicking gallery button
   const totalMarkers = buildings.length;
   const visitedMarkers = buildings.filter(
     b => completedMarkers['completed-marker-' + b.name]
@@ -1441,8 +1468,281 @@ stylePopup.innerHTML = `
     text-overflow: ellipsis;
     white-space: nowrap;
   }
- `;
+  /* Gallery popup styles */
+  #gallery-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(40,40,40,0.32);
+    z-index: 20000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  #gallery-popup {
+    position: absolute;
+    top: 46px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90vw;
+    max-width: 800px;
+    background: #f8f8f8;
+    border-radius: 20px;
+    border: 3px solid #9b4dca;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+    padding: 18px 16px 14px 16px;
+    z-index: 20001;
+    overflow-y: auto;
+    max-height: calc(100vh - 106px - 54px); /* 106px: progress+margin, 54px: bottom bar */
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+  }
+  #gallery-popup-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 18px;
+    justify-items: center;
+    align-items: start;
+  }
+  .gallery-popup-img {
+    width: 96px;
+    height: 144px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    border: 2px solid #E9E8E0;
+    background: #fff;
+    cursor: pointer;
+    transition: transform 0.12s;
+  }
+  .gallery-popup-img:hover {
+    transform: scale(1.07);
+    z-index: 2;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.22);
+    border-color: #9b4dca;
+  }
+  .gallery-popup-label {
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    color: #9b4dca;
+    max-width: 84px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 5px;
+  }
+  #gallery-popup-close-btn {
+    position: absolute;
+    top: 4px;
+    right: 7px;
+    width: 32px;
+    height: 32px;
+    background: #9b4dca;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 17px;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    z-index: 20002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Zoom modal */
+  #gallery-zoom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(44,44,44,0.54);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 21000;
+  }
+  #gallery-zoom-img {
+    max-width: 93vw;
+    max-height: 80vh;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.32);
+    border: 3px solid #9b4dca;
+    background: #fff;
+    display: block;
+  }
+  #gallery-zoom-close-btn {
+    position: absolute;
+    top: 10px;
+    right: 22px;
+    width: 36px;
+    height: 36px;
+    background: #9b4dca;
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 21px;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    z-index: 21002;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
 document.head.appendChild(stylePopup);
+
+// ---------------------- GALLERY POPUP LOGIC ----------------------
+
+function showGalleryPopup() {
+  // Remove if already open
+  if (document.getElementById('gallery-popup-overlay')) {
+    document.getElementById('gallery-popup-overlay').remove();
+  }
+  if (document.getElementById('gallery-zoom-modal')) {
+    document.getElementById('gallery-zoom-modal').remove();
+  }
+
+  // Overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'gallery-popup-overlay';
+
+  // Gallery popup
+  const galleryPopup = document.createElement('div');
+  galleryPopup.id = 'gallery-popup';
+
+  // Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.id = 'gallery-popup-close-btn';
+  closeBtn.innerHTML = '❌';
+  closeBtn.title = 'Close Gallery';
+  closeBtn.onclick = function() {
+    overlay.remove();
+    if (document.getElementById('gallery-zoom-modal')) {
+      document.getElementById('gallery-zoom-modal').remove();
+    }
+  };
+  galleryPopup.appendChild(closeBtn);
+
+  // Title
+  const title = document.createElement('h3');
+  title.textContent = "Photos you've taken 📸";
+  title.style.textAlign = 'center';
+  title.style.fontFamily = "'Poppins', sans-serif";
+  title.style.fontWeight = 'bold';
+  title.style.fontSize = '19px';
+  title.style.color = '#9b4dca';
+  title.style.margin = '0 0 8px 0';
+  title.style.userSelect = 'none';
+  galleryPopup.appendChild(title);
+
+  // Grid
+  const grid = document.createElement('div');
+  grid.id = 'gallery-popup-grid';
+
+  // posterImgs: extract from archivePhotos
+  const posterImgs = archivePhotos.map(({ src, name }) => ({ src, name }));
+
+  if (posterImgs.length === 0) {
+    const emptyMsg = document.createElement('div');
+    emptyMsg.textContent = "No photos yet! Take some with the camera button on a marker.";
+    emptyMsg.style.textAlign = 'center';
+    emptyMsg.style.color = '#555';
+    emptyMsg.style.fontSize = '15px';
+    emptyMsg.style.margin = '30px 0 0 0';
+    emptyMsg.style.fontFamily = "'Poppins', sans-serif";
+    galleryPopup.appendChild(emptyMsg);
+  } else {
+    posterImgs.forEach(({ src, name }) => {
+      const cell = document.createElement('div');
+      cell.style.display = 'flex';
+      cell.style.flexDirection = 'column';
+      cell.style.alignItems = 'center';
+
+      const img = document.createElement('img');
+      img.src = src;
+      img.className = 'gallery-popup-img';
+      img.alt = 'Photo poster';
+      img.title = name;
+
+      // Zoom on click
+      img.onclick = function() {
+        overlay.remove(); // Close gallery
+        showZoomModal(src);
+      };
+
+      const label = document.createElement('div');
+      label.className = 'gallery-popup-label';
+      label.textContent = name;
+
+      cell.appendChild(img);
+      cell.appendChild(label);
+      grid.appendChild(cell);
+    });
+    galleryPopup.appendChild(grid);
+  }
+
+  overlay.appendChild(galleryPopup);
+  document.body.appendChild(overlay);
+
+  // Close on click outside popup
+  overlay.onclick = function(e) {
+    if (e.target === overlay) {
+      overlay.remove();
+      if (document.getElementById('gallery-zoom-modal')) {
+        document.getElementById('gallery-zoom-modal').remove();
+      }
+    }
+  };
+}
+
+galleryButton.onclick = showGalleryPopup;
+
+// Zoom modal for gallery images
+function showZoomModal(imgSrc) {
+  // Remove previous
+  if (document.getElementById('gallery-zoom-modal')) {
+    document.getElementById('gallery-zoom-modal').remove();
+  }
+  const modal = document.createElement('div');
+  modal.id = 'gallery-zoom-modal';
+
+  const img = document.createElement('img');
+  img.id = 'gallery-zoom-img';
+  img.src = imgSrc;
+  img.alt = 'Zoomed photo';
+
+  // Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.id = 'gallery-zoom-close-btn';
+  closeBtn.innerHTML = '❌';
+  closeBtn.title = 'Close';
+
+  closeBtn.onclick = function() {
+    modal.remove();
+  };
+
+  modal.appendChild(img);
+  modal.appendChild(closeBtn);
+
+  document.body.appendChild(modal);
+
+  // Close on click outside image
+  modal.onclick = function(e) {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  };
+}
+
+// ---------------------- END GALLERY POPUP LOGIC ----------------------
 
 function createCustomMarker(imageUrl, color = '#9b4dca', isLocation = false) {
   const markerDiv = document.createElement('div');
