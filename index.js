@@ -26,6 +26,9 @@ const auth = getAuth(app);
 let firebaseUser = null;
 let completedMarkers = {};
 
+// Track all active video elements for modal videos
+let activeModalVideos = new Set();
+
 // --- Progress Bar Element (Clash of Clans Style, geolocate button height, only active on map, hidden on loading screen) ---
 const progressBarContainer = document.createElement('div');
 progressBarContainer.id = 'progress-bar-container';
@@ -138,7 +141,7 @@ function showProgressBarHint() {
   popup.style.userSelect = 'none';
 
   const text = document.createElement('span');
-  text.textContent = "Press the visit button on a marker to confirm you're visit!";
+  text.textContent = "Press the 'Unvisited' button on a marker to confirm you're first visit!";
   text.style.flex = '1';
   text.style.textAlign = 'center';
 
@@ -278,6 +281,38 @@ geolocate.on('geolocate', (e) => {
   userLocationMarker.setLngLat([e.coords.longitude, e.coords.latitude]);
 });
 
+// Helper function: stops all modal videos except the specified one (or all if none specified)
+function stopAllModalVideos(except = null) {
+  activeModalVideos.forEach((video) => {
+    if (!except || video !== except) {
+      video.pause();
+      video.currentTime = 0;
+      if (video.parentNode) {
+        // Remove video controls if modal is not up
+        video.controls = false;
+      }
+    }
+  });
+}
+
+// Remove any modal overlay and stop videos if leaving modal
+function removeOverlayAndPauseVideo() {
+  // Stop all modal videos
+  stopAllModalVideos();
+  // Remove overlay
+  document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
+}
+
+// Remove modal overlay and stop video for a specific video element
+function removeSpecificOverlayAndPause(videoElement, overlay) {
+  if (videoElement) {
+    videoElement.pause();
+    videoElement.currentTime = 0;
+    activeModalVideos.delete(videoElement);
+  }
+  if (overlay) overlay.remove();
+}
+
 locations.forEach((location) => {
   const { element: markerElement } = createCustomMarker(
     location.image,
@@ -324,7 +359,9 @@ buildings.forEach((building) => {
       console.error('Video URL not available for this building.');
       return;
     }
-    document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
+    // Before showing a new modal, stop all videos in modals that are up (and remove overlays)
+    removeOverlayAndPauseVideo();
+
     const overlay = document.createElement('div');
     overlay.className = 'video-modal-overlay';
     overlay.style.position = 'fixed';
@@ -348,7 +385,7 @@ buildings.forEach((building) => {
     posterContainer.style.alignItems = 'center';
 
     overlay.addEventListener('mousedown', function (e) {
-      if (!posterContainer.contains(e.target)) removeOverlayAndPauseVideo();
+      if (!posterContainer.contains(e.target)) removeSpecificOverlayAndPause(null, overlay);
     });
 
     const cameraIcon = document.createElement('button');
@@ -442,18 +479,7 @@ buildings.forEach((building) => {
     let videoElement = null;
     let cameraStream = null;
 
-    function removeOverlayAndPauseVideo() {
-      if (videoElement) {
-        videoElement.pause();
-        videoElement.currentTime = 0;
-      }
-      if (cameraStream) {
-        cameraStream.getTracks().forEach((track) => track.stop());
-      }
-      overlay.remove();
-    }
-
-    closeBtn.onclick = () => removeOverlayAndPauseVideo();
+    closeBtn.onclick = () => removeSpecificOverlayAndPause(videoElement, overlay);
     let startY;
     overlay.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) startY = e.touches[0].clientY;
@@ -462,7 +488,7 @@ buildings.forEach((building) => {
       if (startY !== undefined && e.touches.length === 1) {
         const dy = e.touches[0].clientY - startY;
         if (dy > 70) {
-          removeOverlayAndPauseVideo();
+          removeSpecificOverlayAndPause(videoElement, overlay);
           startY = undefined;
         }
       }
@@ -862,6 +888,7 @@ buildings.forEach((building) => {
     playBtn.onclick = () => {
       playBtn.style.display = 'none';
       spinner.style.display = 'block';
+
       videoElement = document.createElement('video');
       videoElement.src = videoUrl;
       if (posterUrl) videoElement.poster = posterUrl;
@@ -877,6 +904,9 @@ buildings.forEach((building) => {
 
       posterContainer.replaceChild(videoElement, posterImg);
 
+      // Add to active modal videos set
+      activeModalVideos.add(videoElement);
+
       videoElement.addEventListener('playing', () => {
         spinner.style.display = 'none';
       });
@@ -891,10 +921,17 @@ buildings.forEach((building) => {
         alert('Video failed to load.');
       });
 
-      videoElement.addEventListener('ended', () => removeOverlayAndPauseVideo());
+      videoElement.addEventListener('ended', () => {
+        removeSpecificOverlayAndPause(videoElement, overlay);
+      });
 
       videoElement.addEventListener('click', () => {
         videoElement.controls = true;
+      });
+
+      // If overlay is removed for any reason, stop the video
+      overlay.addEventListener('remove', () => {
+        removeSpecificOverlayAndPause(videoElement, overlay);
       });
 
       videoElement.load();
@@ -1387,6 +1424,12 @@ let isBottomSheetOpen = false;
 function toggleBottomSheet(contentHTML) {
   if (isBottomSheetOpen) {
     bottomSheet.style.bottom = '-100%';
+    // Stop any <video> in bottomSheet when hiding
+    bottomSheet.querySelectorAll('video').forEach((video) => {
+      video.pause();
+      video.currentTime = 0;
+      video.controls = false;
+    });
   } else {
     const closeButtonHTML = `
             <button id="close-bottom-sheet" style="
@@ -1407,11 +1450,12 @@ function toggleBottomSheet(contentHTML) {
     bottomSheet.style.bottom = '0';
 
     document.getElementById('close-bottom-sheet').addEventListener('click', () => {
-      const videoElement = document.querySelector('video');
-      if (videoElement) {
-        videoElement.pause();
-        videoElement.currentTime = 0;
-      }
+      // Stop any <video> in bottomSheet when closing
+      bottomSheet.querySelectorAll('video').forEach((video) => {
+        video.pause();
+        video.currentTime = 0;
+        video.controls = false;
+      });
       toggleBottomSheet();
     });
   }
