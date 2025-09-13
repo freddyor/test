@@ -1209,6 +1209,29 @@ function findPhotoIndexByName(name) {
   return archivePhotos.findIndex(p => p.name === name);
 }
 
+// This is the updated function for descending order (most recent at top/left)
+function addPhotoToArchive(imgSrc, markerName, buttonRef) {
+  const idx = findPhotoIndexByName(markerName);
+  if (idx !== -1) {
+    const confirmReplace = window.confirm(
+      `You already have a photo for "${markerName}" in your archive.\nDo you want to replace it with the new photo?`
+    );
+    if (!confirmReplace) return;
+    // Remove old entry
+    archivePhotos.splice(idx, 1);
+  }
+  // Add new photo to the front (most recent first)
+  archivePhotos.unshift({ src: imgSrc, name: markerName });
+
+  localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
+  renderArchivePhotos();
+  if (buttonRef) {
+    buttonRef.textContent = 'Archived';
+    buttonRef.style.background = '#4caf50';
+    buttonRef.style.color = '#fff';
+  }
+}
+
 function ensureArchiveSection() {
   let archiveSection = document.getElementById('archive-section');
   if (!archiveSection) {
@@ -1219,27 +1242,6 @@ function ensureArchiveSection() {
     document.body.appendChild(archiveSection);
   }
   return archiveSection;
-}
-
-function addPhotoToArchive(imgSrc, markerName, buttonRef) {
-  const idx = findPhotoIndexByName(markerName);
-  if (idx !== -1) {
-    const confirmReplace = window.confirm(
-      `You already have a photo for "${markerName}" in your archive.\nDo you want to replace it with the new photo?`
-    );
-    if (!confirmReplace) return;
-
-    archivePhotos[idx] = { src: imgSrc, name: markerName };
-  } else {
-    archivePhotos.push({ src: imgSrc, name: markerName });
-  }
-  localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-  renderArchivePhotos();
-  if (buttonRef) {
-    buttonRef.textContent = 'Archived';
-    buttonRef.style.background = '#4caf50';
-    buttonRef.style.color = '#fff';
-  }
 }
 
 function renderArchivePhotos() {
@@ -1272,6 +1274,7 @@ function renderArchivePhotos() {
   tipText.style.lineHeight = '1.2';
   archiveSection.appendChild(tipText);
 
+  // Clear the grid before rendering
   const grid = document.createElement('div');
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
