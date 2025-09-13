@@ -26,64 +26,73 @@ const auth = getAuth(app);
 let firebaseUser = null;
 let completedMarkers = {};
 
-// --- Progress Bar Element ---
+// --- Progress Bar Element (Clash of Clans Style) ---
 const progressBarContainer = document.createElement('div');
 progressBarContainer.id = 'progress-bar-container';
 progressBarContainer.style.position = 'fixed';
 progressBarContainer.style.top = '20px';
 progressBarContainer.style.left = '20px';
 progressBarContainer.style.zIndex = '10001';
-progressBarContainer.style.background = 'rgba(255,255,255,0.85)';
-progressBarContainer.style.borderRadius = '10px';
-progressBarContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-progressBarContainer.style.padding = '8px 16px 8px 16px';
+progressBarContainer.style.width = '150px';
+progressBarContainer.style.height = '30px';
+progressBarContainer.style.background = '#e0e0e0';
+progressBarContainer.style.borderRadius = '14px';
+progressBarContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+progressBarContainer.style.border = '3px solid #111';
 progressBarContainer.style.display = 'flex';
 progressBarContainer.style.alignItems = 'center';
-progressBarContainer.style.minWidth = '120px';
-
-const progressBarLabel = document.createElement('span');
-progressBarLabel.id = 'progress-bar-label';
-progressBarLabel.style.fontFamily = "'Poppins', sans-serif";
-progressBarLabel.style.fontWeight = 'bold';
-progressBarLabel.style.fontSize = '15px';
-progressBarLabel.style.marginRight = '12px';
-progressBarLabel.style.color = '#4caf50';
+progressBarContainer.style.justifyContent = 'center';
+progressBarContainer.style.overflow = 'hidden';
 
 const progressBar = document.createElement('div');
 progressBar.id = 'progress-bar';
-progressBar.style.flexGrow = '1';
-progressBar.style.height = '18px';
-progressBar.style.background = '#e0e0e0';
-progressBar.style.borderRadius = '9px';
+progressBar.style.position = 'absolute';
+progressBar.style.left = '0';
+progressBar.style.top = '0';
+progressBar.style.height = '100%';
+progressBar.style.width = '100%';
+progressBar.style.borderRadius = '14px';
 progressBar.style.overflow = 'hidden';
-progressBar.style.position = 'relative';
 
 const progressFill = document.createElement('div');
 progressFill.id = 'progress-fill';
 progressFill.style.height = '100%';
 progressFill.style.width = '0%';
-progressFill.style.background = 'linear-gradient(90deg, #4caf50 60%, #81c784 100%)';
+progressFill.style.background = 'linear-gradient(90deg, #4caf50 60%, #398c32 100%)';
 progressFill.style.transition = 'width 0.3s ease';
-progressFill.style.borderRadius = '9px';
+progressFill.style.borderRadius = '14px 0 0 14px';
+progressFill.style.position = 'absolute';
+progressFill.style.top = '0';
+progressFill.style.left = '0';
+progressFill.style.zIndex = '1';
 
-progressBar.appendChild(progressFill);
-progressBarContainer.appendChild(progressBarLabel);
+const progressBarLabel = document.createElement('span');
+progressBarLabel.id = 'progress-bar-label';
+progressBarLabel.style.position = 'relative';
+progressBarLabel.style.zIndex = '2';
+progressBarLabel.style.width = '100%';
+progressBarLabel.style.textAlign = 'center';
+progressBarLabel.style.fontFamily = "'Poppins', sans-serif";
+progressBarLabel.style.fontWeight = 'bold';
+progressBarLabel.style.fontSize = '17px';
+progressBarLabel.style.color = '#111';
+progressBarLabel.style.userSelect = 'none';
+
 progressBarContainer.appendChild(progressBar);
+progressBarContainer.appendChild(progressFill);
+progressBarContainer.appendChild(progressBarLabel);
 
 document.body.appendChild(progressBarContainer);
 
 // Update the progress bar whenever visited markers change
 function updateProgressBar() {
-  // Only "building" markers are tracked for visited state
   const totalMarkers = buildings.length;
   const visitedMarkers = buildings.filter(
     b => completedMarkers['completed-marker-' + b.name]
   ).length;
 
-  // Update label
   progressBarLabel.textContent = `${visitedMarkers} / ${totalMarkers}`;
 
-  // Update bar fill
   const percent = totalMarkers > 0 ? Math.round((visitedMarkers / totalMarkers) * 100) : 0;
   progressFill.style.width = percent + '%';
 }
@@ -267,13 +276,10 @@ buildings.forEach((building) => {
     posterContainer.style.flexDirection = 'column';
     posterContainer.style.alignItems = 'center';
 
-    // Add overlay click handler that works for all overlay content (camera, photo, etc)
     overlay.addEventListener('mousedown', function (e) {
-      // Close if clicking outside the modal content (posterContainer)
       if (!posterContainer.contains(e.target)) removeOverlayAndPauseVideo();
     });
 
-    // Create camera, visit, close buttons but DO NOT append yet!
     const cameraIcon = document.createElement('button');
     cameraIcon.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -303,7 +309,6 @@ buildings.forEach((building) => {
     const markerKey = 'completed-marker-' + building.name;
     let isVisited = completedMarkers[markerKey] ? true : false;
 
-    // --- NEW BUTTON (visitBtn) ---
     const visitBtn = document.createElement('button');
     visitBtn.textContent = isVisited ? 'Visited' : 'Unvisited';
     visitBtn.style.position = 'absolute';
@@ -395,7 +400,6 @@ buildings.forEach((building) => {
       startY = undefined;
     });
 
-    // spinner, playBtn, etc.
     const playBtn = document.createElement('button');
     playBtn.innerHTML = '▶';
     playBtn.style.position = 'absolute';
@@ -433,7 +437,6 @@ buildings.forEach((building) => {
     spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
     document.head.appendChild(spinnerStyle);
 
-    // Only the poster image is appended initially!
     const posterImg = document.createElement('img');
     posterImg.src = posterUrl || '';
     posterImg.alt = 'Video cover';
@@ -442,7 +445,6 @@ buildings.forEach((building) => {
     posterImg.style.borderRadius = '14px';
     posterImg.style.display = 'block';
 
-    // Only after the poster loads, append the controls/buttons
     posterImg.addEventListener('load', () => {
       posterImg.style.border = '1.5px solid #E9E8E0';
       posterContainer.appendChild(cameraIcon);
@@ -479,7 +481,6 @@ buildings.forEach((building) => {
       const overlayInset = 32;
       const overlayInnerPadding = `${overlayPaddingY}px ${overlayPaddingX}px`;
 
-      // ---- TEXT OVERLAY LOGIC ----
       let textOverlay = null;
       if (markerText && markerText.trim().length > 0) {
         textOverlay = document.createElement('div');
@@ -500,8 +501,6 @@ buildings.forEach((building) => {
         textOverlay.style.lineHeight = "1";
         textOverlay.style.padding = overlayInnerPadding;
 
-        // Set width to just fit text, but max out at 90vw - 2*overlayInset
-        // First, measure the text width
         const tempSpan = document.createElement('span');
         tempSpan.textContent = markerText;
         tempSpan.style.fontFamily = textOverlay.style.fontFamily;
@@ -513,7 +512,6 @@ buildings.forEach((building) => {
         tempSpan.style.whiteSpace = 'pre';
         document.body.appendChild(tempSpan);
 
-        // Padding for both sides
         const paddingX = overlayPaddingX * 2;
         let textWidth = tempSpan.offsetWidth + paddingX;
         let maxWidth = window.innerWidth * 0.90 - 2 * overlayInset;
@@ -714,7 +712,6 @@ buildings.forEach((building) => {
           }
           ctx.restore();
         }
-        // --- TIP TEXT ABOVE PHOTO ---
         const tipText = document.createElement('div');
         tipText.textContent = 'Tap and hold image to save';
         tipText.style.display = 'block';
@@ -724,10 +721,10 @@ buildings.forEach((building) => {
         tipText.style.textAlign = 'center';
         tipText.style.color = '#7C6E4D';
         tipText.style.fontWeight = 'bold';
-        tipText.style.background = '#eae7de'; // less bright
+        tipText.style.background = '#eae7de';
         tipText.style.borderRadius = '8px';
-        tipText.style.padding = '6px 7px'; // sides closer to text
-        tipText.style.lineHeight = '1.02'; // decreased line spacing
+        tipText.style.padding = '6px 7px';
+        tipText.style.lineHeight = '1.02';
         tipText.style.maxWidth = '90vw';
         posterContainer.appendChild(tipText);
 
@@ -741,7 +738,6 @@ buildings.forEach((building) => {
         imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
         posterContainer.appendChild(imgPreview);
 
-        // --- "Add to Archive" BUTTON ---
         addToArchiveBtn = document.createElement('button');
         addToArchiveBtn.textContent = 'Add to Archive';
         addToArchiveBtn.className = 'custom-button';
@@ -751,7 +747,6 @@ buildings.forEach((building) => {
         addToArchiveBtn.style.color = '#333';
         posterContainer.appendChild(addToArchiveBtn);
 
-        // Set button to 'Archived' state if already archived
         const alreadyArchived = findPhotoIndexByName(building.name) !== -1;
         if (alreadyArchived) {
           addToArchiveBtn.textContent = 'Archived';
@@ -837,10 +832,8 @@ buildings.forEach((building) => {
 });
 
 // ----------- ADD TO ARCHIVE LOGIC -----------
-// This will be a list of photo objects: { src, name }
 let archivePhotos = [];
 
-// Load archive photos from localStorage on startup
 const savedArchivePhotos = localStorage.getItem('archivePhotos');
 if (savedArchivePhotos) {
   try {
@@ -851,7 +844,6 @@ if (savedArchivePhotos) {
   }
 }
 
-// Helper: find photo index by building name
 function findPhotoIndexByName(name) {
   return archivePhotos.findIndex(p => p.name === name);
 }
@@ -868,12 +860,9 @@ function ensureArchiveSection() {
   return archiveSection;
 }
 
-// ... previous code unchanged ...
-
 function addPhotoToArchive(imgSrc, markerName, buttonRef) {
   const idx = findPhotoIndexByName(markerName);
   if (idx !== -1) {
-    // Already have a photo for this marker - ask if they want to replace
     const confirmReplace = window.confirm(
       `You already have a photo for "${markerName}" in your archive.\nDo you want to replace it with the new photo?`
     );
@@ -896,15 +885,13 @@ function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
 
-  // --- Divider line ---
   const divider = document.createElement('div');
-  divider.style.width = '25vw';         // About a quarter of the screen width
-  divider.style.height = '1px';         // Thin line
-  divider.style.background = '#b7ab8b'; // Soft neutral color
-  divider.style.margin = '8px auto 12px auto'; // Spacing, centered
+  divider.style.width = '25vw';
+  divider.style.height = '1px';
+  divider.style.background = '#b7ab8b';
+  divider.style.margin = '8px auto 12px auto';
   archiveSection.appendChild(divider);
 
-  // --- Tip text (black, bigger, full width, centered) ---
   const tipText = document.createElement('div');
   tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
   tipText.style.fontSize = '14px';
@@ -924,13 +911,12 @@ function renderArchivePhotos() {
     return;
   }
 
-  // Grid container - ensure full width
   const grid = document.createElement('div');
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
   grid.style.gap = '8px';
   grid.style.padding = '8px';
-  grid.style.width = '100%'; // <---- Ensure grid uses full parent width
+  grid.style.width = '100%';
   grid.style.boxSizing = 'border-box';
 
   archivePhotos.forEach(({ src, name }, idx) => {
@@ -939,9 +925,8 @@ function renderArchivePhotos() {
     cell.style.flexDirection = 'column';
     cell.style.alignItems = 'center';
     cell.style.position = 'relative';
-    cell.style.width = '100%'; // <---- Make each grid cell fill its grid area
+    cell.style.width = '100%';
 
-    // Building name above photo, small text, always full text, decreased line spacing
     const nameLabel = document.createElement('div');
     nameLabel.textContent = name;
     nameLabel.style.fontSize = '10px';
@@ -953,22 +938,20 @@ function renderArchivePhotos() {
     nameLabel.style.maxWidth = '110px';
     nameLabel.style.wordBreak = 'break-word';
 
-    // Container for image and cross
     const imgContainer = document.createElement('div');
     imgContainer.style.position = 'relative';
     imgContainer.style.display = 'block';
-    imgContainer.style.width = '110px'; // <---- Each image 110px wide
+    imgContainer.style.width = '110px';
     imgContainer.style.boxSizing = 'border-box';
 
     const img = document.createElement('img');
     img.src = src;
     img.style.width = '100%';
-    img.style.height = 'auto'; // Show full height - not cropped, not forced square
+    img.style.height = 'auto';
     img.style.borderRadius = '7px';
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
 
-    // Bottom-right cross button
     const removeBtn = document.createElement('button');
     removeBtn.textContent = '❌';
     removeBtn.title = 'Remove from archive';
@@ -1008,10 +991,7 @@ function renderArchivePhotos() {
 
   archiveSection.appendChild(grid);
 }
-// Render archive on load so it appears if any photos are already saved
 renderArchivePhotos();
-
-// ...rest of your code remains unchanged...
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
@@ -1133,7 +1113,6 @@ function showSection(section) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Always hide bottom bar while loading screen is up
   const bottomBar = document.getElementById('bottom-bar');
   if (bottomBar) bottomBar.style.display = 'none';
 
@@ -1409,5 +1388,4 @@ function createPopupContent(location, isFirebase = false) {
     `;
 }
 
-// Optionally, update the progress bar on initial script load to set the correct state
 updateProgressBar();
