@@ -541,7 +541,7 @@ function getDistanceMeters(lat1, lng1, lat2, lng2) {
     const dLng = toRad(lng2 - lng1);
     const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.cos(toRad(lat1) ) * Math.cos(toRad(lat2) ) *
         Math.sin(dLng / 2) * Math.sin(dLng / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
@@ -1097,13 +1097,7 @@ buildings.forEach((building) => {
         addToArchiveBtn.style.color = '#333';
         posterContainer.appendChild(addToArchiveBtn);
 
-        const alreadyArchived = findPhotoIndexByName(building.name) !== -1;
-        if (alreadyArchived) {
-          addToArchiveBtn.textContent = 'Archived';
-          addToArchiveBtn.style.background = '#4caf50';
-          addToArchiveBtn.style.color = '#fff';
-        }
-
+        // No longer check if already archived for this marker, just allow multiple
         addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
           addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
@@ -1205,22 +1199,9 @@ if (savedArchivePhotos) {
   }
 }
 
-function findPhotoIndexByName(name) {
-  return archivePhotos.findIndex(p => p.name === name);
-}
-
-// This is the updated function for descending order (most recent at top/left)
+// REMOVE THE LIMIT: This function now simply adds to the archive, allowing duplicates
 function addPhotoToArchive(imgSrc, markerName, buttonRef) {
-  const idx = findPhotoIndexByName(markerName);
-  if (idx !== -1) {
-    const confirmReplace = window.confirm(
-      `You already have a photo for "${markerName}" in your archive.\nDo you want to replace it with the new photo?`
-    );
-    if (!confirmReplace) return;
-    // Remove old entry
-    archivePhotos.splice(idx, 1);
-  }
-  // Add new photo to the front (most recent first)
+  // No longer check for existing photo per marker, just push a new entry
   archivePhotos.unshift({ src: imgSrc, name: markerName });
 
   localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
@@ -1231,6 +1212,9 @@ function addPhotoToArchive(imgSrc, markerName, buttonRef) {
     buttonRef.style.color = '#fff';
   }
 }
+
+// Optionally, you can remove the findPhotoIndexByName function entirely
+// function findPhotoIndexByName(name) { ... } // not needed anymore
 
 function ensureArchiveSection() {
   let archiveSection = document.getElementById('archive-section');
@@ -1409,8 +1393,6 @@ map.on('load', () => {
   const loadingScreen = document.getElementById('loading-screen');
   const elapsed = Date.now() - loadingScreenStart;
   const minDuration = 5000;
-
-  
 
   function showBottomBar() {
     loadingScreen.style.display = 'none';
