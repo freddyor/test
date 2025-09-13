@@ -145,21 +145,22 @@ exploreButton.onclick = function() {
   const bottomBar = document.getElementById('bottom-bar');
   let bottomBarHeight = bottomBar && bottomBar.offsetHeight ? bottomBar.offsetHeight : 54;
 
-  // Overlay with blur
-  const overlay = document.createElement('div');
-  overlay.id = 'explore-popup-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.background = 'rgba(40,40,40,0.18)';
-  overlay.style.backdropFilter = 'blur(10px)';
-  overlay.style.webkitBackdropFilter = 'blur(10px)';
-  overlay.style.zIndex = '20000';
-  overlay.style.display = 'flex';
-  overlay.style.alignItems = 'flex-end';
-  overlay.style.justifyContent = 'center';
+// Overlay with blur
+const overlay = document.createElement('div');
+overlay.id = 'explore-popup-overlay';
+overlay.style.position = 'fixed';
+overlay.style.top = '0';
+overlay.style.left = '0';
+overlay.style.width = '100vw';
+// Set height to exclude the bottom bar!
+overlay.style.height = `calc(100vh - ${bottomBarHeight}px)`;
+overlay.style.background = 'rgba(40,40,40,0.18)';
+overlay.style.backdropFilter = 'blur(10px)';
+overlay.style.webkitBackdropFilter = 'blur(10px)';
+overlay.style.zIndex = '20000';
+overlay.style.display = 'flex';
+overlay.style.alignItems = 'flex-end';
+overlay.style.justifyContent = 'center';
 
   // Popup
   const popup = document.createElement('div');
