@@ -126,17 +126,15 @@ progressBarWrapper.appendChild(progressBarContainer);
 progressBarWrapper.appendChild(exploreButton);
 document.body.appendChild(progressBarWrapper);
 
-// --- Explore Locations Popup Logic (NEW DESIGN) ---
+// --- Explore Locations Popup Logic (updated) ---
 exploreButton.onclick = function() {
-  // Remove existing popups/modals if present
   if (document.getElementById('explore-popup-overlay')) {
     document.getElementById('explore-popup-overlay').remove();
   }
-  // Get bottom bar height
   const bottomBar = document.getElementById('bottom-bar');
   let bottomBarHeight = bottomBar && bottomBar.offsetHeight ? bottomBar.offsetHeight : 54;
 
-  // Create overlay
+  // Overlay with blur
   const overlay = document.createElement('div');
   overlay.id = 'explore-popup-overlay';
   overlay.style.position = 'fixed';
@@ -145,30 +143,32 @@ exploreButton.onclick = function() {
   overlay.style.width = '100vw';
   overlay.style.height = '100vh';
   overlay.style.background = 'rgba(40,40,40,0.18)';
+  overlay.style.backdropFilter = 'blur(10px)';
+  overlay.style.webkitBackdropFilter = 'blur(10px)';
   overlay.style.zIndex = '20000';
   overlay.style.display = 'flex';
   overlay.style.alignItems = 'flex-end';
   overlay.style.justifyContent = 'center';
 
-  // Create main popup - match progress bar style
+  // Popup
   const popup = document.createElement('div');
   popup.id = 'explore-popup';
   popup.style.position = 'absolute';
   popup.style.left = '50%';
   popup.style.transform = 'translateX(-50%)';
-  popup.style.width = '90vw';
-  popup.style.maxWidth = '800px';
+  popup.style.width = '84vw'; // reduced from 90vw
+  popup.style.maxWidth = '620px'; // reduced from 800px
   popup.style.background = '#e0e0e0';
   popup.style.borderRadius = '14px';
   popup.style.border = '2px solid #111';
   popup.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-  popup.style.padding = '18px 16px 14px 16px';
+  popup.style.padding = '20px 12px 14px 12px';
   popup.style.zIndex = '20001';
   popup.style.overflowY = 'auto';
   popup.style.display = 'flex';
   popup.style.flexDirection = 'column';
-  popup.style.maxHeight = `calc(70vh - ${bottomBarHeight + 16}px)`; // not too tall
-  popup.style.bottom = `${bottomBarHeight + 16}px`; // up from bottom bar
+  popup.style.maxHeight = `calc(70vh - ${bottomBarHeight + 16}px)`;
+  popup.style.bottom = `${bottomBarHeight + 16}px`;
   popup.style.fontFamily = "'Poppins', sans-serif";
 
   // Close button
@@ -196,25 +196,13 @@ exploreButton.onclick = function() {
   closeBtn.onclick = () => overlay.remove();
   popup.appendChild(closeBtn);
 
-  // Title
-  const title = document.createElement('h3');
-  title.textContent = "Explore All Locations";
-  title.style.textAlign = 'center';
-  title.style.fontFamily = "'Poppins', sans-serif";
-  title.style.fontWeight = 'bold';
-  title.style.fontSize = '19px';
-  title.style.color = '#111';
-  title.style.margin = '0 0 12px 0';
-  title.style.userSelect = 'none';
-  popup.appendChild(title);
-
   // Grid
   const grid = document.createElement('div');
   grid.id = 'explore-popup-grid';
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
   grid.style.gap = '16px';
-  grid.style.marginTop = '18px';
+  grid.style.marginTop = '8px';
   grid.style.justifyItems = 'center';
   grid.style.alignItems = 'start';
   grid.style.overflowY = 'auto';
@@ -226,15 +214,16 @@ exploreButton.onclick = function() {
     cell.style.flexDirection = 'column';
     cell.style.alignItems = 'center';
 
-    // Poster image
+    // Poster image - show full height, uncropped
     const img = document.createElement('img');
     img.src = building.posterUrl || building.image;
     img.className = 'explore-popup-img';
     img.alt = building.name;
     img.title = building.name;
     img.style.width = '96px';
-    img.style.height = '144px';
-    img.style.objectFit = 'cover';
+    img.style.height = 'auto'; // Allow full height
+    img.style.maxHeight = 'calc(64vh - 60px)'; // Responsive, but show full available height
+    img.style.objectFit = 'contain'; // Show entire image, no cropping
     img.style.borderRadius = '10px';
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
     img.style.border = '2px solid #111';
@@ -258,22 +247,7 @@ exploreButton.onclick = function() {
       });
     };
 
-    // Label
-    const label = document.createElement('div');
-    label.className = 'explore-popup-label';
-    label.textContent = building.name;
-    label.style.fontSize = '11px';
-    label.style.fontWeight = 'bold';
-    label.style.textAlign = 'center';
-    label.style.color = '#111';
-    label.style.maxWidth = '84px';
-    label.style.overflow = 'hidden';
-    label.style.textOverflow = 'ellipsis';
-    label.style.whiteSpace = 'nowrap';
-    label.style.marginTop = '5px';
-
     cell.appendChild(img);
-    cell.appendChild(label);
     grid.appendChild(cell);
   });
 
