@@ -41,6 +41,7 @@ progressBarWrapper.style.flexDirection = 'row';
 progressBarWrapper.style.alignItems = 'center';
 progressBarWrapper.style.gap = '8px';
 
+// Progress Bar Container
 const progressBarContainer = document.createElement('div');
 progressBarContainer.id = 'progress-bar-container';
 progressBarContainer.style.height = '28px';
@@ -55,6 +56,7 @@ progressBarContainer.style.overflow = 'hidden';
 progressBarContainer.style.width = 'auto';
 progressBarContainer.style.gap = '8px';
 
+// Progress Bar
 const progressBar = document.createElement('div');
 progressBar.id = 'progress-bar';
 progressBar.style.position = 'relative';
@@ -77,15 +79,16 @@ progressFill.style.zIndex = '1';
 
 const progressBarLabel = document.createElement('span');
 progressBarLabel.id = 'progress-bar-label';
-progressBarLabel.style.position = 'absolute'; // <-- CHANGE to absolute
-progressBarLabel.style.top = '0';             // <-- Add for vertical centering
-progressBarLabel.style.left = '0';            // <-- Add for horizontal centering
+// Center label using flex and absolute
+progressBarLabel.style.position = 'absolute';
+progressBarLabel.style.top = '0';
+progressBarLabel.style.left = '0';
 progressBarLabel.style.width = '100%';
 progressBarLabel.style.height = '100%';
 progressBarLabel.style.textAlign = 'center';
-progressBarLabel.style.display = 'flex';      // <-- Use flex to center text
-progressBarLabel.style.alignItems = 'center'; // <-- Vertically center
-progressBarLabel.style.justifyContent = 'center'; // <-- Horizontally center
+progressBarLabel.style.display = 'flex';
+progressBarLabel.style.alignItems = 'center';
+progressBarLabel.style.justifyContent = 'center';
 progressBarLabel.style.fontFamily = "'Poppins', sans-serif";
 progressBarLabel.style.fontWeight = 'bold';
 progressBarLabel.style.fontSize = '15px';
@@ -93,41 +96,45 @@ progressBarLabel.style.color = '#111';
 progressBarLabel.style.userSelect = 'none';
 progressBarLabel.style.zIndex = '2';
 
+// Explore Locations Button - same style as progress bar
 const exploreButton = document.createElement('button');
 exploreButton.id = 'explore-locations-button';
 exploreButton.textContent = 'Explore Locations';
 exploreButton.title = 'Explore all locations';
 exploreButton.style.height = '28px';
-exploreButton.style.marginLeft = '12px';
+exploreButton.style.background = '#e0e0e0';
+exploreButton.style.color = '#111';
+exploreButton.style.border = '2px solid #111';
+exploreButton.style.borderRadius = '14px';
+exploreButton.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
 exploreButton.style.fontSize = '15px';
 exploreButton.style.fontFamily = "'Poppins', sans-serif";
 exploreButton.style.fontWeight = 'bold';
-exploreButton.style.background = '#fff';
-exploreButton.style.color = '#9b4dca';
-exploreButton.style.border = '2px solid #9b4dca';
-exploreButton.style.borderRadius = '14px';
 exploreButton.style.cursor = 'pointer';
-exploreButton.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
 exploreButton.style.padding = '0 15px';
-exploreButton.style.zIndex = '10002';
 exploreButton.style.display = 'flex';
 exploreButton.style.alignItems = 'center';
 exploreButton.style.justifyContent = 'center';
+exploreButton.style.marginLeft = '12px';
+exploreButton.style.transition = 'box-shadow 0.2s';
 
+// Build the progress bar container
 progressBar.appendChild(progressFill);
 progressBar.appendChild(progressBarLabel);
 progressBarContainer.appendChild(progressBar);
 progressBarWrapper.appendChild(progressBarContainer);
 progressBarWrapper.appendChild(exploreButton);
-
 document.body.appendChild(progressBarWrapper);
 
-// --- Explore Locations Popup Logic (NEW) ---
+// --- Explore Locations Popup Logic (NEW DESIGN) ---
 exploreButton.onclick = function() {
   // Remove existing popups/modals if present
   if (document.getElementById('explore-popup-overlay')) {
     document.getElementById('explore-popup-overlay').remove();
   }
+  // Get bottom bar height
+  const bottomBar = document.getElementById('bottom-bar');
+  let bottomBarHeight = bottomBar && bottomBar.offsetHeight ? bottomBar.offsetHeight : 54;
 
   // Create overlay
   const overlay = document.createElement('div');
@@ -137,31 +144,32 @@ exploreButton.onclick = function() {
   overlay.style.left = '0';
   overlay.style.width = '100vw';
   overlay.style.height = '100vh';
-  overlay.style.background = 'rgba(40,40,40,0.32)';
+  overlay.style.background = 'rgba(40,40,40,0.18)';
   overlay.style.zIndex = '20000';
   overlay.style.display = 'flex';
-  overlay.style.alignItems = 'flex-start';
+  overlay.style.alignItems = 'flex-end';
   overlay.style.justifyContent = 'center';
 
-  // Create main popup
+  // Create main popup - match progress bar style
   const popup = document.createElement('div');
   popup.id = 'explore-popup';
   popup.style.position = 'absolute';
   popup.style.left = '50%';
   popup.style.transform = 'translateX(-50%)';
-  popup.style.top = '40px';
   popup.style.width = '90vw';
   popup.style.maxWidth = '800px';
-  popup.style.background = '#f8f8f8';
-  popup.style.borderRadius = '20px';
-  popup.style.border = '3px solid #9b4dca';
-  popup.style.boxShadow = '0 8px 32px rgba(0,0,0,0.22)';
+  popup.style.background = '#e0e0e0';
+  popup.style.borderRadius = '14px';
+  popup.style.border = '2px solid #111';
+  popup.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
   popup.style.padding = '18px 16px 14px 16px';
   popup.style.zIndex = '20001';
   popup.style.overflowY = 'auto';
   popup.style.display = 'flex';
   popup.style.flexDirection = 'column';
-  popup.style.maxHeight = '80vh';
+  popup.style.maxHeight = `calc(70vh - ${bottomBarHeight + 16}px)`; // not too tall
+  popup.style.bottom = `${bottomBarHeight + 16}px`; // up from bottom bar
+  popup.style.fontFamily = "'Poppins', sans-serif";
 
   // Close button
   const closeBtn = document.createElement('button');
@@ -169,11 +177,11 @@ exploreButton.onclick = function() {
   closeBtn.innerHTML = '❌';
   closeBtn.title = 'Close';
   closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '4px';
-  closeBtn.style.right = '7px';
-  closeBtn.style.width = '32px';
-  closeBtn.style.height = '32px';
-  closeBtn.style.background = '#9b4dca';
+  closeBtn.style.top = '8px';
+  closeBtn.style.right = '16px';
+  closeBtn.style.width = '28px';
+  closeBtn.style.height = '28px';
+  closeBtn.style.background = '#111';
   closeBtn.style.border = 'none';
   closeBtn.style.borderRadius = '50%';
   closeBtn.style.color = '#fff';
@@ -195,7 +203,7 @@ exploreButton.onclick = function() {
   title.style.fontFamily = "'Poppins', sans-serif";
   title.style.fontWeight = 'bold';
   title.style.fontSize = '19px';
-  title.style.color = '#9b4dca';
+  title.style.color = '#111';
   title.style.margin = '0 0 12px 0';
   title.style.userSelect = 'none';
   popup.appendChild(title);
@@ -229,8 +237,8 @@ exploreButton.onclick = function() {
     img.style.objectFit = 'cover';
     img.style.borderRadius = '10px';
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-    img.style.border = '2px solid #E9E8E0';
-    img.style.background = '#fff';
+    img.style.border = '2px solid #111';
+    img.style.background = '#e0e0e0';
     img.style.cursor = 'pointer';
     img.style.transition = 'transform 0.12s';
     img.onmouseover = () => img.style.transform = 'scale(1.07)';
@@ -257,7 +265,7 @@ exploreButton.onclick = function() {
     label.style.fontSize = '11px';
     label.style.fontWeight = 'bold';
     label.style.textAlign = 'center';
-    label.style.color = '#9b4dca';
+    label.style.color = '#111';
     label.style.maxWidth = '84px';
     label.style.overflow = 'hidden';
     label.style.textOverflow = 'ellipsis';
@@ -279,6 +287,8 @@ exploreButton.onclick = function() {
     }
   };
 };
+
+// ... rest of your code unchanged ...
 
 // Update the progress bar whenever visited markers change
 function updateProgressBar() {
