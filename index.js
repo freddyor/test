@@ -150,42 +150,42 @@ exploreButton.onclick = function() {
   const bottomBar = document.getElementById('bottom-bar');
   let bottomBarHeight = bottomBar && bottomBar.offsetHeight ? bottomBar.offsetHeight : 54;
 
-// Overlay with blur
-const overlay = document.createElement('div');
-overlay.id = 'explore-popup-overlay';
-overlay.style.position = 'fixed';
-overlay.style.top = '0';
-overlay.style.left = '0';
-overlay.style.width = '100vw';
-// Set height to exclude the bottom bar!
-overlay.style.height = `calc(100vh - ${bottomBarHeight}px)`;
-overlay.style.background = 'rgba(40,40,40,0.18)';
-overlay.style.backdropFilter = 'blur(10px)';
-overlay.style.webkitBackdropFilter = 'blur(10px)';
-overlay.style.zIndex = '20000';
-overlay.style.display = 'flex';
-overlay.style.alignItems = 'flex-end';
-overlay.style.justifyContent = 'center';
+  // Overlay with blur
+  const overlay = document.createElement('div');
+  overlay.id = 'explore-popup-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100vw';
+  overlay.style.height = `calc(100vh - ${bottomBarHeight}px)`;
+  overlay.style.background = 'rgba(40,40,40,0.18)';
+  overlay.style.backdropFilter = 'blur(10px)';
+  overlay.style.webkitBackdropFilter = 'blur(10px)';
+  overlay.style.zIndex = '20000';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'flex-end';
+  overlay.style.justifyContent = 'center';
 
   // Popup
   const popup = document.createElement('div');
-popup.style.position = 'fixed';
-popup.style.left = '50%';
-popup.style.transform = 'translateX(-50%)';
-popup.style.top = '24px'; // 24px from top
-popup.style.bottom = `${bottomBarHeight + 16}px`; // above bottom bar
-popup.style.width = '84vw';
-popup.style.maxWidth = '620px';
-popup.style.background = '#e0e0e0';
-popup.style.borderRadius = '14px';
-popup.style.border = '2px solid #111';
-popup.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-popup.style.padding = '20px 12px 14px 12px';
-popup.style.zIndex = '20001';
-popup.style.overflow = 'visible';
-popup.style.display = 'flex';
-popup.style.flexDirection = 'column';
-popup.style.fontFamily = "'Poppins', sans-serif";
+  popup.id = 'explore-popup';
+  popup.style.position = 'fixed';
+  popup.style.left = '50%';
+  popup.style.transform = 'translateX(-50%)';
+  popup.style.top = '24px';
+  popup.style.bottom = `${bottomBarHeight + 16}px`;
+  popup.style.width = '84vw';
+  popup.style.maxWidth = '620px';
+  popup.style.background = '#e0e0e0';
+  popup.style.borderRadius = '14px';
+  popup.style.border = '2px solid #111';
+  popup.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+  popup.style.padding = '20px 12px 14px 12px';
+  popup.style.zIndex = '20001';
+  popup.style.overflow = 'visible';
+  popup.style.display = 'flex';
+  popup.style.flexDirection = 'column';
+  popup.style.fontFamily = "'Poppins', sans-serif";
 
   // Close button
   const closeBtn = document.createElement('button');
@@ -193,15 +193,15 @@ popup.style.fontFamily = "'Poppins', sans-serif";
   closeBtn.innerHTML = '❌';
   closeBtn.title = 'Close';
   closeBtn.style.position = 'absolute';
-closeBtn.style.top = '-14px';
-closeBtn.style.right = '-14px';
+  closeBtn.style.top = '-14px';
+  closeBtn.style.right = '-14px';
   closeBtn.style.width = '28px';
   closeBtn.style.height = '28px';
   closeBtn.style.background = '#111';
   closeBtn.style.border = 'none';
   closeBtn.style.borderRadius = '50%';
-  closeBtn.style.color = '#fff';
-  closeBtn.style.fontSize = '13px';
+  closeBtn.style.color = '#ff4444'; // make X red
+  closeBtn.style.fontSize = '13px'; // smaller X
   closeBtn.style.fontFamily = 'inherit';
   closeBtn.style.cursor = 'pointer';
   closeBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
@@ -215,34 +215,16 @@ closeBtn.style.right = '-14px';
   // Grid
   const grid = document.createElement('div');
   grid.id = 'explore-popup-grid';
-grid.style.display = 'grid';
-grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-grid.style.columnGap = '8px';
-grid.style.rowGap = '4px'; // Vertical gap reduced
-grid.style.marginTop = '8px';
-grid.style.justifyItems = 'center';
-grid.style.alignItems = 'start';
-grid.style.overflowY = 'auto';
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  grid.style.columnGap = '8px'; // horizontal gap
+  grid.style.rowGap = '4px';    // vertical gap, reduced
+  grid.style.marginTop = '8px';
+  grid.style.justifyItems = 'center';
+  grid.style.alignItems = 'start';
+  grid.style.overflowY = 'auto';
 
-buildings.forEach((building, idx) => {
-  const cell = document.createElement('div');
-  cell.style.display = 'flex';
-  cell.style.flexDirection = 'column';
-  cell.style.alignItems = 'center';
-  cell.style.justifyContent = 'center';
-  cell.style.position = 'relative';
-
-  // Spinner (buffer loading thing)
-  const spinner = document.createElement('div');
-  spinner.style.width = '36px';
-  spinner.style.height = '36px';
-  spinner.style.border = '5px solid #eee';
-  spinner.style.borderTop = '5px solid #9b4dca';
-  spinner.style.borderRadius = '50%';
-  spinner.style.animation = 'spin 1s linear infinite';
-  spinner.style.margin = '32px 0'; // optional vertical padding for spinner
-
-  // Add keyframes if needed
+  // Add spinner keyframes only once
   if (!document.getElementById('posterimg-spinner-keyframes')) {
     const style = document.createElement('style');
     style.id = 'posterimg-spinner-keyframes';
@@ -250,55 +232,73 @@ buildings.forEach((building, idx) => {
     document.head.appendChild(style);
   }
 
-  cell.appendChild(spinner);
+  // Populate grid with all building markers
+  buildings.forEach((building, idx) => {
+    const cell = document.createElement('div');
+    cell.style.display = 'flex';
+    cell.style.flexDirection = 'column';
+    cell.style.alignItems = 'center';
+    cell.style.justifyContent = 'center';
+    cell.style.position = 'relative';
 
-  // Poster image
-  const img = document.createElement('img');
-  img.src = building.posterUrl || building.image;
-  img.className = 'explore-popup-img';
-  img.alt = building.name;
-  img.title = building.name;
-  img.style.width = '112px';
-  img.style.height = 'auto';
-  img.style.maxHeight = '140px';
-  img.style.objectFit = 'contain';
-  img.style.borderRadius = '10px';
-  img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-  img.style.border = '2px solid #111'; // border only appears when photo loads
-  img.style.background = '#e0e0e0';
-  img.style.cursor = 'pointer';
-  img.style.transition = 'transform 0.12s';
-  img.style.display = 'none'; // hide until loaded
+    // Spinner (buffer loading thing)
+    const spinner = document.createElement('div');
+    spinner.style.width = '36px';
+    spinner.style.height = '36px';
+    spinner.style.border = '5px solid #eee';
+    spinner.style.borderTop = '5px solid #9b4dca';
+    spinner.style.borderRadius = '50%';
+    spinner.style.animation = 'spin 1s linear infinite';
+    spinner.style.margin = '32px 0'; // optional vertical padding for spinner
 
-  img.onload = () => {
-    spinner.style.display = 'none';
-    img.style.display = 'block';
-  };
+    cell.appendChild(spinner);
 
-  img.onerror = () => {
-    spinner.style.borderTop = '5px solid red';
-    spinner.title = 'Image failed to load';
-  };
+    // Poster image
+    const img = document.createElement('img');
+    img.src = building.posterUrl || building.image;
+    img.className = 'explore-popup-img';
+    img.alt = building.name;
+    img.title = building.name;
+    img.style.width = '112px';
+    img.style.height = '140px'; // fill cell, may crop vertically
+    img.style.objectFit = 'cover'; // fills border, crops if needed
+    img.style.borderRadius = '10px';
+    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+    img.style.border = '2px solid #111';
+    img.style.background = '#e0e0e0';
+    img.style.cursor = 'pointer';
+    img.style.transition = 'transform 0.12s';
+    img.style.display = 'none'; // hide until loaded
 
-  img.onmouseover = () => img.style.transform = 'scale(1.07)';
-  img.onmouseout = () => img.style.transform = 'scale(1)';
+    img.onload = () => {
+      spinner.style.display = 'none';
+      img.style.display = 'block';
+    };
 
-  img.onclick = function() {
-    overlay.remove();
-    map.flyTo({
-      center: building.coords,
-      zoom: 17,
-      pitch: 45,
-      bearing: -17.6,
-      speed: 1.2,
-      curve: 1,
-      essential: true
-    });
-  };
+    img.onerror = () => {
+      spinner.style.borderTop = '5px solid red';
+      spinner.title = 'Image failed to load';
+    };
 
-  cell.appendChild(img);
-  grid.appendChild(cell);
-});
+    img.onmouseover = () => img.style.transform = 'scale(1.07)';
+    img.onmouseout = () => img.style.transform = 'scale(1)';
+
+    img.onclick = function() {
+      overlay.remove();
+      map.flyTo({
+        center: building.coords,
+        zoom: 17,
+        pitch: 45,
+        bearing: -17.6,
+        speed: 1.2,
+        curve: 1,
+        essential: true
+      });
+    };
+
+    cell.appendChild(img);
+    grid.appendChild(cell);
+  });
 
   popup.appendChild(grid);
   overlay.appendChild(popup);
@@ -310,8 +310,6 @@ buildings.forEach((building, idx) => {
     }
   };
 };
-
-// ... rest of your code unchanged ...
 
 // Update the progress bar whenever visited markers change
 function updateProgressBar() {
