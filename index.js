@@ -1243,6 +1243,12 @@ function renderArchivePhotos() {
   divider.style.margin = '8px auto 12px auto';
   archiveSection.appendChild(divider);
 
+  if (archivePhotos.length === 0) {
+    archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
+    return;
+  }
+
+  // Only show tipText if there is at least one photo
   const tipText = document.createElement('div');
   tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
   tipText.style.fontSize = '14px';
@@ -1254,13 +1260,7 @@ function renderArchivePhotos() {
   tipText.style.maxWidth = '100%';
   tipText.style.margin = '0 auto 12px auto';
   tipText.style.lineHeight = '1.2';
-
   archiveSection.appendChild(tipText);
-
-  if (archivePhotos.length === 0) {
-    archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
-    return;
-  }
 
   const grid = document.createElement('div');
   grid.style.display = 'grid';
