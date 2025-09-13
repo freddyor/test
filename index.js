@@ -17,6 +17,11 @@ const firebaseConfig = {
   measurementId: "G-03E2BB7BQH"
 };
 
+const bottomBar = document.getElementById('bottom-bar');
+if (bottomBar) {
+  bottomBar.style.display = 'none';
+}
+
 const loadingScreenStart = Date.now();
 
 const app = initializeApp(firebaseConfig);
@@ -1389,11 +1394,10 @@ map.on('load', () => {
   geolocate.trigger();
 
   const loadingScreen = document.getElementById('loading-screen');
-  const bottomBar = document.getElementById('bottom-bar');
   const elapsed = Date.now() - loadingScreenStart;
   const minDuration = 5000;
 
-  if (bottomBar) bottomBar.style.display = 'none';
+  
 
   function showBottomBar() {
     loadingScreen.style.display = 'none';
