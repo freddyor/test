@@ -107,7 +107,7 @@ progressBarLabel.style.zIndex = '2';
 // Explore Locations Button - same style as progress bar
 const exploreButton = document.createElement('button');
 exploreButton.id = 'explore-locations-button';
-exploreButton.textContent = 'Explore Locations';
+exploreButton.textContent = 'Explore locations 🔍';
 exploreButton.title = 'Explore all locations';
 exploreButton.style.height = '28px';
 exploreButton.style.minHeight = '28px';
