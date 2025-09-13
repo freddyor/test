@@ -112,6 +112,8 @@ progressBarContainer.addEventListener('click', function (e) {
   }
 });
 
+// ... (previous code unchanged)
+
 function showProgressBarHint() {
   // Remove existing if any
   const existing = document.getElementById('progress-bar-popup');
@@ -140,17 +142,37 @@ function showProgressBarHint() {
   popup.style.color = '#111';
   popup.style.userSelect = 'none';
 
+  // Add overlay for click outside
+  const overlay = document.createElement('div');
+  overlay.id = 'progress-bar-popup-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.background = 'rgba(0,0,0,0.1)';
+  overlay.style.zIndex = '10009';
+
+  overlay.onclick = function (e) {
+    if (e.target === overlay) {
+      popup.remove();
+      overlay.remove();
+    }
+  };
+
+  // Message text
   const text = document.createElement('span');
-  text.textContent = "Press the 'Unvisited' button on a marker to confirm you're first visit!";
+  text.textContent = "Press the visit button on a marker to confirm you're visit!";
   text.style.flex = '1';
   text.style.textAlign = 'center';
 
+  // Close button
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '❌';
   closeBtn.title = 'Close';
   closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '8px';
-  closeBtn.style.right = '12px';
+  closeBtn.style.top = '-14px';
+  closeBtn.style.right = '-14px';
   closeBtn.style.width = '28px';
   closeBtn.style.height = '28px';
   closeBtn.style.background = '#000';
@@ -163,13 +185,20 @@ function showProgressBarHint() {
   closeBtn.style.display = 'flex';
   closeBtn.style.alignItems = 'center';
   closeBtn.style.justifyContent = 'center';
-  closeBtn.onclick = () => { popup.remove(); };
+
+  closeBtn.onclick = () => {
+    popup.remove();
+    overlay.remove();
+  };
 
   popup.appendChild(text);
   popup.appendChild(closeBtn);
 
+  document.body.appendChild(overlay);
   document.body.appendChild(popup);
 }
+
+// ... (rest of code unchanged)
 
 signInAnonymously(auth);
 
