@@ -6,7 +6,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_9EE65B51-E028-4B53-9CBC-6BD4CD9C9621 - VEED Export.mp4",          
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8721.webp",
     "social media": "yes",
-    "text": "The site of the first recorded lesbian marriage in history 💍",
+    "text": "The site of the first recorded lesbian marriage in history",
   },
                                             {
      'name': 'Grays Court',
@@ -107,7 +107,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_8118.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_05D5C0.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8109.webp",
-   "text": "In 1572, Sir Thomas Percy was hung here after he led the failed Rising of the North against Queen Elizabeth",
+   "text": "Sir Thomas Percy was hung here in 1572",
   },
                                         {
    'name': 'Swinegate',
@@ -199,6 +199,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7932.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_380531.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7827.webp",
+                                  "text": "The home of the Dean of York",
   },
                                 {
     name: "Roman Column",
@@ -206,6 +207,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7946.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D234BC.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7834.webp",
+                                  "text": "Roman column from 100AD",
   },
                                 {
     name: "Margaret Clitherow",
@@ -213,6 +215,8 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/clitherow.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_BC70D7.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7828.webp",
+                                  "text": "Margaret Clitherow was executed here for her Catholic faith",
+                                  
   },
                                   {
     name: "Margaret Clitherow",
@@ -220,6 +224,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/clitherow.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_BC70D7.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7828.webp",
+                                    "text": "Margaret Clitherow lived and hid Catholics here before her execution",
   },
                                 {
     name: "St Wilfrid's Church",
@@ -227,6 +232,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7939.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_F514D7.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7830.webp",
+                                  "text": "The Catholic 'Mother Church of York'",
   },
                                 {
     name: "Queen's Path",
@@ -241,6 +247,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7933.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D36A4D.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7829.webp",
+                                  "text": "Roman column from 100AD",
   },
                                 {
     name: "Margaret Clitherow",
@@ -248,6 +255,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/clitherow.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_BC70D7.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7828.webp",
+                                  "text": "A shrine to Margaret Clitherow",
   },
                                 {
     name: "Great East Window",
@@ -255,6 +263,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7945.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_E120E0.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7833.webp",
+                                  "text": "The largest expanse of medieval stained glass in Britain",
   },
                                 {
     name: "Minster Library",
@@ -262,6 +271,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7931.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_9A2D23.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7826.webp",
+                                  "text": "The largest cathedral library on the planet",
   },
                               {
     name: "Duncombe Masonic Temple",
@@ -325,6 +335,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7575.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D4FCCC.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7565.webp",
+                            "text": "These doors have stood here for over 600 years",
   },
                         {
     name: "Davy Tower",
@@ -339,6 +350,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7777.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B20DFF.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7493.webp",
+                          "text": "This wall is the final reminder of a great monastery destroyed by Hnery VIII",
   },
                         {
     name: "Grand Opera House",
@@ -360,6 +372,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7502.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_E59E28.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7496.webp",
+                          "text": "Prince William partied here in 2008",
   },
                         {
     name: "Friends Meeting Room",
@@ -388,9 +401,10 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7148.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_CA7A56.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7143.webp",
+                        "text": "American abolitionist John Woolman died in this alleyway in 1772",
   },
                       {
-    name: "York Observatory",
+    name: "St Wilfrid's Church",
     coords: [ -1.0880407599865685, 53.9612456292666 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7154.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8B5834.mp4",
@@ -402,6 +416,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7150.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D5F4FF.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7141.webp",
+                        "text": "Scottish architecture in York",
   },
                       {
     name: "Multangular Tower",
@@ -409,6 +424,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7151.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B81B8E.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7139.webp",
+                        "text": "17th century defences built on top of 3rd century Roman defences",
   },
                       {
     name: "Hospitium",
@@ -444,6 +460,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7068.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_21C1CC.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7062.webp",
+                    "text": "This church was founded by the man who killed Macbeth",
   },
                 {
     name: "St Olaf",
@@ -451,6 +468,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_7064.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_61F88E.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7061.webp",
+                  "text": "The Norweigan church in York",
   },
               {
     name: "Terry's",
@@ -493,6 +511,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_6858.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_ECEC61.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6857.webp",
+         "text": "The first ever neoclassical building outside of Italy",
   },
       {
     name: "St Helen",
@@ -507,6 +526,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_6829.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_9210BE.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6828.webp",
+      "text": "Bare breasted female figures were placed on the sterns of sailing ships to relax the Gods of the Seas",
   },
   {
     name: "St Sampson’s Square",
@@ -527,6 +547,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_6771.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4A7AA7.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6770.webp",
+    "text": "The first public toilet in England was on the previous bridge here",
   },
   {
     'name': 'Parliament Street',
@@ -548,6 +569,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_6761.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_991278.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6768.webp",
+    "text": "York's first synagogue for 600 years was hidden in this workshop from 1886",
   },
   {
     'name': 'Aldwark Wesleyan Chapel',
@@ -631,6 +653,7 @@ export const buildings = [
     "image": "https://freddyor.github.io/british-map/videos/lendaltower-1.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_ED3D9E(1).mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6003.webp",
+    "text": "York's own Westminster Bridge - both built by Thomas Page",
   },
   {
     "name": "St Leonard's Hospital Windows",
