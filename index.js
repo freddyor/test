@@ -1049,6 +1049,7 @@ function renderArchivePhotos() {
     const nameLabel = document.createElement('div');
     nameLabel.textContent = name;
     nameLabel.style.fontSize = '10px';
+    nameLabel.style.lineHeight = '1';
     nameLabel.style.fontFamily = "'Poppins', sans-serif";
     nameLabel.style.color = '#8c7e5c';
     nameLabel.style.fontWeight = 'bold';
