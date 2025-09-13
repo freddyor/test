@@ -97,6 +97,77 @@ function updateProgressBar() {
   progressFill.style.width = percent + '%';
 }
 
+// --- Progress Bar 0-click popup logic ---
+progressBarContainer.addEventListener('click', function (e) {
+  const totalMarkers = buildings.length;
+  const visitedMarkers = buildings.filter(
+    b => completedMarkers['completed-marker-' + b.name]
+  ).length;
+
+  if (visitedMarkers === 0) {
+    showProgressBarHint();
+  }
+});
+
+function showProgressBarHint() {
+  // Remove existing if any
+  const existing = document.getElementById('progress-bar-popup');
+  if (existing) existing.remove();
+
+  const popup = document.createElement('div');
+  popup.id = 'progress-bar-popup';
+  popup.style.position = 'fixed';
+  popup.style.top = '50%';
+  popup.style.left = '50%';
+  popup.style.transform = 'translate(-50%, -50%)';
+  popup.style.background = '#e0e0e0';
+  popup.style.borderRadius = '14px';
+  popup.style.border = '2px solid #111';
+  popup.style.boxShadow = '0 2px 12px rgba(0,0,0,0.18)';
+  popup.style.padding = '18px 32px 18px 32px';
+  popup.style.zIndex = '10010';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.style.flexDirection = 'row';
+  popup.style.minWidth = '260px';
+  popup.style.fontFamily = "'Poppins', sans-serif";
+  popup.style.fontWeight = 'bold';
+  popup.style.fontSize = '16px';
+  popup.style.color = '#111';
+  popup.style.userSelect = 'none';
+
+  const text = document.createElement('span');
+  text.textContent = "Press the visit button on a marker to confirm you're visit!";
+  text.style.flex = '1';
+  text.style.textAlign = 'center';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '❌';
+  closeBtn.title = 'Close';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '8px';
+  closeBtn.style.right = '12px';
+  closeBtn.style.width = '28px';
+  closeBtn.style.height = '28px';
+  closeBtn.style.background = '#000';
+  closeBtn.style.color = '#fff';
+  closeBtn.style.border = '1.5px solid #E9E8E0';
+  closeBtn.style.borderRadius = '50%';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.fontSize = '0.9rem';
+  closeBtn.style.zIndex = '10011';
+  closeBtn.style.display = 'flex';
+  closeBtn.style.alignItems = 'center';
+  closeBtn.style.justifyContent = 'center';
+  closeBtn.onclick = () => { popup.remove(); };
+
+  popup.appendChild(text);
+  popup.appendChild(closeBtn);
+
+  document.body.appendChild(popup);
+}
+
 signInAnonymously(auth);
 
 onAuthStateChanged(auth, async (user) => {
