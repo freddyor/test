@@ -77,15 +77,21 @@ progressFill.style.zIndex = '1';
 
 const progressBarLabel = document.createElement('span');
 progressBarLabel.id = 'progress-bar-label';
-progressBarLabel.style.position = 'relative';
-progressBarLabel.style.zIndex = '2';
+progressBarLabel.style.position = 'absolute'; // <-- CHANGE to absolute
+progressBarLabel.style.top = '0';             // <-- Add for vertical centering
+progressBarLabel.style.left = '0';            // <-- Add for horizontal centering
 progressBarLabel.style.width = '100%';
+progressBarLabel.style.height = '100%';
 progressBarLabel.style.textAlign = 'center';
+progressBarLabel.style.display = 'flex';      // <-- Use flex to center text
+progressBarLabel.style.alignItems = 'center'; // <-- Vertically center
+progressBarLabel.style.justifyContent = 'center'; // <-- Horizontally center
 progressBarLabel.style.fontFamily = "'Poppins', sans-serif";
 progressBarLabel.style.fontWeight = 'bold';
 progressBarLabel.style.fontSize = '15px';
 progressBarLabel.style.color = '#111';
 progressBarLabel.style.userSelect = 'none';
+progressBarLabel.style.zIndex = '2';
 
 const exploreButton = document.createElement('button');
 exploreButton.id = 'explore-locations-button';
@@ -345,11 +351,13 @@ function showProgressBarHint() {
   popup.style.fontSize = '16px';
   popup.style.color = '#111';
   popup.style.userSelect = 'none';
+  popup.style.lineHeight = '1.1';
 
   const text = document.createElement('span');
   text.textContent = "This is the your Visited Progress Bar. Press the 'Unvisited' button on a marker to confirm your first visit!";
   text.style.flex = '1';
   text.style.textAlign = 'center';
+  text.style.lineHeight = '1.1';
 
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '❌';
