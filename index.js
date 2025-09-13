@@ -682,15 +682,9 @@ buildings.forEach((building) => {
     closeBtn.style.justifyContent = 'center';
     closeBtn.onclick = () => { closeBtn.parentElement.parentElement.remove(); };
 
-    // CAMERA LOGIC WITH DOUBLE TAP SUPPORT
-    let cameraFacingMode = 'environment'; // default rear
-    let lastTapTime = 0;
-    let cameraStream = null;
-    let cameraVideo = null;
-
     cameraIcon.onclick = async function () {
       posterContainer.innerHTML = '';
-      cameraVideo = document.createElement('video');
+      const cameraVideo = document.createElement('video');
       cameraVideo.autoplay = true;
       cameraVideo.playsInline = true;
       cameraVideo.style.width = '90vw';
@@ -756,10 +750,11 @@ buildings.forEach((building) => {
       };
       posterContainer.appendChild(cameraCloseBtn);
 
-      async function startCameraStream(facingMode = cameraFacingMode) {
+      let cameraStream = null;
+      async function startCameraStream() {
         try {
           cameraStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: facingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+            video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }
           });
           cameraVideo.srcObject = cameraStream;
         } catch (err) {
@@ -772,26 +767,6 @@ buildings.forEach((building) => {
         }
       }
       await startCameraStream();
-
-      // DOUBLE TAP support for mobile (touch) and desktop (dblclick)
-      cameraVideo.addEventListener('touchend', function(e) {
-        const now = Date.now();
-        if (now - lastTapTime < 300) { // 300ms double tap
-          cameraFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
-          if (cameraVideo.srcObject) {
-            cameraVideo.srcObject.getTracks().forEach(track => track.stop());
-          }
-          startCameraStream(cameraFacingMode);
-        }
-        lastTapTime = now;
-      });
-      cameraVideo.addEventListener('dblclick', function(e) {
-        cameraFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
-        if (cameraVideo.srcObject) {
-          cameraVideo.srcObject.getTracks().forEach(track => track.stop());
-        }
-        startCameraStream(cameraFacingMode);
-      });
 
       function wrapCanvasText(ctx, text, maxWidth) {
         const words = text.split(' ');
@@ -852,17 +827,10 @@ buildings.forEach((building) => {
         const addToArchiveBtn = document.createElement('button');
         addToArchiveBtn.className = 'add-to-archive-btn custom-button';
         addToArchiveBtn.textContent = 'Add to Archive';
-        addToArchiveBtn.style.fontSize = '13px';
-        addToArchiveBtn.style.fontFamily = "'Poppins', sans-serif";
-        addToArchiveBtn.style.textAlign = 'center';
-        addToArchiveBtn.style.background = '#e0e0e0';
-        addToArchiveBtn.style.color = '#333';
-        addToArchiveBtn.style.borderRadius = '8px';
-        addToArchiveBtn.style.padding = '6px 7px';
-        addToArchiveBtn.style.lineHeight = '1.02';
         addToArchiveBtn.style.display = 'block';
         addToArchiveBtn.style.margin = '10px auto 0 auto';
-        addToArchiveBtn.style.fontWeight = 'bold';
+        addToArchiveBtn.style.background = '#e0e0e0';
+        addToArchiveBtn.style.color = '#333';
         addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
           addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
@@ -872,17 +840,10 @@ buildings.forEach((building) => {
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'cancel-btn custom-button';
         cancelBtn.textContent = 'Take again';
-        cancelBtn.style.fontSize = '13px';
-        cancelBtn.style.fontFamily = "'Poppins', sans-serif";
-        cancelBtn.style.textAlign = 'center';
-        cancelBtn.style.background = '#9b4dca';
-        cancelBtn.style.color = '#fff';
-        cancelBtn.style.borderRadius = '8px';
-        cancelBtn.style.padding = '6px 7px';
-        cancelBtn.style.lineHeight = '1.02';
         cancelBtn.style.display = 'block';
         cancelBtn.style.margin = '10px auto 0 auto';
-        cancelBtn.style.fontWeight = 'bold';
+        cancelBtn.style.background = '#9b4dca';
+        cancelBtn.style.color = '#fff';
         cancelBtn.onclick = function () {
           imgPreview.remove();
           addToArchiveBtn.remove();
@@ -1006,9 +967,6 @@ buildings.forEach((building) => {
   });
 });
 
-// ... (rest of the file remains unchanged - archive logic, marker scaling, section toggling, etc.) ...
-// For brevity, the unchanged archive/photo/archiveSection and marker scaling logic is not repeated here. It is identical to your previous version.
-
 let archivePhotos = [];
 const savedArchivePhotos = localStorage.getItem('archivePhotos');
 if (savedArchivePhotos) {
@@ -1091,7 +1049,6 @@ function renderArchivePhotos() {
     const nameLabel = document.createElement('div');
     nameLabel.textContent = name;
     nameLabel.style.fontSize = '10px';
-    nameLabel.style.lineHeight = '1';
     nameLabel.style.fontFamily = "'Poppins', sans-serif";
     nameLabel.style.color = '#8c7e5c';
     nameLabel.style.fontWeight = 'bold';
