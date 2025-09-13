@@ -33,53 +33,26 @@ let activeModalVideos = new Set();
 const progressBarContainer = document.createElement('div');
 progressBarContainer.id = 'progress-bar-container';
 progressBarContainer.style.position = 'fixed';
-progressBarContainer.style.top = '10px';         // Match geolocation control
-progressBarContainer.style.left = '10px';        // Mirror right side
+progressBarContainer.style.top = '10px';
+progressBarContainer.style.left = '10px';
 progressBarContainer.style.zIndex = '10001';
-progressBarContainer.style.height = '28px';      // Match geolocation button height
-progressBarContainer.style.width = '100px';      // Or more, for label
+progressBarContainer.style.height = '28px';
 progressBarContainer.style.background = '#e0e0e0';
 progressBarContainer.style.borderRadius = '14px';
 progressBarContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
 progressBarContainer.style.border = '2px solid #111';
-progressBarContainer.style.display = 'none';
+progressBarContainer.style.display = 'flex';
 progressBarContainer.style.alignItems = 'center';
-progressBarContainer.style.justifyContent = 'center';
+progressBarContainer.style.justifyContent = 'flex-start';
 progressBarContainer.style.overflow = 'hidden';
-
-// --- Gallery Button ---
-const galleryButton = document.createElement('button');
-galleryButton.id = 'gallery-button';
-galleryButton.title = 'Open Gallery';
-galleryButton.textContent = '🖼️';
-galleryButton.style.position = 'absolute';
-galleryButton.style.right = '-40px';
-galleryButton.style.top = '50%';
-galleryButton.style.transform = 'translateY(-50%)';
-galleryButton.style.background = '#e0e0e0';
-galleryButton.style.border = '2px solid #111';
-galleryButton.style.borderRadius = '14px';
-galleryButton.style.height = '28px';
-galleryButton.style.width = '34px';
-galleryButton.style.fontSize = '18px';
-galleryButton.style.cursor = 'pointer';
-galleryButton.style.zIndex = '10002';
-galleryButton.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-galleryButton.style.display = 'flex';
-galleryButton.style.alignItems = 'center';
-galleryButton.style.justifyContent = 'center';
-galleryButton.style.padding = '0';
-
-// Insert gallery button adjacent to progress bar
-progressBarContainer.appendChild(galleryButton);
+progressBarContainer.style.width = 'auto';
+progressBarContainer.style.gap = '8px';
 
 const progressBar = document.createElement('div');
 progressBar.id = 'progress-bar';
-progressBar.style.position = 'absolute';
-progressBar.style.left = '0';
-progressBar.style.top = '0';
+progressBar.style.position = 'relative';
 progressBar.style.height = '100%';
-progressBar.style.width = '100%';
+progressBar.style.width = '100px';
 progressBar.style.borderRadius = '14px';
 progressBar.style.overflow = 'hidden';
 
@@ -107,11 +80,183 @@ progressBarLabel.style.fontSize = '15px';
 progressBarLabel.style.color = '#111';
 progressBarLabel.style.userSelect = 'none';
 
+// --- Explore Locations Button ---
+const exploreButton = document.createElement('button');
+exploreButton.id = 'explore-locations-button';
+exploreButton.textContent = 'Explore Locations';
+exploreButton.title = 'Explore all locations';
+exploreButton.style.height = '28px';
+exploreButton.style.marginLeft = '12px';
+exploreButton.style.fontSize = '15px';
+exploreButton.style.fontFamily = "'Poppins', sans-serif";
+exploreButton.style.fontWeight = 'bold';
+exploreButton.style.background = '#fff';
+exploreButton.style.color = '#9b4dca';
+exploreButton.style.border = '2px solid #9b4dca';
+exploreButton.style.borderRadius = '14px';
+exploreButton.style.cursor = 'pointer';
+exploreButton.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+exploreButton.style.padding = '0 15px';
+exploreButton.style.zIndex = '10002';
+exploreButton.style.display = 'flex';
+exploreButton.style.alignItems = 'center';
+exploreButton.style.justifyContent = 'center';
+
+// Build the progress bar container
+progressBar.appendChild(progressFill);
+progressBar.appendChild(progressBarLabel);
 progressBarContainer.appendChild(progressBar);
-progressBarContainer.appendChild(progressFill);
-progressBarContainer.appendChild(progressBarLabel);
+progressBarContainer.appendChild(exploreButton);
 
 document.body.appendChild(progressBarContainer);
+
+// --- Explore Locations Popup Logic ---
+exploreButton.onclick = function() {
+  if (document.getElementById('gallery-popup-overlay')) {
+    document.getElementById('gallery-popup-overlay').remove();
+  }
+  if (document.getElementById('gallery-zoom-modal')) {
+    document.getElementById('gallery-zoom-modal').remove();
+  }
+  const overlay = document.createElement('div');
+  overlay.id = 'gallery-popup-overlay';
+
+  const galleryPopup = document.createElement('div');
+  galleryPopup.id = 'gallery-popup';
+  galleryPopup.style.position = 'absolute';
+  galleryPopup.style.left = '50%';
+  galleryPopup.style.transform = 'translateX(-50%)';
+  galleryPopup.style.width = '90vw';
+  galleryPopup.style.maxWidth = '800px';
+  galleryPopup.style.background = '#f8f8f8';
+  galleryPopup.style.borderRadius = '20px';
+  galleryPopup.style.border = '3px solid #9b4dca';
+  galleryPopup.style.boxShadow = '0 8px 32px rgba(0,0,0,0.22)';
+  galleryPopup.style.padding = '18px 16px 14px 16px';
+  galleryPopup.style.zIndex = '20001';
+  galleryPopup.style.overflowY = 'auto';
+  galleryPopup.style.display = 'flex';
+  galleryPopup.style.flexDirection = 'column';
+
+  // Position between progress bar and bottom bar
+  const progressBarRect = progressBarContainer.getBoundingClientRect();
+  const bottomBar = document.getElementById('bottom-bar');
+  let bottomBarHeight = bottomBar && bottomBar.offsetHeight ? bottomBar.offsetHeight : 54;
+  galleryPopup.style.top = `${progressBarRect.bottom + 8}px`;
+  galleryPopup.style.maxHeight = `calc(100vh - ${progressBarRect.bottom + 8 + bottomBarHeight + 12}px)`;
+
+  // Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.id = 'gallery-popup-close-btn';
+  closeBtn.innerHTML = '❌';
+  closeBtn.title = 'Close Gallery';
+  closeBtn.onclick = function() {
+    overlay.remove();
+    if (document.getElementById('gallery-zoom-modal')) {
+      document.getElementById('gallery-zoom-modal').remove();
+    }
+  };
+  galleryPopup.appendChild(closeBtn);
+
+  const title = document.createElement('h3');
+  title.textContent = "Photos you've taken 📸";
+  title.style.textAlign = 'center';
+  title.style.fontFamily = "'Poppins', sans-serif";
+  title.style.fontWeight = 'bold';
+  title.style.fontSize = '19px';
+  title.style.color = '#9b4dca';
+  title.style.margin = '0 0 8px 0';
+  title.style.userSelect = 'none';
+  galleryPopup.appendChild(title);
+
+  const grid = document.createElement('div');
+  grid.id = 'gallery-popup-grid';
+
+  const posterImgs = archivePhotos.map(({ src, name }) => ({ src, name }));
+
+  if (posterImgs.length === 0) {
+    const emptyMsg = document.createElement('div');
+    emptyMsg.textContent = "No photos yet! Take some with the camera button on a marker.";
+    emptyMsg.style.textAlign = 'center';
+    emptyMsg.style.color = '#555';
+    emptyMsg.style.fontSize = '15px';
+    emptyMsg.style.margin = '30px 0 0 0';
+    emptyMsg.style.fontFamily = "'Poppins', sans-serif";
+    galleryPopup.appendChild(emptyMsg);
+  } else {
+    posterImgs.forEach(({ src, name }) => {
+      const cell = document.createElement('div');
+      cell.style.display = 'flex';
+      cell.style.flexDirection = 'column';
+      cell.style.alignItems = 'center';
+
+      const img = document.createElement('img');
+      img.src = src;
+      img.className = 'gallery-popup-img';
+      img.alt = 'Photo poster';
+      img.title = name;
+
+      img.onclick = function() {
+        overlay.remove();
+        showZoomModal(src);
+      };
+
+      const label = document.createElement('div');
+      label.className = 'gallery-popup-label';
+      label.textContent = name;
+
+      cell.appendChild(img);
+      cell.appendChild(label);
+      grid.appendChild(cell);
+    });
+    galleryPopup.appendChild(grid);
+  }
+
+  overlay.appendChild(galleryPopup);
+  document.body.appendChild(overlay);
+
+  overlay.onclick = function(e) {
+    if (e.target === overlay) {
+      overlay.remove();
+      if (document.getElementById('gallery-zoom-modal')) {
+        document.getElementById('gallery-zoom-modal').remove();
+      }
+    }
+  };
+};
+
+function showZoomModal(imgSrc) {
+  if (document.getElementById('gallery-zoom-modal')) {
+    document.getElementById('gallery-zoom-modal').remove();
+  }
+  const modal = document.createElement('div');
+  modal.id = 'gallery-zoom-modal';
+
+  const img = document.createElement('img');
+  img.id = 'gallery-zoom-img';
+  img.src = imgSrc;
+  img.alt = 'Zoomed photo';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.id = 'gallery-zoom-close-btn';
+  closeBtn.innerHTML = '❌';
+  closeBtn.title = 'Close';
+
+  closeBtn.onclick = function() {
+    modal.remove();
+  };
+
+  modal.appendChild(img);
+  modal.appendChild(closeBtn);
+
+  document.body.appendChild(modal);
+
+  modal.onclick = function(e) {
+    if (e.target === modal) {
+      modal.remove();
+    }
+  };
+}
 
 // Update the progress bar whenever visited markers change
 function updateProgressBar() {
@@ -128,7 +273,7 @@ function updateProgressBar() {
 
 // --- Progress Bar 0-click popup logic ---
 progressBarContainer.addEventListener('click', function (e) {
-  if (e.target === galleryButton) return; // Don't trigger progress bar hint when clicking gallery button
+  if (e.target === exploreButton) return;
   const totalMarkers = buildings.length;
   const visitedMarkers = buildings.filter(
     b => completedMarkers['completed-marker-' + b.name]
@@ -141,13 +286,11 @@ progressBarContainer.addEventListener('click', function (e) {
 
 // --- Show Progress Bar Hint Popup ---
 function showProgressBarHint() {
-  // Remove existing if any
   const existingPopup = document.getElementById('progress-bar-popup');
   if (existingPopup) existingPopup.remove();
   const existingOverlay = document.getElementById('progress-bar-popup-overlay');
   if (existingOverlay) existingOverlay.remove();
 
-  // Add overlay for click outside
   const overlay = document.createElement('div');
   overlay.id = 'progress-bar-popup-overlay';
   overlay.style.position = 'fixed';
@@ -158,7 +301,6 @@ function showProgressBarHint() {
   overlay.style.background = 'rgba(0,0,0,0.1)';
   overlay.style.zIndex = '10009';
 
-  // Remove popup and overlay when clicking outside
   overlay.onclick = function (e) {
     if (e.target === overlay) {
       popup.remove();
@@ -189,13 +331,11 @@ function showProgressBarHint() {
   popup.style.color = '#111';
   popup.style.userSelect = 'none';
 
-  // Message text
   const text = document.createElement('span');
   text.textContent = "This is the your Visited Progress Bar. Press the 'Unvisited' button on a marker to confirm your first visit!";
   text.style.flex = '1';
   text.style.textAlign = 'center';
 
-  // Close button
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '❌';
   closeBtn.title = 'Close';
@@ -1468,46 +1608,6 @@ stylePopup.innerHTML = `
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  /* Gallery popup styles */
-  #gallery-popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(40,40,40,0.32);
-    z-index: 20000;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-  }
-  #gallery-popup {
-    position: absolute;
-    top: 46px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90vw;
-    max-width: 800px;
-    background: #f8f8f8;
-    border-radius: 20px;
-    border: 3px solid #9b4dca;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.22);
-    padding: 18px 16px 14px 16px;
-    z-index: 20001;
-    overflow-y: auto;
-    max-height: calc(100vh - 106px - 54px); /* 106px: progress+margin, 54px: bottom bar */
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-  }
-  #gallery-popup-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-top: 18px;
-    justify-items: center;
-    align-items: start;
-  }
   .gallery-popup-img {
     width: 96px;
     height: 144px;
@@ -1536,6 +1636,39 @@ stylePopup.innerHTML = `
     white-space: nowrap;
     margin-top: 5px;
   }
+  #gallery-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(40,40,40,0.32);
+    z-index: 20000;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  #gallery-popup {
+    position: absolute;
+    background: #f8f8f8;
+    border-radius: 20px;
+    border: 3px solid #9b4dca;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+    padding: 18px 16px 14px 16px;
+    z-index: 20001;
+    overflow-y: auto;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+  }
+  #gallery-popup-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 18px;
+    justify-items: center;
+    align-items: start;
+  }
   #gallery-popup-close-btn {
     position: absolute;
     top: 4px;
@@ -1555,7 +1688,6 @@ stylePopup.innerHTML = `
     align-items: center;
     justify-content: center;
   }
-  /* Zoom modal */
   #gallery-zoom-modal {
     position: fixed;
     top: 0;
