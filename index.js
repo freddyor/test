@@ -1320,14 +1320,18 @@ function renderArchivePhotos() {
     removeBtn.style.alignItems = 'center';
     removeBtn.style.justifyContent = 'center';
 
-    removeBtn.onclick = function () {
-      const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
-      if (confirmRemove) {
-        archivePhotos.splice(idx, 1);
-        localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-        renderArchivePhotos();
-      }
-    };
+removeBtn.onclick = function () {
+  const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
+  if (confirmRemove) {
+    // Find the correct photo by src and name
+    const removeIndex = archivePhotos.findIndex(p => p.src === src && p.name === name);
+    if (removeIndex !== -1) {
+      archivePhotos.splice(removeIndex, 1);
+      localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
+      renderArchivePhotos();
+    }
+  }
+};
 
     imgContainer.appendChild(img);
     imgContainer.appendChild(removeBtn);
