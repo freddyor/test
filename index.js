@@ -1208,6 +1208,8 @@ map.on('load', () => {
   const elapsed = Date.now() - loadingScreenStart;
   const minDuration = 5000;
 
+  if (bottomBar) bottomBar.style.display = 'none';
+
   function showBottomBar() {
     loadingScreen.style.display = 'none';
     if (bottomBar) bottomBar.style.display = 'flex';
