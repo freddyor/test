@@ -1227,21 +1227,18 @@ function renderArchivePhotos() {
     cell.style.flexDirection = 'column';
     cell.style.alignItems = 'center';
     cell.style.position = 'relative';
-    cell.style.width = '100%'; // Cell takes full grid width
-
-    // No name label
+    cell.style.width = '100%';
 
     const imgContainer = document.createElement('div');
     imgContainer.style.position = 'relative';
     imgContainer.style.display = 'block';
-    imgContainer.style.width = '100%'; // Responsive: fills cell
+    imgContainer.style.width = '100%';
     imgContainer.style.boxSizing = 'border-box';
 
     const img = document.createElement('img');
     img.src = src;
-    img.style.width = '100%'; // Image fills container width
-    img.style.height = 'auto';
-    img.style.aspectRatio = '1/1'; // Square images, always fit
+    img.style.width = '100%';   // fills container width
+    img.style.height = 'auto';  // keeps natural aspect ratio
     img.style.borderRadius = '8px';
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
@@ -1282,8 +1279,6 @@ function renderArchivePhotos() {
 
   archiveSection.appendChild(grid);
 }
-
-// ... following code ...
 
 document.addEventListener('DOMContentLoaded', loadArchivePhotos);
 
