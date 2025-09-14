@@ -1245,7 +1245,7 @@ function renderArchivePhotos() {
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
 
-    // Button is now a horizontal line instead of a "❌"
+    // Button is now a red horizontal line like ➖
     const removeBtn = document.createElement('button');
     removeBtn.title = 'Remove from archive';
     removeBtn.style.position = 'absolute';
@@ -1255,18 +1255,16 @@ function renderArchivePhotos() {
     // 20% smaller than before
     removeBtn.style.width = '17.6px'; // 22px * 0.8
     removeBtn.style.height = '17.6px';
-    removeBtn.style.background = '#000';
-    removeBtn.style.color = '#fff';
-    removeBtn.style.border = '1.5px solid #E9E8E0';
+    removeBtn.style.background = 'transparent';
+    removeBtn.style.border = 'none';
     removeBtn.style.borderRadius = '50%';
     removeBtn.style.cursor = 'pointer';
-    removeBtn.style.fontSize = '0.68rem'; // 0.85rem * 0.8
     removeBtn.style.zIndex = '10';
     removeBtn.style.display = 'flex';
     removeBtn.style.alignItems = 'center';
     removeBtn.style.justifyContent = 'center';
-    // Remove the emoji, insert a straight line
-    removeBtn.innerHTML = '<span style="width:65%;height:2px;background:#fff;display:block;border-radius:2px;"></span>';
+    // Red horizontal line
+    removeBtn.innerHTML = '<span style="width:75%;height:3px;background:#e74c3c;display:block;border-radius:2px;"></span>';
 
     removeBtn.onclick = function () {
       const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
