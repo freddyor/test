@@ -4,12 +4,13 @@ import { locations } from './locations.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getStorage, ref as storageRef, uploadString, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDjv5uUNOx86FvYsXdKSMkl8vui2Jynt7M",
   authDomain: "britmap-64cb3.firebaseapp.com",
   projectId: "britmap-64cb3",
-  storageBucket: "britmap-64cb3.firebasestorage.app",
+  storageBucket: "britmap-64cb3.appspot.com",
   messagingSenderId: "821384262397",
   appId: "1:821384262397:web:ca81d64ab6a8dea562c494",
   measurementId: "G-03E2BB7BQH"
@@ -22,6 +23,7 @@ const loadingScreenStart = Date.now();
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 let firebaseUser = null;
 let completedMarkers = {};
@@ -401,6 +403,7 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     firebaseUser = user;
     await loadCompletedMarkers();
+    await loadArchivePhotosFromFirebase();
     applyDimmedMarkers();
     updateProgressBar();
   }
@@ -419,12 +422,211 @@ async function loadCompletedMarkers() {
   }
 }
 
-async function saveCompletedMarker(markerKey) {
+// Firebase archive logic
+let archivePhotos = []; // [{src: downloadURL, name, firebasePath}]
+
+// New: Load archive photos from Firebase Storage (list in Firestore user doc, downloadURLs)
+async function loadArchivePhotosFromFirebase() {
   if (!firebaseUser) return;
-  completedMarkers[markerKey] = true;
+  try {
+    const docRef = doc(db, "users", firebaseUser.uid);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      archivePhotos = docSnap.data().archivePhotos || [];
+      // If photos have no downloadURL, fetch it
+      for (let i = 0; i < archivePhotos.length; i++) {
+        if (!archivePhotos[i].src && archivePhotos[i].firebasePath) {
+          try {
+            archivePhotos[i].src = await getDownloadURL(storageRef(storage, archivePhotos[i].firebasePath));
+          } catch (e) {
+            archivePhotos[i].src = '';
+          }
+        }
+      }
+      renderArchivePhotos();
+    }
+  } catch (e) {
+    archivePhotos = [];
+    renderArchivePhotos();
+  }
+}
+
+async function saveArchivePhotosToFirestore() {
+  if (!firebaseUser) return;
   const docRef = doc(db, "users", firebaseUser.uid);
-  await setDoc(docRef, { completedMarkers }, { merge: true });
-  updateProgressBar();
+  await setDoc(docRef, { archivePhotos }, { merge: true });
+}
+
+async function addPhotoToArchive(imgSrc, markerName, buttonRef) {
+  if (!firebaseUser) return;
+  // Upload to Firebase Storage as PNG
+  try {
+    const photoId = Date.now() + '-' + Math.random().toString(36).slice(2);
+    const filePath = `user-photos/${firebaseUser.uid}/${photoId}.png`;
+    const storageReference = storageRef(storage, filePath);
+    // imgSrc is a dataURL PNG
+    await uploadString(storageReference, imgSrc, 'data_url');
+    const downloadURL = await getDownloadURL(storageReference);
+    // Add to archivePhotos array
+    archivePhotos.unshift({ src: downloadURL, name: markerName, firebasePath: filePath });
+    await saveArchivePhotosToFirestore();
+    renderArchivePhotos();
+    if (buttonRef) {
+      buttonRef.textContent = 'Archived';
+      buttonRef.style.background = '#4caf50';
+      buttonRef.style.color = '#fff';
+    }
+  } catch (e) {
+    alert('Failed to upload photo to archive: ' + (e.message || e));
+  }
+}
+
+async function removePhotoFromArchive(photoObj) {
+  if (!firebaseUser) return;
+  const confirmRemove = window.confirm(`Do you want to remove the photo for "${photoObj.name}" from your archive?`);
+  if (!confirmRemove) return;
+  // Remove from Firebase Storage
+  try {
+    if (photoObj.firebasePath) {
+      await deleteObject(storageRef(storage, photoObj.firebasePath));
+    }
+  } catch (e) {
+    // Ignore delete error
+  }
+  // Remove from array and Firestore
+  const removeIndex = archivePhotos.findIndex(p => p.firebasePath === photoObj.firebasePath);
+  if (removeIndex !== -1) {
+    archivePhotos.splice(removeIndex, 1);
+    await saveArchivePhotosToFirestore();
+    renderArchivePhotos();
+  }
+}
+
+function ensureArchiveSection() {
+  let archiveSection = document.getElementById('archive-section');
+  if (!archiveSection) {
+    archiveSection = document.createElement('div');
+    archiveSection.id = 'archive-section';
+    archiveSection.style.display = 'none';
+    archiveSection.style.padding = '18px 0 0 0';
+    document.body.appendChild(archiveSection);
+  }
+  return archiveSection;
+}
+
+function renderArchivePhotos() {
+  const archiveSection = ensureArchiveSection();
+  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
+
+  const divider = document.createElement('div');
+  divider.style.width = '25vw';
+  divider.style.height = '1px';
+  divider.style.background = '#b7ab8b';
+  divider.style.margin = '8px auto 12px auto';
+  archiveSection.appendChild(divider);
+
+  if (!firebaseUser) {
+    archiveSection.innerHTML += `<p style="text-align:center;">Please sign in to view your archive.</p>`;
+    return;
+  }
+
+  if (archivePhotos.length === 0) {
+    archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
+    return;
+  }
+
+  const tipText = document.createElement('div');
+  tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
+  tipText.style.fontSize = '14px';
+  tipText.style.fontFamily = "'Poppins', sans-serif";
+  tipText.style.color = '#000';
+  tipText.style.fontWeight = 'bold';
+  tipText.style.marginBottom = '12px';
+  tipText.style.textAlign = 'center';
+  tipText.style.maxWidth = '100%';
+  tipText.style.margin = '0 auto 12px auto';
+  tipText.style.lineHeight = '1.2';
+  archiveSection.appendChild(tipText);
+
+  const grid = document.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+  grid.style.gap = '8px';
+  grid.style.padding = '8px';
+  grid.style.width = '100%';
+  grid.style.boxSizing = 'border-box';
+
+  archivePhotos.forEach((photoObj, idx) => {
+    const { src, name } = photoObj;
+    const cell = document.createElement('div');
+    cell.style.display = 'flex';
+    cell.style.flexDirection = 'column';
+    cell.style.alignItems = 'center';
+    cell.style.position = 'relative';
+    cell.style.width = '100%';
+
+    const nameLabel = document.createElement('div');
+    nameLabel.textContent = name;
+    nameLabel.style.fontSize = '10px';
+    nameLabel.style.lineHeight = '1';
+    nameLabel.style.fontFamily = "'Poppins', sans-serif";
+    nameLabel.style.color = '#8c7e5c';
+    nameLabel.style.fontWeight = 'bold';
+    nameLabel.style.marginBottom = '3px';
+    nameLabel.style.textAlign = 'center';
+    nameLabel.style.maxWidth = '110px';
+    nameLabel.style.wordBreak = 'break-word';
+
+    const imgContainer = document.createElement('div');
+    imgContainer.style.position = 'relative';
+    imgContainer.style.display = 'block';
+    imgContainer.style.width = '110px';
+    imgContainer.style.boxSizing = 'border-box';
+
+    const img = document.createElement('img');
+    img.src = src;
+    img.style.width = '100%';
+    img.style.height = 'auto';
+    img.style.borderRadius = '7px';
+    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+    img.style.display = 'block';
+
+    // Optionally: allow download by click/long-press
+    img.title = 'Long press to download/share';
+
+    const removeBtn = document.createElement('button');
+    removeBtn.textContent = '❌';
+    removeBtn.title = 'Remove from archive';
+    removeBtn.style.position = 'absolute';
+    removeBtn.style.left = '100%';
+    removeBtn.style.top = '100%';
+    removeBtn.style.transform = 'translate(-50%, -50%)';
+    removeBtn.style.width = '22px';
+    removeBtn.style.height = '22px';
+    removeBtn.style.background = '#000';
+    removeBtn.style.color = '#fff';
+    removeBtn.style.border = '1.5px solid #E9E8E0';
+    removeBtn.style.borderRadius = '50%';
+    removeBtn.style.cursor = 'pointer';
+    removeBtn.style.fontSize = '0.85rem';
+    removeBtn.style.zIndex = '10';
+    removeBtn.style.display = 'flex';
+    removeBtn.style.alignItems = 'center';
+    removeBtn.style.justifyContent = 'center';
+
+    removeBtn.onclick = function () {
+      removePhotoFromArchive(photoObj);
+    };
+
+    imgContainer.appendChild(img);
+    imgContainer.appendChild(removeBtn);
+
+    cell.appendChild(nameLabel);
+    cell.appendChild(imgContainer);
+    grid.appendChild(cell);
+  });
+
+  archiveSection.appendChild(grid);
 }
 
 function applyDimmedMarkers() {
@@ -441,6 +643,14 @@ function applyDimmedMarkers() {
       }
     });
   });
+}
+
+async function saveCompletedMarker(markerKey) {
+  if (!firebaseUser) return;
+  completedMarkers[markerKey] = true;
+  const docRef = doc(db, "users", firebaseUser.uid);
+  await setDoc(docRef, { completedMarkers }, { merge: true });
+  updateProgressBar();
 }
 
 const yorkBounds = [
@@ -1006,156 +1216,6 @@ buildings.forEach((building) => {
     };
   });
 });
-
-// Archive logic
-let archivePhotos = [];
-const savedArchivePhotos = localStorage.getItem('archivePhotos');
-if (savedArchivePhotos) {
-  try {
-    archivePhotos = JSON.parse(savedArchivePhotos);
-    if (!Array.isArray(archivePhotos)) archivePhotos = [];
-  } catch (e) {
-    archivePhotos = [];
-  }
-}
-
-function addPhotoToArchive(imgSrc, markerName, buttonRef) {
-  archivePhotos.unshift({ src: imgSrc, name: markerName });
-  localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-  renderArchivePhotos();
-  if (buttonRef) {
-    buttonRef.textContent = 'Archived';
-    buttonRef.style.background = '#4caf50';
-    buttonRef.style.color = '#fff';
-  }
-}
-
-function ensureArchiveSection() {
-  let archiveSection = document.getElementById('archive-section');
-  if (!archiveSection) {
-    archiveSection = document.createElement('div');
-    archiveSection.id = 'archive-section';
-    archiveSection.style.display = 'none';
-    archiveSection.style.padding = '18px 0 0 0';
-    document.body.appendChild(archiveSection);
-  }
-  return archiveSection;
-}
-
-function renderArchivePhotos() {
-  const archiveSection = ensureArchiveSection();
-  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
-
-  const divider = document.createElement('div');
-  divider.style.width = '25vw';
-  divider.style.height = '1px';
-  divider.style.background = '#b7ab8b';
-  divider.style.margin = '8px auto 12px auto';
-  archiveSection.appendChild(divider);
-
-  if (archivePhotos.length === 0) {
-    archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
-    return;
-  }
-
-  const tipText = document.createElement('div');
-  tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
-  tipText.style.fontSize = '14px';
-  tipText.style.fontFamily = "'Poppins', sans-serif";
-  tipText.style.color = '#000';
-  tipText.style.fontWeight = 'bold';
-  tipText.style.marginBottom = '12px';
-  tipText.style.textAlign = 'center';
-  tipText.style.maxWidth = '100%';
-  tipText.style.margin = '0 auto 12px auto';
-  tipText.style.lineHeight = '1.2';
-  archiveSection.appendChild(tipText);
-
-  const grid = document.createElement('div');
-  grid.style.display = 'grid';
-  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-  grid.style.gap = '8px';
-  grid.style.padding = '8px';
-  grid.style.width = '100%';
-  grid.style.boxSizing = 'border-box';
-
-  archivePhotos.forEach(({ src, name }, idx) => {
-    const cell = document.createElement('div');
-    cell.style.display = 'flex';
-    cell.style.flexDirection = 'column';
-    cell.style.alignItems = 'center';
-    cell.style.position = 'relative';
-    cell.style.width = '100%';
-
-    const nameLabel = document.createElement('div');
-    nameLabel.textContent = name;
-    nameLabel.style.fontSize = '10px';
-    nameLabel.style.lineHeight = '1';
-    nameLabel.style.fontFamily = "'Poppins', sans-serif";
-    nameLabel.style.color = '#8c7e5c';
-    nameLabel.style.fontWeight = 'bold';
-    nameLabel.style.marginBottom = '3px';
-    nameLabel.style.textAlign = 'center';
-    nameLabel.style.maxWidth = '110px';
-    nameLabel.style.wordBreak = 'break-word';
-
-    const imgContainer = document.createElement('div');
-    imgContainer.style.position = 'relative';
-    imgContainer.style.display = 'block';
-    imgContainer.style.width = '110px';
-    imgContainer.style.boxSizing = 'border-box';
-
-    const img = document.createElement('img');
-    img.src = src;
-    img.style.width = '100%';
-    img.style.height = 'auto';
-    img.style.borderRadius = '7px';
-    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
-    img.style.display = 'block';
-
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = '❌';
-    removeBtn.title = 'Remove from archive';
-    removeBtn.style.position = 'absolute';
-    removeBtn.style.left = '100%';
-    removeBtn.style.top = '100%';
-    removeBtn.style.transform = 'translate(-50%, -50%)';
-    removeBtn.style.width = '22px';
-    removeBtn.style.height = '22px';
-    removeBtn.style.background = '#000';
-    removeBtn.style.color = '#fff';
-    removeBtn.style.border = '1.5px solid #E9E8E0';
-    removeBtn.style.borderRadius = '50%';
-    removeBtn.style.cursor = 'pointer';
-    removeBtn.style.fontSize = '0.85rem';
-    removeBtn.style.zIndex = '10';
-    removeBtn.style.display = 'flex';
-    removeBtn.style.alignItems = 'center';
-    removeBtn.style.justifyContent = 'center';
-
-    removeBtn.onclick = function () {
-      const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
-      if (confirmRemove) {
-        const removeIndex = archivePhotos.findIndex(p => p.src === src && p.name === name);
-        if (removeIndex !== -1) {
-          archivePhotos.splice(removeIndex, 1);
-          localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-          renderArchivePhotos();
-        }
-      }
-    };
-
-    imgContainer.appendChild(img);
-    imgContainer.appendChild(removeBtn);
-
-    cell.appendChild(nameLabel);
-    cell.appendChild(imgContainer);
-    grid.appendChild(cell);
-  });
-
-  archiveSection.appendChild(grid);
-}
-renderArchivePhotos();
 
 function stopAllModalVideos(except = null) {
   activeModalVideos.forEach((video) => {
