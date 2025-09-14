@@ -1196,7 +1196,7 @@ function renderArchivePhotos() {
   archiveSection.appendChild(divider);
 
   if (!archivePhotos || archivePhotos.length === 0) {
-    archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
+    archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. On top of each video, you can find the camera button. Take some pictures!</p>`;
     return;
   }
 
