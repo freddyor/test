@@ -682,7 +682,7 @@ buildings.forEach((building) => {
     closeBtn.style.justifyContent = 'center';
     closeBtn.onclick = () => { closeBtn.parentElement.parentElement.remove(); };
 
-    // CAMERA LOGIC WITH DOUBLE TAP SUPPORT
+    // CAMERA LOGIC WITH DOUBLE TAP SUPPORT + TEXT OVERLAY FEATURE
     let cameraFacingMode = 'environment'; // default rear
     let lastTapTime = 0;
     let cameraStream = null;
@@ -690,6 +690,49 @@ buildings.forEach((building) => {
 
     cameraIcon.onclick = async function () {
       posterContainer.innerHTML = '';
+
+      // --- TEXT OVERLAY ON CAMERA STREAM ---
+      let textOverlay = null;
+      if (markerText && markerText.trim().length > 0) {
+        textOverlay = document.createElement('div');
+        textOverlay.textContent = markerText;
+        textOverlay.style.position = 'absolute';
+        textOverlay.style.top = '50px';
+        textOverlay.style.left = '50%';
+        textOverlay.style.transform = 'translateX(-50%)';
+        textOverlay.style.background = 'rgba(0,0,0,0.4)';
+        textOverlay.style.color = '#fff';
+        textOverlay.style.borderRadius = '8px';
+        textOverlay.style.fontSize = '12px';
+        textOverlay.style.fontWeight = 'bold';
+        textOverlay.style.pointerEvents = 'none';
+        textOverlay.style.zIndex = 20;
+        textOverlay.style.fontFamily = "'Poppins', sans-serif";
+        textOverlay.style.textAlign = "center";
+        textOverlay.style.lineHeight = "1";
+        textOverlay.style.padding = '6px 12px';
+
+        // Compute width based on text content for better overlay fit
+        const tempSpan = document.createElement('span');
+        tempSpan.textContent = markerText;
+        tempSpan.style.fontFamily = textOverlay.style.fontFamily;
+        tempSpan.style.fontWeight = textOverlay.style.fontWeight;
+        tempSpan.style.fontSize = textOverlay.style.fontSize;
+        tempSpan.style.lineHeight = textOverlay.style.lineHeight;
+        tempSpan.style.position = 'absolute';
+        tempSpan.style.visibility = 'hidden';
+        tempSpan.style.whiteSpace = 'pre';
+        document.body.appendChild(tempSpan);
+
+        let textWidth = tempSpan.offsetWidth + 24; // 12px padding each side
+        let maxWidth = window.innerWidth * 0.90 - 64;
+        textOverlay.style.width = Math.min(textWidth, maxWidth) + "px";
+
+        document.body.removeChild(tempSpan);
+
+        posterContainer.appendChild(textOverlay);
+      }
+
       cameraVideo = document.createElement('video');
       cameraVideo.autoplay = true;
       cameraVideo.playsInline = true;
@@ -719,7 +762,7 @@ buildings.forEach((building) => {
       shutterBtn.style.alignItems = 'center';
       shutterBtn.style.justifyContent = 'center';
       shutterBtn.style.cursor = 'pointer';
-      shutterBtn.style.zIndex = '12';
+      shutterBtn.style.zIndex = 12;
       shutterBtn.style.outline = 'none';
       shutterBtn.style.transition = 'box-shadow 0.1s';
       const innerCircle = document.createElement('div');
@@ -821,6 +864,68 @@ buildings.forEach((building) => {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
+        // --- DRAW TEXT OVERLAY ON PHOTO ---
+        if (textOverlay && markerText && markerText.trim().length > 0) {
+          const overlayRect = textOverlay.getBoundingClientRect();
+          const videoRect = cameraVideo.getBoundingClientRect();
+          const computedStyle = window.getComputedStyle(textOverlay);
+
+          let topPx = overlayRect.top - videoRect.top;
+          let leftPx = overlayRect.left - videoRect.left;
+          let overlayWidthPx = overlayRect.width;
+          let overlayHeightPx = overlayRect.height;
+
+          let fontSizePx = parseFloat(computedStyle.fontSize);
+          let fontFamily = computedStyle.fontFamily;
+          let fontWeight = computedStyle.fontWeight;
+          let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
+
+          let scaleX = canvas.width / videoRect.width;
+          let scaleY = canvas.height / videoRect.height;
+
+          let textBoxX = leftPx * scaleX;
+          let textBoxY = topPx * scaleY;
+          let textBoxWidth = overlayWidthPx * scaleX;
+          let textBoxHeight = overlayHeightPx * scaleY;
+
+          ctx.save();
+          ctx.globalAlpha = 0.4;
+          ctx.fillStyle = "#000";
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
+          } else {
+            ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
+          }
+          ctx.fill();
+          ctx.restore();
+
+          const canvasFontSize = fontSizePx * scaleY;
+          const canvasLineHeight = canvasFontSize * 1.1;
+          ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "#fff";
+
+          const wrappedLines = wrapCanvasText(
+            ctx,
+            markerText,
+            textBoxWidth - 24 * scaleX
+          );
+          const totalLines = wrappedLines.length;
+          const totalTextHeight = totalLines * canvasLineHeight;
+          let y = textBoxY + 12 * scaleY + (textBoxHeight - 24 * scaleY - totalTextHeight) / 2 + canvasLineHeight / 2;
+
+          for (let i = 0; i < wrappedLines.length; i++) {
+            ctx.fillText(
+              wrappedLines[i],
+              textBoxX + textBoxWidth / 2,
+              y + i * canvasLineHeight
+            );
+          }
+          ctx.restore();
+        }
+
         const tipText = document.createElement('div');
         tipText.className = 'tip-text';
         tipText.textContent = 'Tap and hold image to save';
@@ -863,7 +968,6 @@ buildings.forEach((building) => {
         addToArchiveBtn.style.display = 'block';
         addToArchiveBtn.style.margin = '10px auto 0 auto';
         addToArchiveBtn.style.fontWeight = 'bold';
-        // Ensure the handler is attached every time the modal is created
         addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
           addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
@@ -891,6 +995,7 @@ buildings.forEach((building) => {
           tipText.remove();
           cameraVideo.style.display = 'block';
           shutterBtn.style.display = 'block';
+          if (textOverlay) textOverlay.style.display = 'block';
           cameraCloseBtn.style.display = 'flex';
           cameraVideo.play();
         };
@@ -898,6 +1003,7 @@ buildings.forEach((building) => {
 
         cameraVideo.style.display = 'none';
         shutterBtn.style.display = 'none';
+        if (textOverlay) textOverlay.style.display = 'none';
         cameraCloseBtn.style.display = 'none';
       };
     };
@@ -1046,7 +1152,7 @@ async function getArchivePhotos() {
   const store = tx.objectStore(STORE_NAME);
   return new Promise((resolve, reject) => {
     const request = store.getAll();
-    request.onsuccess = () => resolve(request.result.sort((a, b) => b.ts - a.ts)); // newest first
+    request.onsuccess = () => resolve(request.result.sort((a, b) => b.ts - a.ts));
     request.onerror = () => reject(request.error);
   });
 }
