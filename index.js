@@ -443,10 +443,6 @@ function applyDimmedMarkers() {
   });
 }
 
-const yorkBounds = [
-  [-1.170, 53.930],
-  [-1.010, 54.010]
-];
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
@@ -458,7 +454,6 @@ var map = new mapboxgl.Map({
   zoom: 15,
   pitch: 45,
   bearing: -17.6,
-  maxBounds: yorkBounds,
   minZoom: 11,
   maxZoom: 19,
 });
