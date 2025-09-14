@@ -40,7 +40,7 @@
             display: flex;
         }
 
-        #map-section, #about-section {
+        #map-section, #archive-section, #about-section {
             width: 100vw;
             height: 100%;
             position: absolute;
@@ -194,7 +194,7 @@
             opacity: 1 !important;
             pointer-events: auto !important;
         }
-        #about-section {
+        #archive-section, #about-section {
             overflow-y: auto;
             max-height: 100%;
             -webkit-overflow-scrolling: touch;
@@ -210,6 +210,9 @@
         <div id="map-section">
             <div id="map"></div>
         </div>
+        <div id="archive-section" style="display:none;">
+            <!-- Archive content to come -->
+        </div>
         <div id="about-section" style="display:none;">
             <div id="about-section-content">
                 <div style="display: flex; flex-direction: column; align-items: center;">
@@ -220,13 +223,13 @@
                     <b>My mission is to inspire interest and enthusiasm in British heritage for generations to come.</b>
                 </div>
                 <div class="project-info">
-                    We all have powerful new technology in our hands. Instead of inspiring negativity, division and hatred, it is time we use this technology to inspire positivity in Britain and its h[...]
+                    We all have powerful new technology in our hands. Instead of inspiring negativity, division and hatred, it is time we use this technology to inspire positivity in Britain and its heritage - for the next generations to come.
                 </div>
                 <div class="project-info">
                     My name is Freddy. I am not a historian or a scholar, but I know how to engage a modern, younger audience like few historians are capable of.
                 </div>
                                 <div class="project-info">
-                    This site is solely my project, built and coded by me. It is starting in York, where I am based, but I aim to cover the entire of Britain at some point. It will be a monumental tas[...]
+                    This site is solely my project, built and coded by me. It is starting in York, where I am based, but I aim to cover the entire of Britain at some point. It will be a monumental task.
                 </div>
                                                 <div class="project-info">
                     Email me: freddy@britmap.com 📧
@@ -239,6 +242,8 @@
     <div id="bottom-bar">
         <div id="bar-map" class="bar-tab active">Map</div>
         <div class="bar-separator"></div>
+        <div id="bar-archive" class="bar-tab">Archive</div>
+        <div class="bar-separator"></div>
         <div id="bar-about" class="bar-tab">About</div>
     </div>
 
@@ -248,7 +253,7 @@
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         function showSection(section) {
-            const sections = ['map-section', 'about-section'];
+            const sections = ['map-section', 'archive-section', 'about-section'];
             sections.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) {
@@ -256,6 +261,7 @@
                 }
             });
             document.getElementById('bar-map').classList.toggle('active', section === 'map-section');
+            document.getElementById('bar-archive').classList.toggle('active', section === 'archive-section');
             document.getElementById('bar-about').classList.toggle('active', section === 'about-section');
             // Resize Mapbox map if returning to map section
             if (section === 'map-section' && window.map) {
@@ -263,6 +269,7 @@
             }
         }
         document.getElementById('bar-map').addEventListener('click', () => showSection('map-section'));
+        document.getElementById('bar-archive').addEventListener('click', () => showSection('archive-section'));
         document.getElementById('bar-about').addEventListener('click', () => showSection('about-section'));
         showSection('map-section');
     });
