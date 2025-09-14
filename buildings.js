@@ -7,6 +7,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/axethepolltax.jpg",
     "social media": "yes",
     "text": "30 year old anti-Thatcher protest - 'Axe the Poll Tax'",
+                                                "hidden": "yes",
   },
                                                 {
      'name': 'Heart of Yorkshire Window',
@@ -16,6 +17,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/heartwindow.jpg",
     "social media": "yes",
     "text": "The Heart of Yorkshire Window - kiss your partner underneath and you'll remain together forever",
+                                                  "hidden": "yes",
                                                 },
                                                 {
      'name': 'The Little House',
@@ -25,6 +27,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/littlehouse.jpg",
     "social media": "yes",
     "text": "'The Little House'",
+                                                  "hidden": "yes",
   },
                                                 {
      'name': 'Anglian Tower',
@@ -34,6 +37,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/angliant.jpg",
     "social media": "yes",
     "text": "The most interesting building in the uk - Heritage UK",
+                                                  "hidden": "yes",
   },
                                                 {
      'name': 'Constantine Statue',
@@ -43,6 +47,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/const.jpg",
     "social media": "yes",
     "text": "Constantine the Great, the inventor of Christmas Day",
+                                                  "hidden": "yes",
   },
                                             {
      'name': 'Anne Lister (Lesbian)',
@@ -52,6 +57,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8721.webp",
     "social media": "yes",
     "text": "The site of the first recorded lesbian marriage in history",
+                                              "hidden": "yes",
   },
                                             {
      'name': 'Grays Court',
@@ -88,6 +94,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8719.webp",
       "social media": "yes",
       "text": "The first woman to vote in York lived here",
+      "hidden": "yes",
   },
     {
     "name": "Lendal Bridge",
@@ -104,6 +111,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_76F7A9CF-AFFF-4D5E-B719-CF3F7440061C.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8724.webp",
                                 "social media": "yes",
+                                "hidden": "yes",
   },
       {
     name: "Medieval Tax Collection Doors",
@@ -114,6 +122,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8716.webp",
       "social media": "yes",
         "text": "Mediaeval tax collection doors",
+        "hidden": "yes",
   },
     {'name': 'Stuart Feather',
    'coords': [-1.0828678455724547, 53.9578982808366],
@@ -122,6 +131,7 @@ export const buildings = [
    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8725.webp",
      "social media": "yes",
      "text": "The founders of the first Gay Pride march met in this alleyway in 1956",
+     "hidden": "yes",
   },
                                           {
    'name': 'Grape Lane',
@@ -153,6 +163,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_05D5C0.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8109.webp",
    "text": "Sir Thomas Percy was hung here in 1572",
+                                          "hidden": "yes",
   },
                                         {
    'name': 'Swinegate',
@@ -181,6 +192,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_8121.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_638178.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8112.webp",
+                                        "hidden": "yes",
   },
                                     {
    'name': 'Rear Admiral Hugh Robinson',
@@ -396,6 +408,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B20DFF.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7493.webp",
                           "text": "This wall is the final reminder of a great monastery destroyed by Hnery VIII",
+                          "hidden": "yes",
   },
                         {
     name: "Grand Opera House",
@@ -418,6 +431,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_E59E28.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7496.webp",
                           "text": "Prince William partied here in 2008",
+                          "hidden": "yes",
   },
                         {
     name: "Friends Meeting Room",
@@ -447,6 +461,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_CA7A56.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7143.webp",
                         "text": "American abolitionist John Woolman died in this alleyway in 1772",
+                        "hidden": "yes",
   },
                       {
     name: "St Wilfrid's Church",
@@ -506,6 +521,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_21C1CC.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7062.webp",
                     "text": "This church was founded by the man who killed Macbeth",
+                    "hidden": "yes",
   },
                 {
     name: "St Olaf",
@@ -535,6 +551,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_6902.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_9B8A25.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6901.webp",
+                "hidden": "yes",
   },
               {
     name: "Lendal",
@@ -572,6 +589,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_9210BE.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6828.webp",
       "text": "Bare breasted female figures were placed on the sterns of sailing ships to relax the Gods of the Seas",
+      "hidden": "yes",
   },
   {
     name: "St Sampson’s Square",
@@ -593,6 +611,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_4A7AA7.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6770.webp",
     "text": "The first public toilet in England was on the previous bridge here",
+    "hidden": "yes",
   },
   {
     'name': 'Parliament Street',
@@ -615,6 +634,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_991278.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6768.webp",
     "text": "York's first synagogue for 600 years was hidden in this workshop from 1886",
+    "hidden": "yes",
   },
   {
     'name': 'Aldwark Wesleyan Chapel',
@@ -636,6 +656,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_6760.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8EFB54.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6766.webp",
+    "hidden": "yes",
   },
   {
     'name': 'St William',
@@ -677,6 +698,7 @@ export const buildings = [
     "image": "https://freddyor.github.io/british-map/videos/IMG_6180.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_99AA7F.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6176.webp",
+    "hidden": "yes",
   },
   {
     "name": "St Maurice Street",
@@ -691,6 +713,7 @@ export const buildings = [
     "image": "https://freddyor.github.io/british-map/videos/IMG_6181.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_EF707F.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6179.webp",
+    "hidden": "yes",
   },
   {
     "name": "Lendal Tower",
@@ -727,6 +750,7 @@ export const buildings = [
     "image": "https://freddyor.github.io/british-map/videos/IMG_5564.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8C1281.mp4", 
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6049.webp",
+    "hidden": "yes",
   },
   {
     "name": "Lendal Ferry",
@@ -805,6 +829,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_1C52DB.mp4",
     "subtitle": "The largest of its kind in England",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6035.webp",
+    "hidden": "yes",
   },
   {
     "name": "The Minster School",
@@ -869,6 +894,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_12AA18.mp4",
     "subtitle": "The Jew who fled Nazi Germany to York",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6034.webp",
+    "hidden": "yes",
   },
   {
     "name": "St Denys Church",
@@ -909,6 +935,7 @@ export const buildings = [
     "subtitle": "Removed from the Minster for being too inappropriate", 
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_583941.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6020.webp",
+    "hidden": "yes",
   },
   {
     "name": "Electric Cinema",
@@ -949,6 +976,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_ED8ABD.mp4",
     "subtitle": "The oldest house in York",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6018.webp",
+    "hidden": "yes",
   },
   {
     name: "Garforth House",
@@ -1005,6 +1033,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_70DADB1F-4F3C-4E0C-9042-06EC7BC59F2E.mp4", 
     "subtitle": "William the Conqueror's secret 2nd castle",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6010.webp",
+    "hidden": "yes",
   },
   {
     "name": "Archbishop's Palace Remains",
@@ -1020,6 +1049,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_3152D0.mp4", 
     "subtitle": "Markers from two of York's past floods",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6008.webp",
+    "hidden": "yes",
   },
   {
     "name": "Cross Keys Symbols",
@@ -1028,5 +1058,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_80CA9C38-D963-4632-AB3A-DFA00E94E35F.mp4", 
     "subtitle": "A symbol secretly dotted around the city",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6006.webp",
+    "hidden": "yes",
+    "text": "The keys of St Peter - gatekeeper of heaven
   },
 ];
