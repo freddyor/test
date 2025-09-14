@@ -1184,6 +1184,8 @@ function ensureArchiveSection() {
   return archiveSection;
 }
 
+// ... previous code ...
+
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
@@ -1216,7 +1218,7 @@ function renderArchivePhotos() {
   const grid = document.createElement('div');
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-  grid.style.gap = '8px';
+  grid.style.gap = '2px'; // Reduced gap for tighter images
   grid.style.padding = '8px';
   grid.style.width = '100%';
   grid.style.boxSizing = 'border-box';
@@ -1229,29 +1231,19 @@ function renderArchivePhotos() {
     cell.style.position = 'relative';
     cell.style.width = '100%';
 
-    const nameLabel = document.createElement('div');
-    nameLabel.textContent = name;
-    nameLabel.style.fontSize = '10px';
-    nameLabel.style.lineHeight = '1';
-    nameLabel.style.fontFamily = "'Poppins', sans-serif";
-    nameLabel.style.color = '#8c7e5c';
-    nameLabel.style.fontWeight = 'bold';
-    nameLabel.style.marginBottom = '3px';
-    nameLabel.style.textAlign = 'center';
-    nameLabel.style.maxWidth = '110px';
-    nameLabel.style.wordBreak = 'break-word';
+    // Removed the name label above the image
 
     const imgContainer = document.createElement('div');
     imgContainer.style.position = 'relative';
     imgContainer.style.display = 'block';
-    imgContainer.style.width = '110px';
+    imgContainer.style.width = '140px'; // Increased size for larger images
     imgContainer.style.boxSizing = 'border-box';
 
     const img = document.createElement('img');
     img.src = src;
     img.style.width = '100%';
     img.style.height = 'auto';
-    img.style.borderRadius = '7px';
+    img.style.borderRadius = '10px'; // Slightly larger border radius for bigger image
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
 
@@ -1285,13 +1277,14 @@ function renderArchivePhotos() {
     imgContainer.appendChild(img);
     imgContainer.appendChild(removeBtn);
 
-    cell.appendChild(nameLabel);
     cell.appendChild(imgContainer);
     grid.appendChild(cell);
   });
 
   archiveSection.appendChild(grid);
 }
+
+// ... following code ...
 
 document.addEventListener('DOMContentLoaded', loadArchivePhotos);
 
