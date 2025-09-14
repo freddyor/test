@@ -1245,12 +1245,16 @@ function renderArchivePhotos() {
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
 
-    // Button is now a red horizontal line (➖) inside a black circle, 20% smaller
+    // Button: red horizontal line inside a black circle, 20% smaller
+    // Move it north-westerly so it's more on the image, but still hanging off
     const removeBtn = document.createElement('button');
     removeBtn.title = 'Remove from archive';
     removeBtn.style.position = 'absolute';
-    removeBtn.style.left = '100%';
-    removeBtn.style.top = '100%';
+    // Move it a little north-west from the previous bottom-right corner
+    // Previous: left: '100%', top: '100%', translate(-50%, -50%)
+    // New: left: '92%', top: '8%', translate(-50%, -50%)
+    removeBtn.style.left = '92%';
+    removeBtn.style.top = '8%';
     removeBtn.style.transform = 'translate(-50%, -50%)';
     removeBtn.style.width = '17.6px'; // 22px * 0.8
     removeBtn.style.height = '17.6px';
