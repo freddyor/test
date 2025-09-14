@@ -863,6 +863,7 @@ buildings.forEach((building) => {
         addToArchiveBtn.style.display = 'block';
         addToArchiveBtn.style.margin = '10px auto 0 auto';
         addToArchiveBtn.style.fontWeight = 'bold';
+        // Ensure the handler is attached every time the modal is created
         addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
           addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
@@ -1006,9 +1007,7 @@ buildings.forEach((building) => {
   });
 });
 
-// ... (rest of the file remains unchanged - archive logic, marker scaling, section toggling, etc.) ...
-// For brevity, the unchanged archive/photo/archiveSection and marker scaling logic is not repeated here. It is identical to your previous version.
-
+// Archive logic
 let archivePhotos = [];
 const savedArchivePhotos = localStorage.getItem('archivePhotos');
 if (savedArchivePhotos) {
