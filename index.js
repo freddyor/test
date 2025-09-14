@@ -849,26 +849,7 @@ buildings.forEach((building) => {
         imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
         posterContainer.appendChild(imgPreview);
 
-        const addToArchiveBtn = document.createElement('button');
-        addToArchiveBtn.className = 'add-to-archive-btn custom-button';
-        addToArchiveBtn.textContent = 'Add to Archive';
-        addToArchiveBtn.style.fontSize = '13px';
-        addToArchiveBtn.style.fontFamily = "'Poppins', sans-serif";
-        addToArchiveBtn.style.textAlign = 'center';
-        addToArchiveBtn.style.background = '#e0e0e0';
-        addToArchiveBtn.style.color = '#333';
-        addToArchiveBtn.style.borderRadius = '8px';
-        addToArchiveBtn.style.padding = '6px 7px';
-        addToArchiveBtn.style.lineHeight = '1.02';
-        addToArchiveBtn.style.display = 'block';
-        addToArchiveBtn.style.margin = '10px auto 0 auto';
-        addToArchiveBtn.style.fontWeight = 'bold';
-        // Ensure the handler is attached every time the modal is created
-        addToArchiveBtn.onclick = function (e) {
-          e.preventDefault();
-          addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
-        };
-        posterContainer.appendChild(addToArchiveBtn);
+        // Archive button removed
 
         const cancelBtn = document.createElement('button');
         cancelBtn.className = 'cancel-btn custom-button';
@@ -886,7 +867,7 @@ buildings.forEach((building) => {
         cancelBtn.style.fontWeight = 'bold';
         cancelBtn.onclick = function () {
           imgPreview.remove();
-          addToArchiveBtn.remove();
+          // Archive button removed
           cancelBtn.remove();
           tipText.remove();
           cameraVideo.style.display = 'block';
@@ -1007,156 +988,6 @@ buildings.forEach((building) => {
   });
 });
 
-// Archive logic
-let archivePhotos = [];
-const savedArchivePhotos = localStorage.getItem('archivePhotos');
-if (savedArchivePhotos) {
-  try {
-    archivePhotos = JSON.parse(savedArchivePhotos);
-    if (!Array.isArray(archivePhotos)) archivePhotos = [];
-  } catch (e) {
-    archivePhotos = [];
-  }
-}
-
-function addPhotoToArchive(imgSrc, markerName, buttonRef) {
-  archivePhotos.unshift({ src: imgSrc, name: markerName });
-  localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-  renderArchivePhotos();
-  if (buttonRef) {
-    buttonRef.textContent = 'Archived';
-    buttonRef.style.background = '#4caf50';
-    buttonRef.style.color = '#fff';
-  }
-}
-
-function ensureArchiveSection() {
-  let archiveSection = document.getElementById('archive-section');
-  if (!archiveSection) {
-    archiveSection = document.createElement('div');
-    archiveSection.id = 'archive-section';
-    archiveSection.style.display = 'none';
-    archiveSection.style.padding = '18px 0 0 0';
-    document.body.appendChild(archiveSection);
-  }
-  return archiveSection;
-}
-
-function renderArchivePhotos() {
-  const archiveSection = ensureArchiveSection();
-  archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
-
-  const divider = document.createElement('div');
-  divider.style.width = '25vw';
-  divider.style.height = '1px';
-  divider.style.background = '#b7ab8b';
-  divider.style.margin = '8px auto 12px auto';
-  archiveSection.appendChild(divider);
-
-  if (archivePhotos.length === 0) {
-    archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
-    return;
-  }
-
-  const tipText = document.createElement('div');
-  tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
-  tipText.style.fontSize = '14px';
-  tipText.style.fontFamily = "'Poppins', sans-serif";
-  tipText.style.color = '#000';
-  tipText.style.fontWeight = 'bold';
-  tipText.style.marginBottom = '12px';
-  tipText.style.textAlign = 'center';
-  tipText.style.maxWidth = '100%';
-  tipText.style.margin = '0 auto 12px auto';
-  tipText.style.lineHeight = '1.2';
-  archiveSection.appendChild(tipText);
-
-  const grid = document.createElement('div');
-  grid.style.display = 'grid';
-  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-  grid.style.gap = '8px';
-  grid.style.padding = '8px';
-  grid.style.width = '100%';
-  grid.style.boxSizing = 'border-box';
-
-  archivePhotos.forEach(({ src, name }, idx) => {
-    const cell = document.createElement('div');
-    cell.style.display = 'flex';
-    cell.style.flexDirection = 'column';
-    cell.style.alignItems = 'center';
-    cell.style.position = 'relative';
-    cell.style.width = '100%';
-
-    const nameLabel = document.createElement('div');
-    nameLabel.textContent = name;
-    nameLabel.style.fontSize = '10px';
-    nameLabel.style.lineHeight = '1';
-    nameLabel.style.fontFamily = "'Poppins', sans-serif";
-    nameLabel.style.color = '#8c7e5c';
-    nameLabel.style.fontWeight = 'bold';
-    nameLabel.style.marginBottom = '3px';
-    nameLabel.style.textAlign = 'center';
-    nameLabel.style.maxWidth = '110px';
-    nameLabel.style.wordBreak = 'break-word';
-
-    const imgContainer = document.createElement('div');
-    imgContainer.style.position = 'relative';
-    imgContainer.style.display = 'block';
-    imgContainer.style.width = '110px';
-    imgContainer.style.boxSizing = 'border-box';
-
-    const img = document.createElement('img');
-    img.src = src;
-    img.style.width = '100%';
-    img.style.height = 'auto';
-    img.style.borderRadius = '7px';
-    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
-    img.style.display = 'block';
-
-    const removeBtn = document.createElement('button');
-    removeBtn.textContent = '❌';
-    removeBtn.title = 'Remove from archive';
-    removeBtn.style.position = 'absolute';
-    removeBtn.style.left = '100%';
-    removeBtn.style.top = '100%';
-    removeBtn.style.transform = 'translate(-50%, -50%)';
-    removeBtn.style.width = '22px';
-    removeBtn.style.height = '22px';
-    removeBtn.style.background = '#000';
-    removeBtn.style.color = '#fff';
-    removeBtn.style.border = '1.5px solid #E9E8E0';
-    removeBtn.style.borderRadius = '50%';
-    removeBtn.style.cursor = 'pointer';
-    removeBtn.style.fontSize = '0.85rem';
-    removeBtn.style.zIndex = '10';
-    removeBtn.style.display = 'flex';
-    removeBtn.style.alignItems = 'center';
-    removeBtn.style.justifyContent = 'center';
-
-    removeBtn.onclick = function () {
-      const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
-      if (confirmRemove) {
-        const removeIndex = archivePhotos.findIndex(p => p.src === src && p.name === name);
-        if (removeIndex !== -1) {
-          archivePhotos.splice(removeIndex, 1);
-          localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-          renderArchivePhotos();
-        }
-      }
-    };
-
-    imgContainer.appendChild(img);
-    imgContainer.appendChild(removeBtn);
-
-    cell.appendChild(nameLabel);
-    cell.appendChild(imgContainer);
-    grid.appendChild(cell);
-  });
-
-  archiveSection.appendChild(grid);
-}
-renderArchivePhotos();
-
 function stopAllModalVideos(except = null) {
   activeModalVideos.forEach((video) => {
     if (!except || video !== except) {
@@ -1274,7 +1105,7 @@ function generateMapLink(latitude, longitude, zoomLevel) {
 }
 
 function showSection(section) {
-  const sections = ['map-section', 'archive-section', 'about-section'];
+  const sections = ['map-section', 'about-section'];
   sections.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
@@ -1283,7 +1114,6 @@ function showSection(section) {
   });
 
   document.getElementById('bar-map').classList.toggle('active', section === 'map-section');
-  document.getElementById('bar-archive').classList.toggle('active', section === 'archive-section');
   document.getElementById('bar-about').classList.toggle('active', section === 'about-section');
 
   const loadingScreen = document.getElementById('loading-screen');
@@ -1299,7 +1129,6 @@ document.addEventListener('DOMContentLoaded', () => {
   progressBarWrapper.style.display = 'none';
   showSection('map-section');
   document.getElementById('bar-map').addEventListener('click', () => showSection('map-section'));
-  document.getElementById('bar-archive').addEventListener('click', () => showSection('archive-section'));
   document.getElementById('bar-about').addEventListener('click', () => showSection('about-section'));
 });
 
