@@ -1245,26 +1245,26 @@ function renderArchivePhotos() {
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
 
-    // Button is now a red horizontal line like ➖
+    // Button is now a red horizontal line (➖) inside a black circle, 20% smaller
     const removeBtn = document.createElement('button');
     removeBtn.title = 'Remove from archive';
     removeBtn.style.position = 'absolute';
     removeBtn.style.left = '100%';
     removeBtn.style.top = '100%';
     removeBtn.style.transform = 'translate(-50%, -50%)';
-    // 20% smaller than before
     removeBtn.style.width = '17.6px'; // 22px * 0.8
     removeBtn.style.height = '17.6px';
-    removeBtn.style.background = 'transparent';
-    removeBtn.style.border = 'none';
+    removeBtn.style.background = '#000';
+    removeBtn.style.border = '1.2px solid #E9E8E0';
     removeBtn.style.borderRadius = '50%';
     removeBtn.style.cursor = 'pointer';
     removeBtn.style.zIndex = '10';
     removeBtn.style.display = 'flex';
     removeBtn.style.alignItems = 'center';
     removeBtn.style.justifyContent = 'center';
-    // Red horizontal line
-    removeBtn.innerHTML = '<span style="width:75%;height:3px;background:#e74c3c;display:block;border-radius:2px;"></span>';
+    removeBtn.style.padding = '0';
+    removeBtn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.08)';
+    removeBtn.innerHTML = '<span style="display:block;width:70%;height:3px;background:#e74c3c;border-radius:2px;"></span>';
 
     removeBtn.onclick = function () {
       const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
