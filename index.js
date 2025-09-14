@@ -1184,8 +1184,6 @@ function ensureArchiveSection() {
   return archiveSection;
 }
 
-// ... previous code ...
-
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
@@ -1218,14 +1216,10 @@ function renderArchivePhotos() {
   const grid = document.createElement('div');
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-  grid.style.gap = '2px'; // Perfect gap as you liked
+  grid.style.gap = '2px';
   grid.style.padding = '8px';
   grid.style.width = '100%';
   grid.style.boxSizing = 'border-box';
-
-  // Set a smaller image size so all images fit without horizontal scroll
-  // Use a value that is responsive and fits 3 per row on most mobile screens
-  const imageWidth = '90px'; // Adjust as needed
 
   archivePhotos.forEach(({ src, name, id }, idx) => {
     const cell = document.createElement('div');
@@ -1233,20 +1227,21 @@ function renderArchivePhotos() {
     cell.style.flexDirection = 'column';
     cell.style.alignItems = 'center';
     cell.style.position = 'relative';
-    cell.style.width = '100%';
+    cell.style.width = '100%'; // Cell takes full grid width
 
     // No name label
 
     const imgContainer = document.createElement('div');
     imgContainer.style.position = 'relative';
     imgContainer.style.display = 'block';
-    imgContainer.style.width = imageWidth; // Smaller image
+    imgContainer.style.width = '100%'; // Responsive: fills cell
     imgContainer.style.boxSizing = 'border-box';
 
     const img = document.createElement('img');
     img.src = src;
-    img.style.width = '100%';
+    img.style.width = '100%'; // Image fills container width
     img.style.height = 'auto';
+    img.style.aspectRatio = '1/1'; // Square images, always fit
     img.style.borderRadius = '8px';
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
