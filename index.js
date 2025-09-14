@@ -28,6 +28,9 @@ const storage = getStorage(app);
 let firebaseUser = null;
 let completedMarkers = {};
 let activeModalVideos = new Set();
+let archivePhotos = [];
+
+let isArchiveLoaded = false;
 
 const progressBarWrapper = document.createElement('div');
 progressBarWrapper.id = 'progress-bar-wrapper';
@@ -406,6 +409,8 @@ onAuthStateChanged(auth, async (user) => {
     await loadArchivePhotosFromFirebase();
     applyDimmedMarkers();
     updateProgressBar();
+    isArchiveLoaded = true;
+    renderArchivePhotos();
   }
 });
 
@@ -422,32 +427,28 @@ async function loadCompletedMarkers() {
   }
 }
 
-// Firebase archive logic
-let archivePhotos = []; // [{src: downloadURL, name, firebasePath}]
-
-// New: Load archive photos from Firebase Storage (list in Firestore user doc, downloadURLs)
 async function loadArchivePhotosFromFirebase() {
   if (!firebaseUser) return;
   try {
     const docRef = doc(db, "users", firebaseUser.uid);
     const docSnap = await getDoc(docRef);
+    archivePhotos = [];
     if (docSnap.exists()) {
-      archivePhotos = docSnap.data().archivePhotos || [];
-      // If photos have no downloadURL, fetch it
-      for (let i = 0; i < archivePhotos.length; i++) {
-        if (!archivePhotos[i].src && archivePhotos[i].firebasePath) {
+      const raw = docSnap.data().archivePhotos || [];
+      for (let i = 0; i < raw.length; i++) {
+        let obj = { ...raw[i] };
+        if (!obj.src && obj.firebasePath) {
           try {
-            archivePhotos[i].src = await getDownloadURL(storageRef(storage, archivePhotos[i].firebasePath));
+            obj.src = await getDownloadURL(storageRef(storage, obj.firebasePath));
           } catch (e) {
-            archivePhotos[i].src = '';
+            obj.src = '';
           }
         }
+        archivePhotos.push(obj);
       }
-      renderArchivePhotos();
     }
   } catch (e) {
     archivePhotos = [];
-    renderArchivePhotos();
   }
 }
 
@@ -458,16 +459,16 @@ async function saveArchivePhotosToFirestore() {
 }
 
 async function addPhotoToArchive(imgSrc, markerName, buttonRef) {
-  if (!firebaseUser) return;
-  // Upload to Firebase Storage as PNG
+  if (!firebaseUser) {
+    alert("Not signed in! Try again in a few seconds.");
+    return;
+  }
   try {
     const photoId = Date.now() + '-' + Math.random().toString(36).slice(2);
     const filePath = `user-photos/${firebaseUser.uid}/${photoId}.png`;
     const storageReference = storageRef(storage, filePath);
-    // imgSrc is a dataURL PNG
     await uploadString(storageReference, imgSrc, 'data_url');
     const downloadURL = await getDownloadURL(storageReference);
-    // Add to archivePhotos array
     archivePhotos.unshift({ src: downloadURL, name: markerName, firebasePath: filePath });
     await saveArchivePhotosToFirestore();
     renderArchivePhotos();
@@ -485,15 +486,11 @@ async function removePhotoFromArchive(photoObj) {
   if (!firebaseUser) return;
   const confirmRemove = window.confirm(`Do you want to remove the photo for "${photoObj.name}" from your archive?`);
   if (!confirmRemove) return;
-  // Remove from Firebase Storage
   try {
     if (photoObj.firebasePath) {
       await deleteObject(storageRef(storage, photoObj.firebasePath));
     }
-  } catch (e) {
-    // Ignore delete error
-  }
-  // Remove from array and Firestore
+  } catch (e) {}
   const removeIndex = archivePhotos.findIndex(p => p.firebasePath === photoObj.firebasePath);
   if (removeIndex !== -1) {
     archivePhotos.splice(removeIndex, 1);
@@ -516,6 +513,8 @@ function ensureArchiveSection() {
 
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
+  archiveSection.style.display = document.getElementById('bar-archive')?.classList.contains('active') ? 'block' : 'none';
+
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
 
   const divider = document.createElement('div');
@@ -530,7 +529,12 @@ function renderArchivePhotos() {
     return;
   }
 
-  if (archivePhotos.length === 0) {
+  if (!isArchiveLoaded) {
+    archiveSection.innerHTML += `<p style="text-align:center;">Loading archive photos...</p>`;
+    return;
+  }
+
+  if (!archivePhotos || archivePhotos.length === 0) {
     archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
     return;
   }
@@ -590,8 +594,6 @@ function renderArchivePhotos() {
     img.style.borderRadius = '7px';
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
-
-    // Optionally: allow download by click/long-press
     img.title = 'Long press to download/share';
 
     const removeBtn = document.createElement('button');
@@ -1352,6 +1354,10 @@ function showSection(section) {
     map.resize();
   } else {
     progressBarWrapper.style.display = 'none';
+  }
+
+  if (section === 'archive-section') {
+    renderArchivePhotos();
   }
 }
 
