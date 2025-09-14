@@ -1007,27 +1007,63 @@ buildings.forEach((building) => {
   });
 });
 
-// Archive logic
-let archivePhotos = [];
-const savedArchivePhotos = localStorage.getItem('archivePhotos');
-if (savedArchivePhotos) {
-  try {
-    archivePhotos = JSON.parse(savedArchivePhotos);
-    if (!Array.isArray(archivePhotos)) archivePhotos = [];
-  } catch (e) {
-    archivePhotos = [];
-  }
+/* -------- IndexedDB Archive Logic -------- */
+const DB_NAME = 'archiveDB';
+const DB_VERSION = 1;
+const STORE_NAME = 'photos';
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = function(e) {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
 }
 
-function addPhotoToArchive(imgSrc, markerName, buttonRef) {
-  archivePhotos.unshift({ src: imgSrc, name: markerName });
-  localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-  renderArchivePhotos();
+async function addPhotoToArchive(imgSrc, markerName, buttonRef) {
+  const db = await openDB();
+  const tx = db.transaction(STORE_NAME, 'readwrite');
+  const store = tx.objectStore(STORE_NAME);
+  await store.add({ src: imgSrc, name: markerName, ts: Date.now() });
+  await tx.complete;
+  await loadArchivePhotos();
   if (buttonRef) {
     buttonRef.textContent = 'Archived';
     buttonRef.style.background = '#4caf50';
     buttonRef.style.color = '#fff';
   }
+}
+
+async function getArchivePhotos() {
+  const db = await openDB();
+  const tx = db.transaction(STORE_NAME, 'readonly');
+  const store = tx.objectStore(STORE_NAME);
+  return new Promise((resolve, reject) => {
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result.sort((a, b) => b.ts - a.ts)); // newest first
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function removePhoto(id) {
+  const db = await openDB();
+  const tx = db.transaction(STORE_NAME, 'readwrite');
+  const store = tx.objectStore(STORE_NAME);
+  await store.delete(id);
+  await tx.complete;
+  await loadArchivePhotos();
+}
+
+let archivePhotos = [];
+async function loadArchivePhotos() {
+  archivePhotos = await getArchivePhotos();
+  renderArchivePhotos();
 }
 
 function ensureArchiveSection() {
@@ -1053,7 +1089,7 @@ function renderArchivePhotos() {
   divider.style.margin = '8px auto 12px auto';
   archiveSection.appendChild(divider);
 
-  if (archivePhotos.length === 0) {
+  if (!archivePhotos || archivePhotos.length === 0) {
     archiveSection.innerHTML += `<p style="text-align:center;">No photos archived yet. Take some pictures!</p>`;
     return;
   }
@@ -1079,7 +1115,7 @@ function renderArchivePhotos() {
   grid.style.width = '100%';
   grid.style.boxSizing = 'border-box';
 
-  archivePhotos.forEach(({ src, name }, idx) => {
+  archivePhotos.forEach(({ src, name, id }, idx) => {
     const cell = document.createElement('div');
     cell.style.display = 'flex';
     cell.style.flexDirection = 'column';
@@ -1136,12 +1172,7 @@ function renderArchivePhotos() {
     removeBtn.onclick = function () {
       const confirmRemove = window.confirm(`Do you want to remove the photo for "${name}" from your archive?`);
       if (confirmRemove) {
-        const removeIndex = archivePhotos.findIndex(p => p.src === src && p.name === name);
-        if (removeIndex !== -1) {
-          archivePhotos.splice(removeIndex, 1);
-          localStorage.setItem('archivePhotos', JSON.stringify(archivePhotos));
-          renderArchivePhotos();
-        }
+        removePhoto(id);
       }
     };
 
@@ -1155,7 +1186,8 @@ function renderArchivePhotos() {
 
   archiveSection.appendChild(grid);
 }
-renderArchivePhotos();
+
+document.addEventListener('DOMContentLoaded', loadArchivePhotos);
 
 function stopAllModalVideos(except = null) {
   activeModalVideos.forEach((video) => {
