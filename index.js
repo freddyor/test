@@ -534,7 +534,14 @@ locations.forEach((location) => {
 });
 
 buildings.forEach((building) => {
-  const outlineColor = building.colour === 'yes' ? '#FF69B4' : '#FFFFFF';
+  let outlineColor;
+  if (building.hidden === 'yes') {
+    outlineColor = '#ffd600'; // yellow
+  } else if (building.colour === 'yes') {
+    outlineColor = '#FF69B4'; // pink
+  } else {
+    outlineColor = '#FFFFFF'; // default
+  }
   const { element: markerElement } = createCustomMarker(
     building.image,
     outlineColor,
