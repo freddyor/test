@@ -1059,6 +1059,6 @@ export const buildings = [
     "subtitle": "A symbol secretly dotted around the city",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6006.webp",
     "hidden": "yes",
-    "text": "The keys of St Peter - gatekeeper of heaven
+    "text": "The keys of St Peter - gatekeeper of heaven",
   },
 ];
