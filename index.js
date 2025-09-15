@@ -1320,7 +1320,7 @@ function stopAllModalVideos(except = null) {
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
-  const markerSize = zoomLevel - 13;
+  const markerSize = Math.max(0.8, (zoomLevel - 13) * 0.7);
   const markerWidth = markerSize + 'em';
   const markerHeight = markerSize + 'em';
   const borderWidth = markerSize * 0.075 + 'em';
