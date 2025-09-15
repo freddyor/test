@@ -1060,7 +1060,7 @@ buildings.forEach((building) => {
     document.head.appendChild(spinnerStyle);
 
     const posterImg = document.createElement('img');
-    posterImg.src = building.posterUrl || '';
+    posterImg.src = posterUrl || '';
     posterImg.alt = 'Video cover';
     posterImg.style.maxWidth = '88vw';
     posterImg.style.maxHeight = '80vh';
@@ -1068,28 +1068,26 @@ buildings.forEach((building) => {
     posterImg.style.display = 'block';
 
     posterImg.addEventListener('load', () => {
+      posterImg.style.border = '1.5px solid #E9E8E0';
+      posterContainer.appendChild(cameraIcon);
+      posterContainer.appendChild(visitBtn);
+      posterContainer.appendChild(closeBtn);
       posterContainer.appendChild(playBtn);
       posterContainer.appendChild(spinner);
       playBtn.style.display = 'flex';
+      closeBtn.style.display = 'flex';
     });
 
     posterContainer.appendChild(posterImg);
     overlay.appendChild(posterContainer);
     document.body.appendChild(overlay);
 
-    // ------- THE KEY PART: Show Monetag interstitial before playing video -------
     playBtn.onclick = () => {
-      // Monetag Interstitial Ad
-      (function(s){
-        s.dataset.zone='9876971';
-        s.src='https://groleegni.net/vignette.min.js';
-      })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-
       playBtn.style.display = 'none';
       spinner.style.display = 'block';
       const videoElement = document.createElement('video');
-      videoElement.src = building.videoUrl;
-      if (building.posterUrl) videoElement.poster = building.posterUrl;
+      videoElement.src = videoUrl;
+      if (posterUrl) videoElement.poster = posterUrl;
       videoElement.style.border = '1.5px solid #E9E8E0';
       videoElement.style.maxWidth = '88vw';
       videoElement.style.maxHeight = '80vh';
@@ -1126,7 +1124,6 @@ buildings.forEach((building) => {
 
       videoElement.load();
     };
-    // ---------------------------------------------------------------------------
   });
 });
 
