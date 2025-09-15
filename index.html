@@ -184,6 +184,15 @@
             font-weight: bold;
         }
 
+        .green-text {
+            color: green;
+            font-weight: bold;
+        }
+
+        .custom-bullets {
+            padding-left: 2.5em; /* Increased padding for more indent */
+        }
+
         .mapboxgl-ctrl-logo {
             left: 10px !important;
             top: max(10px, env(safe-area-inset-top, 0px)) !important;
@@ -227,8 +236,8 @@
                 </div>
                 <div class="project-info">
     The site aims to solve two of your problems:
-    <ul style="list-style-type: disc; text-align: left; padding-left: 1.5em;">
-        <li>allow you to to see the hidden and unknown (green markers)</li>
+    <ul class="custom-bullets" style="list-style-type: disc; text-align: left;">
+        <li>allow you to to see the hidden and unknown (<span class="green-text">green</span> markers)</li>
         <li>allow you to discover the story behind any building that you are looking at (white markers)</li>
     </ul>
 </div>
