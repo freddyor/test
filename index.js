@@ -5,11 +5,49 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebas
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-// --- Monetag Interstitial Loader ---
-(function(s){
-  s.dataset.zone='9876971';
-  s.src='https://groleegni.net/vignette.min.js';
-})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+// --- Monetag Interstitial Loader (on-demand, not global) ---
+function loadMonetagScript(callback) {
+  if (window.vignette && typeof window.vignette.show === "function") {
+    callback();
+    return;
+  }
+  if (document.getElementById('monetag-vignette-script')) {
+    // If script is already present but vignette isn't ready, poll for vignette
+    let tries = 0;
+    function pollVignette() {
+      if (window.vignette && typeof window.vignette.show === "function") {
+        callback();
+      } else if (tries < 20) {
+        tries++;
+        setTimeout(pollVignette, 150);
+      } else {
+        callback(); // Proceed if vignette never loads
+      }
+    }
+    pollVignette();
+    return;
+  }
+  const script = document.createElement('script');
+  script.id = 'monetag-vignette-script';
+  script.dataset.zone='9876971';
+  script.src='https://groleegni.net/vignette.min.js';
+  script.onload = () => {
+    // Wait for vignette to attach to window
+    let tries = 0;
+    function pollVignette() {
+      if (window.vignette && typeof window.vignette.show === "function") {
+        callback();
+      } else if (tries < 20) {
+        tries++;
+        setTimeout(pollVignette, 150);
+      } else {
+        callback(); // Proceed if vignette never loads
+      }
+    }
+    pollVignette();
+  };
+  document.body.appendChild(script);
+}
 
 // --- Monetag Interstitial Trigger Helper ---
 function showMonetagInterstitial(onCloseCallback, retries = 10) {
@@ -23,7 +61,6 @@ function showMonetagInterstitial(onCloseCallback, retries = 10) {
       showMonetagInterstitial(onCloseCallback, retries - 1);
     }, 300);
   } else {
-    // After several tries, just proceed
     onCloseCallback();
   }
 }
@@ -563,10 +600,12 @@ locations.forEach((location) => {
     .addTo(map);
 
   marker.getElement().addEventListener('click', () => {
-    showMonetagInterstitial(() => {
-      map.getCanvas().style.cursor = 'pointer';
-      const contentHTML = createPopupContent(location);
-      toggleBottomSheet(contentHTML);
+    loadMonetagScript(() => {
+      showMonetagInterstitial(() => {
+        map.getCanvas().style.cursor = 'pointer';
+        const contentHTML = createPopupContent(location);
+        toggleBottomSheet(contentHTML);
+      });
     });
   });
 });
@@ -596,562 +635,564 @@ buildings.forEach((building) => {
     .addTo(map);
 
   marker.getElement().addEventListener('click', () => {
-    showMonetagInterstitial(() => {
-      map.getCanvas().style.cursor = 'pointer';
-      const videoUrl = building.videoUrl;
-      const posterUrl = building.posterUrl;
-      const markerText = building.text || "";
+    loadMonetagScript(() => {
+      showMonetagInterstitial(() => {
+        map.getCanvas().style.cursor = 'pointer';
+        const videoUrl = building.videoUrl;
+        const posterUrl = building.posterUrl;
+        const markerText = building.text || "";
 
-      if (!videoUrl) {
-        console.error('Video URL not available for this building.');
-        return;
-      }
-      document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
-      stopAllModalVideos();
-
-      const overlay = document.createElement('div');
-      overlay.className = 'video-modal-overlay';
-      overlay.style.position = 'fixed';
-      overlay.style.top = 0;
-      overlay.style.left = 0;
-      overlay.style.width = '100vw';
-      overlay.style.height = '100vh';
-      overlay.style.background = 'rgba(0,0,0,0.2)';
-      overlay.style.backdropFilter = 'blur(10px)';
-      overlay.style.webkitBackdropFilter = 'blur(10px)';
-      overlay.style.display = 'flex';
-      overlay.style.alignItems = 'center';
-      overlay.style.justifyContent = 'center';
-      overlay.style.zIndex = 100000;
-
-      const posterContainer = document.createElement('div');
-      posterContainer.style.position = 'relative';
-      posterContainer.style.marginTop = '-60px';
-      posterContainer.style.display = 'flex';
-      posterContainer.style.flexDirection = 'column';
-      posterContainer.style.alignItems = 'center';
-
-      overlay.addEventListener('mousedown', function (e) {
-        if (!posterContainer.contains(e.target)) { stopAllModalVideos(); overlay.remove(); }
-      });
-
-      const cameraIcon = document.createElement('button');
-      cameraIcon.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="7" width="18" height="14" rx="4" ry="4"></rect>
-          <circle cx="12" cy="14" r="3.5"></circle>
-          <circle cx="17.5" cy="10.5" r="1"></circle>
-          <rect x="8" y="3" width="8" height="4" rx="2" ry="2"></rect>
-        </svg>
-      `;
-      cameraIcon.title = 'Open Camera';
-      cameraIcon.style.position = 'absolute';
-      cameraIcon.style.left = '50%';
-      cameraIcon.style.top = '0';
-      cameraIcon.style.transform = 'translate(-50%, -50%)';
-      cameraIcon.style.background = 'white';
-      cameraIcon.style.border = 'none';
-      cameraIcon.style.borderRadius = '50%';
-      cameraIcon.style.width = '48px';
-      cameraIcon.style.height = '48px';
-      cameraIcon.style.display = 'flex';
-      cameraIcon.style.alignItems = 'center';
-      cameraIcon.style.justifyContent = 'center';
-      cameraIcon.style.cursor = 'pointer';
-      cameraIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
-      cameraIcon.style.zIndex = 10;
-
-      const markerKey = 'completed-marker-' + building.name;
-      let isVisited = completedMarkers[markerKey] ? true : false;
-
-      const visitBtn = document.createElement('button');
-      visitBtn.textContent = isVisited ? 'Visited' : 'Unvisited';
-      visitBtn.style.position = 'absolute';
-      visitBtn.style.left = '50%';
-      visitBtn.style.bottom = '0';
-      visitBtn.style.transform = 'translateX(-50%) translateY(25%)';
-      visitBtn.style.background = isVisited ? '#4caf50' : '#ccc';
-      visitBtn.style.color = isVisited ? '#fff' : '#333';
-      visitBtn.style.border = '2px solid #fff';
-      visitBtn.style.borderRadius = '20px';
-      visitBtn.style.width = '95px';
-      visitBtn.style.height = '36px';
-      visitBtn.style.fontWeight = 'bold';
-      visitBtn.style.fontSize = '14px';
-      visitBtn.style.cursor = 'pointer';
-      visitBtn.style.alignItems = 'center';
-      visitBtn.style.justifyContent = 'center';
-      visitBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-      visitBtn.style.display = 'flex';
-      visitBtn.style.zIndex = 11;
-
-      visitBtn.onclick = async function () {
-        isVisited = !isVisited;
-        if (isVisited) {
-          visitBtn.textContent = 'Visited';
-          visitBtn.style.background = '#4caf50';
-          visitBtn.style.color = '#fff';
-          markerElement.style.filter = 'brightness(0.3) grayscale(0.3)';
-          await saveCompletedMarker(markerKey);
-        } else {
-          visitBtn.textContent = 'Unvisited';
-          visitBtn.style.background = '#ccc';
-          visitBtn.style.color = '#333';
-          markerElement.style.filter = '';
-          completedMarkers[markerKey] = false;
-          const docRef = doc(db, "users", firebaseUser.uid);
-          await setDoc(docRef, { completedMarkers }, { merge: true });
-          updateProgressBar();
+        if (!videoUrl) {
+          console.error('Video URL not available for this building.');
+          return;
         }
-      };
+        document.querySelectorAll('.video-modal-overlay').forEach((el) => el.remove());
+        stopAllModalVideos();
 
-      const closeBtn = document.createElement('button');
-      closeBtn.textContent = '❌';
-      closeBtn.style.position = 'absolute';
-      closeBtn.style.top = '-8px';
-      closeBtn.style.right = '-8px';
-      closeBtn.style.width = '25px';
-      closeBtn.style.height = '25px';
-      closeBtn.style.background = '#000';
-      closeBtn.style.color = '#fff';
-      closeBtn.style.border = '1.5px solid #E9E8E0';
-      closeBtn.style.borderRadius = '50%';
-      closeBtn.style.cursor = 'pointer';
-      closeBtn.style.fontSize = '0.7rem';
-      closeBtn.style.zIndex = '100001';
-      closeBtn.style.display = 'flex';
-      closeBtn.style.alignItems = 'center';
-      closeBtn.style.justifyContent = 'center';
-      closeBtn.onclick = () => { closeBtn.parentElement.parentElement.remove(); };
+        const overlay = document.createElement('div');
+        overlay.className = 'video-modal-overlay';
+        overlay.style.position = 'fixed';
+        overlay.style.top = 0;
+        overlay.style.left = 0;
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.background = 'rgba(0,0,0,0.2)';
+        overlay.style.backdropFilter = 'blur(10px)';
+        overlay.style.webkitBackdropFilter = 'blur(10px)';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.zIndex = 100000;
 
-      // CAMERA LOGIC WITH DOUBLE TAP SUPPORT + TEXT OVERLAY FEATURE
-      let cameraFacingMode = 'environment'; // default rear
-      let lastTapTime = 0;
-      let cameraStream = null;
-      let cameraVideo = null;
+        const posterContainer = document.createElement('div');
+        posterContainer.style.position = 'relative';
+        posterContainer.style.marginTop = '-60px';
+        posterContainer.style.display = 'flex';
+        posterContainer.style.flexDirection = 'column';
+        posterContainer.style.alignItems = 'center';
 
-      cameraIcon.onclick = async function () {
-        posterContainer.innerHTML = '';
+        overlay.addEventListener('mousedown', function (e) {
+          if (!posterContainer.contains(e.target)) { stopAllModalVideos(); overlay.remove(); }
+        });
 
-        // --- TEXT OVERLAY ON CAMERA STREAM ---
-        let textOverlay = null;
-        if (markerText && markerText.trim().length > 0) {
-          textOverlay = document.createElement('div');
-          textOverlay.textContent = markerText;
-          textOverlay.style.position = 'absolute';
-          textOverlay.style.top = '50px';
-          textOverlay.style.left = '50%';
-          textOverlay.style.transform = 'translateX(-50%)';
-          textOverlay.style.background = 'rgba(0,0,0,0.4)';
-          textOverlay.style.color = '#fff';
-          textOverlay.style.borderRadius = '8px';
-          textOverlay.style.fontSize = '12px';
-          textOverlay.style.fontWeight = 'bold';
-          textOverlay.style.pointerEvents = 'none';
-          textOverlay.style.zIndex = 20;
-          textOverlay.style.fontFamily = "'Poppins', sans-serif";
-          textOverlay.style.textAlign = "center";
-          textOverlay.style.lineHeight = "1";
-          textOverlay.style.padding = '6px 12px';
+        const cameraIcon = document.createElement('button');
+        cameraIcon.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="7" width="18" height="14" rx="4" ry="4"></rect>
+            <circle cx="12" cy="14" r="3.5"></circle>
+            <circle cx="17.5" cy="10.5" r="1"></circle>
+            <rect x="8" y="3" width="8" height="4" rx="2" ry="2"></rect>
+          </svg>
+        `;
+        cameraIcon.title = 'Open Camera';
+        cameraIcon.style.position = 'absolute';
+        cameraIcon.style.left = '50%';
+        cameraIcon.style.top = '0';
+        cameraIcon.style.transform = 'translate(-50%, -50%)';
+        cameraIcon.style.background = 'white';
+        cameraIcon.style.border = 'none';
+        cameraIcon.style.borderRadius = '50%';
+        cameraIcon.style.width = '48px';
+        cameraIcon.style.height = '48px';
+        cameraIcon.style.display = 'flex';
+        cameraIcon.style.alignItems = 'center';
+        cameraIcon.style.justifyContent = 'center';
+        cameraIcon.style.cursor = 'pointer';
+        cameraIcon.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+        cameraIcon.style.zIndex = 10;
 
-          // Compute width based on text content for better overlay fit
-          const tempSpan = document.createElement('span');
-          tempSpan.textContent = markerText;
-          tempSpan.style.fontFamily = textOverlay.style.fontFamily;
-          tempSpan.style.fontWeight = textOverlay.style.fontWeight;
-          tempSpan.style.fontSize = textOverlay.style.fontSize;
-          tempSpan.style.lineHeight = textOverlay.style.lineHeight;
-          tempSpan.style.position = 'absolute';
-          tempSpan.style.visibility = 'hidden';
-          tempSpan.style.whiteSpace = 'pre';
-          document.body.appendChild(tempSpan);
+        const markerKey = 'completed-marker-' + building.name;
+        let isVisited = completedMarkers[markerKey] ? true : false;
 
-          let textWidth = tempSpan.offsetWidth + 24; // 12px padding each side
-          let maxWidth = window.innerWidth * 0.90 - 64;
-          textOverlay.style.width = Math.min(textWidth, maxWidth) + "px";
+        const visitBtn = document.createElement('button');
+        visitBtn.textContent = isVisited ? 'Visited' : 'Unvisited';
+        visitBtn.style.position = 'absolute';
+        visitBtn.style.left = '50%';
+        visitBtn.style.bottom = '0';
+        visitBtn.style.transform = 'translateX(-50%) translateY(25%)';
+        visitBtn.style.background = isVisited ? '#4caf50' : '#ccc';
+        visitBtn.style.color = isVisited ? '#fff' : '#333';
+        visitBtn.style.border = '2px solid #fff';
+        visitBtn.style.borderRadius = '20px';
+        visitBtn.style.width = '95px';
+        visitBtn.style.height = '36px';
+        visitBtn.style.fontWeight = 'bold';
+        visitBtn.style.fontSize = '14px';
+        visitBtn.style.cursor = 'pointer';
+        visitBtn.style.alignItems = 'center';
+        visitBtn.style.justifyContent = 'center';
+        visitBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+        visitBtn.style.display = 'flex';
+        visitBtn.style.zIndex = 11;
 
-          document.body.removeChild(tempSpan);
-
-          posterContainer.appendChild(textOverlay);
-        }
-
-        cameraVideo = document.createElement('video');
-        cameraVideo.autoplay = true;
-        cameraVideo.playsInline = true;
-        cameraVideo.style.width = '90vw';
-        cameraVideo.style.height = '160vw';
-        cameraVideo.style.objectFit = 'contain';
-        cameraVideo.style.borderRadius = '14px';
-        cameraVideo.style.display = 'block';
-        cameraVideo.style.margin = '0 auto';
-        cameraVideo.style.position = 'relative';
-        posterContainer.appendChild(cameraVideo);
-
-        const shutterBtn = document.createElement('button');
-        shutterBtn.title = 'Take Photo';
-        shutterBtn.className = 'custom-shutter-btn';
-        shutterBtn.style.position = 'absolute';
-        shutterBtn.style.left = '50%';
-        shutterBtn.style.bottom = '20px';
-        shutterBtn.style.transform = 'translateX(-50%)';
-        shutterBtn.style.width = '64px';
-        shutterBtn.style.height = '64px';
-        shutterBtn.style.background = 'white';
-        shutterBtn.style.border = '4px solid #ccc';
-        shutterBtn.style.borderRadius = '50%';
-        shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-        shutterBtn.style.display = 'flex';
-        shutterBtn.style.alignItems = 'center';
-        shutterBtn.style.justifyContent = 'center';
-        shutterBtn.style.cursor = 'pointer';
-        shutterBtn.style.zIndex = 12;
-        shutterBtn.style.outline = 'none';
-        shutterBtn.style.transition = 'box-shadow 0.1s';
-        const innerCircle = document.createElement('div');
-        innerCircle.style.width = '44px';
-        innerCircle.style.height = '44px';
-        innerCircle.style.background = '#fff';
-        innerCircle.style.borderRadius = '50%';
-        innerCircle.style.boxShadow = '0 0 0 2px #eee';
-        shutterBtn.appendChild(innerCircle);
-        posterContainer.appendChild(shutterBtn);
-
-        const cameraCloseBtn = document.createElement('button');
-        cameraCloseBtn.textContent = '❌';
-        cameraCloseBtn.style.position = 'absolute';
-        cameraCloseBtn.style.top = '-8px';
-        cameraCloseBtn.style.right = '-8px';
-        cameraCloseBtn.style.width = '25px';
-        cameraCloseBtn.style.height = '25px';
-        cameraCloseBtn.style.background = '#000';
-        cameraCloseBtn.style.color = '#fff';
-        cameraCloseBtn.style.border = '1.5px solid #E9E8E0';
-        cameraCloseBtn.style.borderRadius = '50%';
-        cameraCloseBtn.style.cursor = 'pointer';
-        cameraCloseBtn.style.fontSize = '0.7rem';
-        cameraCloseBtn.style.zIndex = '100001';
-        cameraCloseBtn.style.display = 'flex';
-        cameraCloseBtn.style.alignItems = 'center';
-        cameraCloseBtn.style.justifyContent = 'center';
-        cameraCloseBtn.onclick = () => {
-          if (cameraVideo.srcObject) {
-            cameraVideo.srcObject.getTracks().forEach((track) => track.stop());
+        visitBtn.onclick = async function () {
+          isVisited = !isVisited;
+          if (isVisited) {
+            visitBtn.textContent = 'Visited';
+            visitBtn.style.background = '#4caf50';
+            visitBtn.style.color = '#fff';
+            markerElement.style.filter = 'brightness(0.3) grayscale(0.3)';
+            await saveCompletedMarker(markerKey);
+          } else {
+            visitBtn.textContent = 'Unvisited';
+            visitBtn.style.background = '#ccc';
+            visitBtn.style.color = '#333';
+            markerElement.style.filter = '';
+            completedMarkers[markerKey] = false;
+            const docRef = doc(db, "users", firebaseUser.uid);
+            await setDoc(docRef, { completedMarkers }, { merge: true });
+            updateProgressBar();
           }
-          overlay.remove();
         };
-        posterContainer.appendChild(cameraCloseBtn);
 
-        async function startCameraStream(facingMode = cameraFacingMode) {
-          try {
-            cameraStream = await navigator.mediaDevices.getUserMedia({
-              video: { facingMode: { ideal: facingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } }
-            });
-            cameraVideo.srcObject = cameraStream;
-          } catch (err) {
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = '❌';
+        closeBtn.style.position = 'absolute';
+        closeBtn.style.top = '-8px';
+        closeBtn.style.right = '-8px';
+        closeBtn.style.width = '25px';
+        closeBtn.style.height = '25px';
+        closeBtn.style.background = '#000';
+        closeBtn.style.color = '#fff';
+        closeBtn.style.border = '1.5px solid #E9E8E0';
+        closeBtn.style.borderRadius = '50%';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.style.fontSize = '0.7rem';
+        closeBtn.style.zIndex = '100001';
+        closeBtn.style.display = 'flex';
+        closeBtn.style.alignItems = 'center';
+        closeBtn.style.justifyContent = 'center';
+        closeBtn.onclick = () => { closeBtn.parentElement.parentElement.remove(); };
+
+        // CAMERA LOGIC WITH DOUBLE TAP SUPPORT + TEXT OVERLAY FEATURE
+        let cameraFacingMode = 'environment'; // default rear
+        let lastTapTime = 0;
+        let cameraStream = null;
+        let cameraVideo = null;
+
+        cameraIcon.onclick = async function () {
+          posterContainer.innerHTML = '';
+
+          // --- TEXT OVERLAY ON CAMERA STREAM ---
+          let textOverlay = null;
+          if (markerText && markerText.trim().length > 0) {
+            textOverlay = document.createElement('div');
+            textOverlay.textContent = markerText;
+            textOverlay.style.position = 'absolute';
+            textOverlay.style.top = '50px';
+            textOverlay.style.left = '50%';
+            textOverlay.style.transform = 'translateX(-50%)';
+            textOverlay.style.background = 'rgba(0,0,0,0.4)';
+            textOverlay.style.color = '#fff';
+            textOverlay.style.borderRadius = '8px';
+            textOverlay.style.fontSize = '12px';
+            textOverlay.style.fontWeight = 'bold';
+            textOverlay.style.pointerEvents = 'none';
+            textOverlay.style.zIndex = 20;
+            textOverlay.style.fontFamily = "'Poppins', sans-serif";
+            textOverlay.style.textAlign = "center";
+            textOverlay.style.lineHeight = "1";
+            textOverlay.style.padding = '6px 12px';
+
+            // Compute width based on text content for better overlay fit
+            const tempSpan = document.createElement('span');
+            tempSpan.textContent = markerText;
+            tempSpan.style.fontFamily = textOverlay.style.fontFamily;
+            tempSpan.style.fontWeight = textOverlay.style.fontWeight;
+            tempSpan.style.fontSize = textOverlay.style.fontSize;
+            tempSpan.style.lineHeight = textOverlay.style.lineHeight;
+            tempSpan.style.position = 'absolute';
+            tempSpan.style.visibility = 'hidden';
+            tempSpan.style.whiteSpace = 'pre';
+            document.body.appendChild(tempSpan);
+
+            let textWidth = tempSpan.offsetWidth + 24; // 12px padding each side
+            let maxWidth = window.innerWidth * 0.90 - 64;
+            textOverlay.style.width = Math.min(textWidth, maxWidth) + "px";
+
+            document.body.removeChild(tempSpan);
+
+            posterContainer.appendChild(textOverlay);
+          }
+
+          cameraVideo = document.createElement('video');
+          cameraVideo.autoplay = true;
+          cameraVideo.playsInline = true;
+          cameraVideo.style.width = '90vw';
+          cameraVideo.style.height = '160vw';
+          cameraVideo.style.objectFit = 'contain';
+          cameraVideo.style.borderRadius = '14px';
+          cameraVideo.style.display = 'block';
+          cameraVideo.style.margin = '0 auto';
+          cameraVideo.style.position = 'relative';
+          posterContainer.appendChild(cameraVideo);
+
+          const shutterBtn = document.createElement('button');
+          shutterBtn.title = 'Take Photo';
+          shutterBtn.className = 'custom-shutter-btn';
+          shutterBtn.style.position = 'absolute';
+          shutterBtn.style.left = '50%';
+          shutterBtn.style.bottom = '20px';
+          shutterBtn.style.transform = 'translateX(-50%)';
+          shutterBtn.style.width = '64px';
+          shutterBtn.style.height = '64px';
+          shutterBtn.style.background = 'white';
+          shutterBtn.style.border = '4px solid #ccc';
+          shutterBtn.style.borderRadius = '50%';
+          shutterBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+          shutterBtn.style.display = 'flex';
+          shutterBtn.style.alignItems = 'center';
+          shutterBtn.style.justifyContent = 'center';
+          shutterBtn.style.cursor = 'pointer';
+          shutterBtn.style.zIndex = 12;
+          shutterBtn.style.outline = 'none';
+          shutterBtn.style.transition = 'box-shadow 0.1s';
+          const innerCircle = document.createElement('div');
+          innerCircle.style.width = '44px';
+          innerCircle.style.height = '44px';
+          innerCircle.style.background = '#fff';
+          innerCircle.style.borderRadius = '50%';
+          innerCircle.style.boxShadow = '0 0 0 2px #eee';
+          shutterBtn.appendChild(innerCircle);
+          posterContainer.appendChild(shutterBtn);
+
+          const cameraCloseBtn = document.createElement('button');
+          cameraCloseBtn.textContent = '❌';
+          cameraCloseBtn.style.position = 'absolute';
+          cameraCloseBtn.style.top = '-8px';
+          cameraCloseBtn.style.right = '-8px';
+          cameraCloseBtn.style.width = '25px';
+          cameraCloseBtn.style.height = '25px';
+          cameraCloseBtn.style.background = '#000';
+          cameraCloseBtn.style.color = '#fff';
+          cameraCloseBtn.style.border = '1.5px solid #E9E8E0';
+          cameraCloseBtn.style.borderRadius = '50%';
+          cameraCloseBtn.style.cursor = 'pointer';
+          cameraCloseBtn.style.fontSize = '0.7rem';
+          cameraCloseBtn.style.zIndex = '100001';
+          cameraCloseBtn.style.display = 'flex';
+          cameraCloseBtn.style.alignItems = 'center';
+          cameraCloseBtn.style.justifyContent = 'center';
+          cameraCloseBtn.onclick = () => {
+            if (cameraVideo.srcObject) {
+              cameraVideo.srcObject.getTracks().forEach((track) => track.stop());
+            }
+            overlay.remove();
+          };
+          posterContainer.appendChild(cameraCloseBtn);
+
+          async function startCameraStream(facingMode = cameraFacingMode) {
             try {
-              cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+              cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { ideal: facingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+              });
               cameraVideo.srcObject = cameraStream;
-            } catch (err2) {
-              alert('Could not access camera: ' + err2.message);
+            } catch (err) {
+              try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                cameraVideo.srcObject = cameraStream;
+              } catch (err2) {
+                alert('Could not access camera: ' + err2.message);
+              }
             }
           }
-        }
-        await startCameraStream();
+          await startCameraStream();
 
-        // DOUBLE TAP support for mobile (touch) and desktop (dblclick)
-        cameraVideo.addEventListener('touchend', function(e) {
-          const now = Date.now();
-          if (now - lastTapTime < 300) { // 300ms double tap
+          // DOUBLE TAP support for mobile (touch) and desktop (dblclick)
+          cameraVideo.addEventListener('touchend', function(e) {
+            const now = Date.now();
+            if (now - lastTapTime < 300) { // 300ms double tap
+              cameraFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
+              if (cameraVideo.srcObject) {
+                cameraVideo.srcObject.getTracks().forEach(track => track.stop());
+              }
+              startCameraStream(cameraFacingMode);
+            }
+            lastTapTime = now;
+          });
+          cameraVideo.addEventListener('dblclick', function(e) {
             cameraFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
             if (cameraVideo.srcObject) {
               cameraVideo.srcObject.getTracks().forEach(track => track.stop());
             }
             startCameraStream(cameraFacingMode);
-          }
-          lastTapTime = now;
-        });
-        cameraVideo.addEventListener('dblclick', function(e) {
-          cameraFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
-          if (cameraVideo.srcObject) {
-            cameraVideo.srcObject.getTracks().forEach(track => track.stop());
-          }
-          startCameraStream(cameraFacingMode);
-        });
+          });
 
-        function wrapCanvasText(ctx, text, maxWidth) {
-          const words = text.split(' ');
-          let lines = [];
-          let line = '';
-          for (let n = 0; n < words.length; n++) {
-            const testLine = line + (line ? ' ' : '') + words[n];
-            const metrics = ctx.measureText(testLine);
-            if (metrics.width > maxWidth && line) {
-              lines.push(line);
-              line = words[n];
-            } else {
-              line = testLine;
+          function wrapCanvasText(ctx, text, maxWidth) {
+            const words = text.split(' ');
+            let lines = [];
+            let line = '';
+            for (let n = 0; n < words.length; n++) {
+              const testLine = line + (line ? ' ' : '') + words[n];
+              const metrics = ctx.measureText(testLine);
+              if (metrics.width > maxWidth && line) {
+                lines.push(line);
+                line = words[n];
+              } else {
+                line = testLine;
+              }
             }
+            lines.push(line);
+            return lines;
           }
-          lines.push(line);
-          return lines;
-        }
 
-        shutterBtn.onclick = function () {
-          cameraVideo.pause();
-          posterContainer.querySelectorAll('.img-preview, .add-to-archive-btn, .cancel-btn, .tip-text').forEach(el => el.remove());
+          shutterBtn.onclick = function () {
+            cameraVideo.pause();
+            posterContainer.querySelectorAll('.img-preview, .add-to-archive-btn, .cancel-btn, .tip-text').forEach(el => el.remove());
 
-          const canvas = document.createElement('canvas');
-          canvas.width = cameraVideo.videoWidth;
-          canvas.height = cameraVideo.videoHeight;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+            const canvas = document.createElement('canvas');
+            canvas.width = cameraVideo.videoWidth;
+            canvas.height = cameraVideo.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
 
-          // --- DRAW TEXT OVERLAY ON PHOTO ---
-          if (textOverlay && markerText && markerText.trim().length > 0) {
-            const overlayRect = textOverlay.getBoundingClientRect();
-            const videoRect = cameraVideo.getBoundingClientRect();
-            const computedStyle = window.getComputedStyle(textOverlay);
+            // --- DRAW TEXT OVERLAY ON PHOTO ---
+            if (textOverlay && markerText && markerText.trim().length > 0) {
+              const overlayRect = textOverlay.getBoundingClientRect();
+              const videoRect = cameraVideo.getBoundingClientRect();
+              const computedStyle = window.getComputedStyle(textOverlay);
 
-            let topPx = overlayRect.top - videoRect.top;
-            let leftPx = overlayRect.left - videoRect.left;
-            let overlayWidthPx = overlayRect.width;
-            let overlayHeightPx = overlayRect.height;
+              let topPx = overlayRect.top - videoRect.top;
+              let leftPx = overlayRect.left - videoRect.left;
+              let overlayWidthPx = overlayRect.width;
+              let overlayHeightPx = overlayRect.height;
 
-            let fontSizePx = parseFloat(computedStyle.fontSize);
-            let fontFamily = computedStyle.fontFamily;
-            let fontWeight = computedStyle.fontWeight;
-            let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
+              let fontSizePx = parseFloat(computedStyle.fontSize);
+              let fontFamily = computedStyle.fontFamily;
+              let fontWeight = computedStyle.fontWeight;
+              let lineHeightPx = parseFloat(computedStyle.lineHeight || fontSizePx);
 
-            let scaleX = canvas.width / videoRect.width;
-            let scaleY = canvas.height / videoRect.height;
+              let scaleX = canvas.width / videoRect.width;
+              let scaleY = canvas.height / videoRect.height;
 
-            let textBoxX = leftPx * scaleX;
-            let textBoxY = topPx * scaleY;
-            let textBoxWidth = overlayWidthPx * scaleX;
-            let textBoxHeight = overlayHeightPx * scaleY;
+              let textBoxX = leftPx * scaleX;
+              let textBoxY = topPx * scaleY;
+              let textBoxWidth = overlayWidthPx * scaleX;
+              let textBoxHeight = overlayHeightPx * scaleY;
 
-            ctx.save();
-            ctx.globalAlpha = 0.4;
-            ctx.fillStyle = "#000";
-            ctx.beginPath();
-            if (ctx.roundRect) {
-              ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
-            } else {
-              ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
-            }
-            ctx.fill();
-            ctx.restore();
+              ctx.save();
+              ctx.globalAlpha = 0.4;
+              ctx.fillStyle = "#000";
+              ctx.beginPath();
+              if (ctx.roundRect) {
+                ctx.roundRect(textBoxX, textBoxY, textBoxWidth, textBoxHeight, 8 * scaleY);
+              } else {
+                ctx.rect(textBoxX, textBoxY, textBoxWidth, textBoxHeight);
+              }
+              ctx.fill();
+              ctx.restore();
 
-            const canvasFontSize = fontSizePx * scaleY;
-            const canvasLineHeight = canvasFontSize * 1.1;
-            ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillStyle = "#fff";
+              const canvasFontSize = fontSizePx * scaleY;
+              const canvasLineHeight = canvasFontSize * 1.1;
+              ctx.font = `${fontWeight} ${canvasFontSize}px ${fontFamily}`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillStyle = "#fff";
 
-            const wrappedLines = wrapCanvasText(
-              ctx,
-              markerText,
-              textBoxWidth - 24 * scaleX
-            );
-            const totalLines = wrappedLines.length;
-            const totalTextHeight = totalLines * canvasLineHeight;
-            let y = textBoxY + 12 * scaleY + (textBoxHeight - 24 * scaleY - totalTextHeight) / 2 + canvasLineHeight / 2;
-
-            for (let i = 0; i < wrappedLines.length; i++) {
-              ctx.fillText(
-                wrappedLines[i],
-                textBoxX + textBoxWidth / 2,
-                y + i * canvasLineHeight
+              const wrappedLines = wrapCanvasText(
+                ctx,
+                markerText,
+                textBoxWidth - 24 * scaleX
               );
+              const totalLines = wrappedLines.length;
+              const totalTextHeight = totalLines * canvasLineHeight;
+              let y = textBoxY + 12 * scaleY + (textBoxHeight - 24 * scaleY - totalTextHeight) / 2 + canvasLineHeight / 2;
+
+              for (let i = 0; i < wrappedLines.length; i++) {
+                ctx.fillText(
+                  wrappedLines[i],
+                  textBoxX + textBoxWidth / 2,
+                  y + i * canvasLineHeight
+                );
+              }
+              ctx.restore();
             }
-            ctx.restore();
-          }
 
-          const tipText = document.createElement('div');
-          tipText.className = 'tip-text';
-          tipText.textContent = 'Tap and hold image to save';
-          tipText.style.display = 'block';
-          tipText.style.margin = '16px auto 0 auto';
-          tipText.style.fontSize = '13px';
-          tipText.style.fontFamily = "'Poppins', sans-serif";
-          tipText.style.textAlign = 'center';
-          tipText.style.color = '#7C6E4D';
-          tipText.style.fontWeight = 'bold';
-          tipText.style.background = '#eae7de';
-          tipText.style.borderRadius = '8px';
-          tipText.style.padding = '6px 7px';
-          tipText.style.lineHeight = '1.02';
-          tipText.style.maxWidth = '90vw';
-          posterContainer.appendChild(tipText);
+            const tipText = document.createElement('div');
+            tipText.className = 'tip-text';
+            tipText.textContent = 'Tap and hold image to save';
+            tipText.style.display = 'block';
+            tipText.style.margin = '16px auto 0 auto';
+            tipText.style.fontSize = '13px';
+            tipText.style.fontFamily = "'Poppins', sans-serif";
+            tipText.style.textAlign = 'center';
+            tipText.style.color = '#7C6E4D';
+            tipText.style.fontWeight = 'bold';
+            tipText.style.background = '#eae7de';
+            tipText.style.borderRadius = '8px';
+            tipText.style.padding = '6px 7px';
+            tipText.style.lineHeight = '1.02';
+            tipText.style.maxWidth = '90vw';
+            posterContainer.appendChild(tipText);
 
-          const imgPreview = document.createElement('img');
-          imgPreview.className = 'img-preview';
-          imgPreview.src = canvas.toDataURL('image/png');
-          imgPreview.style.display = 'block';
-          imgPreview.style.margin = '8px auto 8px auto';
-          imgPreview.style.maxWidth = '90vw';
-          imgPreview.style.maxHeight = '60vh';
-          imgPreview.style.borderRadius = '12px';
-          imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-          posterContainer.appendChild(imgPreview);
+            const imgPreview = document.createElement('img');
+            imgPreview.className = 'img-preview';
+            imgPreview.src = canvas.toDataURL('image/png');
+            imgPreview.style.display = 'block';
+            imgPreview.style.margin = '8px auto 8px auto';
+            imgPreview.style.maxWidth = '90vw';
+            imgPreview.style.maxHeight = '60vh';
+            imgPreview.style.borderRadius = '12px';
+            imgPreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+            posterContainer.appendChild(imgPreview);
 
-          const addToArchiveBtn = document.createElement('button');
-          addToArchiveBtn.className = 'add-to-archive-btn custom-button';
-          addToArchiveBtn.textContent = 'Add to Archive';
-          addToArchiveBtn.style.fontSize = '13px';
-          addToArchiveBtn.style.fontFamily = "'Poppins', sans-serif";
-          addToArchiveBtn.style.textAlign = 'center';
-          addToArchiveBtn.style.background = '#e0e0e0';
-          addToArchiveBtn.style.color = '#333';
-          addToArchiveBtn.style.borderRadius = '8px';
-          addToArchiveBtn.style.padding = '6px 7px';
-          addToArchiveBtn.style.lineHeight = '1.02';
-          addToArchiveBtn.style.display = 'block';
-          addToArchiveBtn.style.margin = '10px auto 0 auto';
-          addToArchiveBtn.style.fontWeight = 'bold';
-          addToArchiveBtn.onclick = function (e) {
-            e.preventDefault();
-            addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
+            const addToArchiveBtn = document.createElement('button');
+            addToArchiveBtn.className = 'add-to-archive-btn custom-button';
+            addToArchiveBtn.textContent = 'Add to Archive';
+            addToArchiveBtn.style.fontSize = '13px';
+            addToArchiveBtn.style.fontFamily = "'Poppins', sans-serif";
+            addToArchiveBtn.style.textAlign = 'center';
+            addToArchiveBtn.style.background = '#e0e0e0';
+            addToArchiveBtn.style.color = '#333';
+            addToArchiveBtn.style.borderRadius = '8px';
+            addToArchiveBtn.style.padding = '6px 7px';
+            addToArchiveBtn.style.lineHeight = '1.02';
+            addToArchiveBtn.style.display = 'block';
+            addToArchiveBtn.style.margin = '10px auto 0 auto';
+            addToArchiveBtn.style.fontWeight = 'bold';
+            addToArchiveBtn.onclick = function (e) {
+              e.preventDefault();
+              addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
+            };
+            posterContainer.appendChild(addToArchiveBtn);
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'cancel-btn custom-button';
+            cancelBtn.textContent = 'Take again';
+            cancelBtn.style.fontSize = '13px';
+            cancelBtn.style.fontFamily = "'Poppins', sans-serif";
+            cancelBtn.style.textAlign = 'center';
+            cancelBtn.style.background = '#9b4dca';
+            cancelBtn.style.color = '#fff';
+            cancelBtn.style.borderRadius = '8px';
+            cancelBtn.style.padding = '6px 7px';
+            cancelBtn.style.lineHeight = '1.02';
+            cancelBtn.style.display = 'block';
+            cancelBtn.style.margin = '10px auto 0 auto';
+            cancelBtn.style.fontWeight = 'bold';
+            cancelBtn.onclick = function () {
+              imgPreview.remove();
+              addToArchiveBtn.remove();
+              cancelBtn.remove();
+              tipText.remove();
+              cameraVideo.style.display = 'block';
+              shutterBtn.style.display = 'block';
+              if (textOverlay) textOverlay.style.display = 'block';
+              cameraCloseBtn.style.display = 'flex';
+              cameraVideo.play();
+            };
+            posterContainer.appendChild(cancelBtn);
+
+            cameraVideo.style.display = 'none';
+            shutterBtn.style.display = 'none';
+            if (textOverlay) textOverlay.style.display = 'none';
+            cameraCloseBtn.style.display = 'none';
           };
-          posterContainer.appendChild(addToArchiveBtn);
-
-          const cancelBtn = document.createElement('button');
-          cancelBtn.className = 'cancel-btn custom-button';
-          cancelBtn.textContent = 'Take again';
-          cancelBtn.style.fontSize = '13px';
-          cancelBtn.style.fontFamily = "'Poppins', sans-serif";
-          cancelBtn.style.textAlign = 'center';
-          cancelBtn.style.background = '#9b4dca';
-          cancelBtn.style.color = '#fff';
-          cancelBtn.style.borderRadius = '8px';
-          cancelBtn.style.padding = '6px 7px';
-          cancelBtn.style.lineHeight = '1.02';
-          cancelBtn.style.display = 'block';
-          cancelBtn.style.margin = '10px auto 0 auto';
-          cancelBtn.style.fontWeight = 'bold';
-          cancelBtn.onclick = function () {
-            imgPreview.remove();
-            addToArchiveBtn.remove();
-            cancelBtn.remove();
-            tipText.remove();
-            cameraVideo.style.display = 'block';
-            shutterBtn.style.display = 'block';
-            if (textOverlay) textOverlay.style.display = 'block';
-            cameraCloseBtn.style.display = 'flex';
-            cameraVideo.play();
-          };
-          posterContainer.appendChild(cancelBtn);
-
-          cameraVideo.style.display = 'none';
-          shutterBtn.style.display = 'none';
-          if (textOverlay) textOverlay.style.display = 'none';
-          cameraCloseBtn.style.display = 'none';
         };
-      };
 
-      const playBtn = document.createElement('button');
-      playBtn.innerHTML = '▶';
-      playBtn.style.position = 'absolute';
-      playBtn.style.top = '50%';
-      playBtn.style.left = '50%';
-      playBtn.style.transform = 'translate(-50%, -50%)';
-      playBtn.style.background = 'rgba(0,0,0,0.6)';
-      playBtn.style.border = 'none';
-      playBtn.style.borderRadius = '50%';
-      playBtn.style.width = '64px';
-      playBtn.style.height = '64px';
-      playBtn.style.color = '#fff';
-      playBtn.style.fontSize = '2.5rem';
-      playBtn.style.cursor = 'pointer';
-      playBtn.style.display = 'flex';
-      playBtn.style.alignItems = 'center';
-      playBtn.style.justifyContent = 'center';
-      playBtn.style.zIndex = 2;
-
-      const spinner = document.createElement('div');
-      spinner.style.position = 'absolute';
-      spinner.style.top = '50%';
-      spinner.style.left = '50%';
-      spinner.style.transform = 'translate(-50%, -50%)';
-      spinner.style.width = '48px';
-      spinner.style.height = '48px';
-      spinner.style.border = '6px solid #eee';
-      spinner.style.borderTop = '6px solid #9b4dca';
-      spinner.style.borderRadius = '50%';
-      spinner.style.animation = 'spin 1s linear infinite';
-      spinner.style.display = 'none';
-      spinner.style.zIndex = 3;
-
-      const spinnerStyle = document.createElement('style');
-      spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
-      document.head.appendChild(spinnerStyle);
-
-      const posterImg = document.createElement('img');
-      posterImg.src = posterUrl || '';
-      posterImg.alt = 'Video cover';
-      posterImg.style.maxWidth = '88vw';
-      posterImg.style.maxHeight = '80vh';
-      posterImg.style.borderRadius = '14px';
-      posterImg.style.display = 'block';
-
-      posterImg.addEventListener('load', () => {
-        posterImg.style.border = '1.5px solid #E9E8E0';
-        posterContainer.appendChild(cameraIcon);
-        posterContainer.appendChild(visitBtn);
-        posterContainer.appendChild(closeBtn);
-        posterContainer.appendChild(playBtn);
-        posterContainer.appendChild(spinner);
+        const playBtn = document.createElement('button');
+        playBtn.innerHTML = '▶';
+        playBtn.style.position = 'absolute';
+        playBtn.style.top = '50%';
+        playBtn.style.left = '50%';
+        playBtn.style.transform = 'translate(-50%, -50%)';
+        playBtn.style.background = 'rgba(0,0,0,0.6)';
+        playBtn.style.border = 'none';
+        playBtn.style.borderRadius = '50%';
+        playBtn.style.width = '64px';
+        playBtn.style.height = '64px';
+        playBtn.style.color = '#fff';
+        playBtn.style.fontSize = '2.5rem';
+        playBtn.style.cursor = 'pointer';
         playBtn.style.display = 'flex';
-        closeBtn.style.display = 'flex';
+        playBtn.style.alignItems = 'center';
+        playBtn.style.justifyContent = 'center';
+        playBtn.style.zIndex = 2;
+
+        const spinner = document.createElement('div');
+        spinner.style.position = 'absolute';
+        spinner.style.top = '50%';
+        spinner.style.left = '50%';
+        spinner.style.transform = 'translate(-50%, -50%)';
+        spinner.style.width = '48px';
+        spinner.style.height = '48px';
+        spinner.style.border = '6px solid #eee';
+        spinner.style.borderTop = '6px solid #9b4dca';
+        spinner.style.borderRadius = '50%';
+        spinner.style.animation = 'spin 1s linear infinite';
+        spinner.style.display = 'none';
+        spinner.style.zIndex = 3;
+
+        const spinnerStyle = document.createElement('style');
+        spinnerStyle.innerHTML = `@keyframes spin {0% { transform: translate(-50%, -50%) rotate(0deg);}100% { transform: translate(-50%, -50%) rotate(360deg);}}`;
+        document.head.appendChild(spinnerStyle);
+
+        const posterImg = document.createElement('img');
+        posterImg.src = posterUrl || '';
+        posterImg.alt = 'Video cover';
+        posterImg.style.maxWidth = '88vw';
+        posterImg.style.maxHeight = '80vh';
+        posterImg.style.borderRadius = '14px';
+        posterImg.style.display = 'block';
+
+        posterImg.addEventListener('load', () => {
+          posterImg.style.border = '1.5px solid #E9E8E0';
+          posterContainer.appendChild(cameraIcon);
+          posterContainer.appendChild(visitBtn);
+          posterContainer.appendChild(closeBtn);
+          posterContainer.appendChild(playBtn);
+          posterContainer.appendChild(spinner);
+          playBtn.style.display = 'flex';
+          closeBtn.style.display = 'flex';
+        });
+
+        posterContainer.appendChild(posterImg);
+        overlay.appendChild(posterContainer);
+        document.body.appendChild(overlay);
+
+        playBtn.onclick = () => {
+          playBtn.style.display = 'none';
+          spinner.style.display = 'block';
+          const videoElement = document.createElement('video');
+          videoElement.src = videoUrl;
+          if (posterUrl) videoElement.poster = posterUrl;
+          videoElement.style.border = '1.5px solid #E9E8E0';
+          videoElement.style.maxWidth = '88vw';
+          videoElement.style.maxHeight = '80vh';
+          videoElement.style.borderRadius = '14px';
+          videoElement.preload = 'auto';
+          videoElement.autoplay = true;
+          videoElement.setAttribute('playsinline', '');
+          videoElement.setAttribute('webkit-playsinline', '');
+          videoElement.playsInline = true;
+
+          posterContainer.replaceChild(videoElement, posterImg);
+
+          activeModalVideos.add(videoElement);
+
+          videoElement.addEventListener('playing', () => { spinner.style.display = 'none'; });
+          videoElement.addEventListener('waiting', () => { spinner.style.display = 'block'; });
+          videoElement.addEventListener('error', () => {
+            spinner.style.display = 'none';
+            playBtn.style.display = 'block';
+            alert('Video failed to load.');
+          });
+          videoElement.addEventListener('ended', () => {
+            videoElement.parentElement.parentElement.remove();
+          });
+          videoElement.addEventListener('click', () => {
+            videoElement.controls = true;
+          });
+
+          overlay.addEventListener('remove', () => {
+            videoElement.pause();
+            videoElement.currentTime = 0;
+            activeModalVideos.delete(videoElement);
+          });
+
+          videoElement.load();
+        };
       });
-
-      posterContainer.appendChild(posterImg);
-      overlay.appendChild(posterContainer);
-      document.body.appendChild(overlay);
-
-      playBtn.onclick = () => {
-        playBtn.style.display = 'none';
-        spinner.style.display = 'block';
-        const videoElement = document.createElement('video');
-        videoElement.src = videoUrl;
-        if (posterUrl) videoElement.poster = posterUrl;
-        videoElement.style.border = '1.5px solid #E9E8E0';
-        videoElement.style.maxWidth = '88vw';
-        videoElement.style.maxHeight = '80vh';
-        videoElement.style.borderRadius = '14px';
-        videoElement.preload = 'auto';
-        videoElement.autoplay = true;
-        videoElement.setAttribute('playsinline', '');
-        videoElement.setAttribute('webkit-playsinline', '');
-        videoElement.playsInline = true;
-
-        posterContainer.replaceChild(videoElement, posterImg);
-
-        activeModalVideos.add(videoElement);
-
-        videoElement.addEventListener('playing', () => { spinner.style.display = 'none'; });
-        videoElement.addEventListener('waiting', () => { spinner.style.display = 'block'; });
-        videoElement.addEventListener('error', () => {
-          spinner.style.display = 'none';
-          playBtn.style.display = 'block';
-          alert('Video failed to load.');
-        });
-        videoElement.addEventListener('ended', () => {
-          videoElement.parentElement.parentElement.remove();
-        });
-        videoElement.addEventListener('click', () => {
-          videoElement.controls = true;
-        });
-
-        overlay.addEventListener('remove', () => {
-          videoElement.pause();
-          videoElement.currentTime = 0;
-          activeModalVideos.delete(videoElement);
-        });
-
-        videoElement.load();
-      };
     });
   });
 });
