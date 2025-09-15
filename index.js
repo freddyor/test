@@ -1268,9 +1268,9 @@ function renderArchivePhotos() {
     // Move it a little north-west from the previous bottom-right corner
     // Previous: left: '100%', top: '100%', translate(-50%, -50%)
     // New: left: '92%', top: '8%', translate(-50%, -50%)
-    removeBtn.style.left = '92%';
-    removeBtn.style.top = '8%';
-    removeBtn.style.transform = 'translate(-50%, -50%)';
+removeBtn.style.left = '100%';
+removeBtn.style.top = '100%';
+removeBtn.style.transform = 'translate(-100%, -100%)';
     removeBtn.style.width = '17.6px'; // 22px * 0.8
     removeBtn.style.height = '17.6px';
     removeBtn.style.background = '#000';
@@ -1320,10 +1320,10 @@ function stopAllModalVideos(except = null) {
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
-  // This makes marker size shrink VERY fast as you zoom out (try tuning exponent as needed)
-  let markerSize = Math.pow(Math.max(zoomLevel - 13, 0), 1.4); // Goes to 0 at zoom <= 13
+  // Aggressive shrink/grow, but clamp between 0 and 3em (adjust max as you prefer)
+  let markerSize = Math.pow(Math.max(zoomLevel - 13, 0), 1.4);
+  markerSize = Math.min(markerSize, 3.0); // <-- Cap max size at 3em
 
-  // If markerSize is zero, hide the marker for performance/layout
   document.querySelectorAll('.location-marker, .building-marker').forEach((marker) => {
     if (markerSize <= 0) {
       marker.style.display = 'none';
