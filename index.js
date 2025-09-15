@@ -12,14 +12,19 @@ import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/fireb
 })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
 
 // --- Monetag Interstitial Trigger Helper ---
-function showMonetagInterstitial(onCloseCallback) {
+function showMonetagInterstitial(onCloseCallback, retries = 10) {
   if (window.vignette && typeof window.vignette.show === "function") {
     window.vignette.show({
       zoneId: 9876971,
       onClose: onCloseCallback
     });
+  } else if (retries > 0) {
+    setTimeout(() => {
+      showMonetagInterstitial(onCloseCallback, retries - 1);
+    }, 300);
   } else {
-    setTimeout(onCloseCallback, 250);
+    // After several tries, just proceed
+    onCloseCallback();
   }
 }
 
