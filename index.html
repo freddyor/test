@@ -1,18 +1,288 @@
-<html>
-<body>
-<script>
-(function(s){
-  s.dataset.zone='9876971';
-  s.src='https://groleegni.net/vignette.min.js';
-})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="Free historic map for tourists visiting York, UK 🇬🇧. Short video breakdowns of each building and unseen curiosity in the city. Independent made.">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#192b4a" media="(prefers-color-scheme: dark)">
+    <title>YorkMapped</title>
 
-setTimeout(function(){
-  if(window.vignette && typeof window.vignette.show === "function"){
-    window.vignette.show({zoneId:9876971, onClose:()=>alert("Closed")});
-  }else{
-    alert("Ad script not loaded");
-  }
-}, 2000);
-</script>
+    <link rel="icon" href="https://freddyor.github.io/british-map/videos/favicon.png" type="image/png" sizes="32x32">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet" />
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100dvh;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            background: #E9E8E0;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        body,
+        #main-content,
+        #map-section,
+        #map {
+            padding-top: env(safe-area-inset-top, 0px);
+            box-sizing: border-box;
+        }
+
+        #main-content {
+            width: 100vw;
+            height: calc(100dvh - 44.8px - env(safe-area-inset-top, 0px));
+            position: relative;
+            display: flex;
+        }
+
+        #map-section, #archive-section, #about-section {
+            width: 100vw;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: none;
+            background: #E9E8E0;
+            padding-top: env(safe-area-inset-top, 0px);
+            box-sizing: border-box;
+        }
+        #map-section {
+            display: block;
+        }
+        #map {
+            width: 100vw;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            box-sizing: border-box;
+            /* Optional: for extra safety on iOS 16+ */
+            /* height: calc(100dvh - 44.8px - env(safe-area-inset-top, 0px)); */
+        }
+
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100dvh;
+            background-color: #192b4a;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding-top: env(safe-area-inset-top, 0px);
+            box-sizing: border-box;
+        }
+
+        #loading-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ccc;
+            border-top: 4px solid #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #bottom-bar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 44.8px;
+            background: #fff;
+            border-top: 2px solid #f0f0f0;
+            box-shadow: 0 -6px 15px rgba(0, 0, 0, 0.08);
+            z-index: 10001;
+            display: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            font-family: 'Poppins', sans-serif;
+            user-select: none;
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            box-sizing: border-box;
+        }
+        .bar-tab {
+            flex: 1 1 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.15s;
+            color: #888;
+            background: none;
+            border: none;
+            outline: none;
+            height: 100%;
+        }
+        .bar-tab.active {
+            color: #111;
+            background: none;
+        }
+        .bar-separator {
+            width: 1px;
+            background: #e0e0e0;
+            margin: 8px 0;
+            align-self: stretch;
+        }
+        #about-section-content {
+            max-width: 400px;
+            margin: 40px auto 0 auto;
+            padding: 24px 16px 32px 16px;
+    background: none; /* Remove the white background */
+    border-radius: 0; /* Remove rounded corners */
+    box-shadow: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+            text-align: center;
+        }
+        #about-section-content img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+        #about-section-content .project-info {
+            margin-bottom: 15px;
+        }
+        #about-section-content .donor-subtext {
+            font-size: 12px;
+            color: #666;
+            margin-top: 1px;
+        }
+        #about-section-content .donor {
+            margin-bottom: 12px;
+        }
+        #about-section-content .donor-amount {
+            color: #9b4dca;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .green-text {
+            color: green;
+            font-weight: bold;
+        }
+
+        .custom-bullets {
+            padding-left: 2.5em; /* Increased padding for more indent */
+        }
+
+        .mapboxgl-ctrl-logo {
+            left: 10px !important;
+            top: max(10px, env(safe-area-inset-top, 0px)) !important;
+            right: auto !important;
+            bottom: auto !important;
+            z-index: 10 !important;
+            display: block !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        #archive-section, #about-section {
+            overflow-y: auto;
+            max-height: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-screen">
+        <img src="https://freddyor.github.io/british-map/videos/favicon.png" alt="Loading icon" id="loading-icon">
+        <div class="spinner"></div>
+    </div>
+    <div id="main-content">
+        <div id="map-section">
+            <div id="map"></div>
+        </div>
+        <div id="archive-section" style="display:none;">
+            <!-- Archive content to come -->
+        </div>
+        <div id="about-section" style="display:none;">
+            <div id="about-section-content">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jpeg" 
+                        alt="Profile Photo" />
+                </div>
+                <div class="project-info">
+                    <b>My mission is to inspire interest and enthusiasm in British.</b>
+                </div>
+                <div class="project-info">
+                    My name is Freddy. I am not a historian or a scholar, but I know how to engage a modern, younger audience like few historians are capable of.
+                </div>
+                <div class="project-info">
+    The site aims to solve two of your problems:
+    <ul class="custom-bullets" style="list-style-type: disc; text-align: left;">
+        <li>allow you to to see the hidden and unknown (<span style="color: #ffd600; font-weight: bold;">yellow</span> markers)</li>
+        <li>allow you to discover the story behind any building that you are looking at (white markers)</li>
+    </ul>
+</div>
+                                                <div class="project-info">
+                    Email me: freddy@britmap.com 📧
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom navigation bar -->
+    <div id="bottom-bar">
+        <div id="bar-map" class="bar-tab active">Map</div>
+        <div class="bar-separator"></div>
+        <div id="bar-archive" class="bar-tab">Archive</div>
+        <div class="bar-separator"></div>
+        <div id="bar-about" class="bar-tab">About</div>
+    </div>
+
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js"></script>
+    <script type="module" src="index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        function showSection(section) {
+            const sections = ['map-section', 'archive-section', 'about-section'];
+            sections.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.display = (id === section) ? 'block' : 'none';
+                }
+            });
+            document.getElementById('bar-map').classList.toggle('active', section === 'map-section');
+            document.getElementById('bar-archive').classList.toggle('active', section === 'archive-section');
+            document.getElementById('bar-about').classList.toggle('active', section === 'about-section');
+            // Resize Mapbox map if returning to map section
+            if (section === 'map-section' && window.map) {
+                window.map.resize();
+            }
+        }
+        document.getElementById('bar-map').addEventListener('click', () => showSection('map-section'));
+        document.getElementById('bar-archive').addEventListener('click', () => showSection('archive-section'));
+        document.getElementById('bar-about').addEventListener('click', () => showSection('about-section'));
+        showSection('map-section');
+    });
+    </script>
 </body>
 </html>
