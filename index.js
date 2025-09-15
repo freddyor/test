@@ -1319,13 +1319,18 @@ function stopAllModalVideos(except = null) {
 }
 
 function scaleMarkersBasedOnZoom() {
-  const zoomLevel = map.getZoom();
-  // Aggressive shrink/grow, but clamp between 0 and 3em (adjust max as you prefer)
-  let markerSize = Math.pow(Math.max(zoomLevel - 13, 0), 1.4);
-  markerSize = Math.min(markerSize, 3.0); // <-- Cap max size at 3em
+  const minZoom = 13;
+  const maxZoom = 19;
+  const minSize = 0;    // marker hidden at minZoom, or set to e.g. 0.5 for always visible
+  const maxSize = 3.0;  // maximum marker size at maxZoom
+
+  let zoomLevel = map.getZoom();
+  zoomLevel = Math.max(minZoom, Math.min(zoomLevel, maxZoom)); // clamp
+
+  let markerSize = ((zoomLevel - minZoom) / (maxZoom - minZoom)) * (maxSize - minSize) + minSize;
 
   document.querySelectorAll('.location-marker, .building-marker').forEach((marker) => {
-    if (markerSize <= 0) {
+    if (markerSize <= 0.01) {
       marker.style.display = 'none';
     } else {
       marker.style.display = 'flex';
