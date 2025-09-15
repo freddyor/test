@@ -311,8 +311,6 @@ progressBarContainer.addEventListener('click', function (e) {
   }
 });
 
-// ...previous code...
-
 function showProgressBarHint() {
   const existingPopup = document.getElementById('progress-bar-popup');
   if (existingPopup) existingPopup.remove();
@@ -400,14 +398,12 @@ function showProgressBarHint() {
   };
 
   popup.appendChild(text);
-  popup.appendChild(yellowSentence); // <-- Add this line
+  popup.appendChild(yellowSentence);
   popup.appendChild(closeBtn);
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
 }
-
-// ...rest of code unchanged...
 
 signInAnonymously(auth);
 
@@ -461,17 +457,19 @@ function applyDimmedMarkers() {
 mapboxgl.accessToken =
   'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
+// --- MAP INITIALIZATION: always start above York, no minZoom restriction ---
 var map = new mapboxgl.Map({
   container: 'map',
   style: 'mapbox://styles/freddomate/cm8q8wtwx00a801qzdayccnvz',
-  center: [-1.0812025894431188, 53.958916884514004],
+  center: [-1.0835104081554843, 53.95838745239521], // York center
   zoom: 15,
   pitch: 45,
   bearing: -17.6,
-  minZoom: 11,
   maxZoom: 19,
+  // minZoom removed!
 });
 
+// Geolocate control, but DO NOT trigger on load
 const geolocate = new mapboxgl.GeolocateControl({
   positionOptions: {
     enableHighAccuracy: true,
@@ -1352,7 +1350,8 @@ map.on('click', (e) => {
 map.on('zoom', () => scaleMarkersBasedOnZoom());
 
 map.on('load', () => {
-  geolocate.trigger();
+  // DO NOT trigger geolocate on load
+  // geolocate.trigger();
 
   const loadingScreen = document.getElementById('loading-screen');
   const elapsed = Date.now() - loadingScreenStart;
@@ -1382,15 +1381,7 @@ function getUrlParameter(name) {
   return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 }
 
-const lat = getUrlParameter('lat');
-const lng = getUrlParameter('lng');
-const zoom = getUrlParameter('zoom');
-
-const defaultCenter = [-1.0835104081554843, 53.95838745239521];
-const defaultZoom = 15;
-
-const initialCenter = lat && lng ? [parseFloat(lng), parseFloat(lat)] : defaultCenter;
-const initialZoom = zoom ? parseFloat(zoom) : defaultZoom;
+// Remove logic for initialCenter and initialZoom, always start above York!
 
 const bottomSheet = document.createElement('div');
 bottomSheet.id = 'bottom-sheet';
