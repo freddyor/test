@@ -1320,22 +1320,24 @@ function stopAllModalVideos(except = null) {
 
 function scaleMarkersBasedOnZoom() {
   const zoomLevel = map.getZoom();
-  const markerSize = Math.max(0.8, (zoomLevel - 13) * 0.7);
-  const markerWidth = markerSize + 'em';
-  const markerHeight = markerSize + 'em';
-  const borderWidth = markerSize * 0.075 + 'em';
+  // This makes marker size shrink VERY fast as you zoom out (try tuning exponent as needed)
+  let markerSize = Math.pow(Math.max(zoomLevel - 13, 0), 1.4); // Goes to 0 at zoom <= 13
 
+  // If markerSize is zero, hide the marker for performance/layout
   document.querySelectorAll('.location-marker, .building-marker').forEach((marker) => {
-    marker.style.width = markerWidth;
-    marker.style.height = markerHeight;
-    marker.style.borderWidth = borderWidth;
+    if (markerSize <= 0) {
+      marker.style.display = 'none';
+    } else {
+      marker.style.display = 'flex';
+      marker.style.width = markerSize + 'em';
+      marker.style.height = markerSize + 'em';
+      marker.style.borderWidth = markerSize * 0.075 + 'em';
 
-    const bump = marker.querySelector('.marker-bump');
-    if (bump) {
-      const bumpWidth = markerSize * 0.4 + 'em';
-      const bumpHeight = markerSize * 0.25 + 'em';
-      bump.style.width = bumpWidth;
-      bump.style.height = bumpHeight;
+      const bump = marker.querySelector('.marker-bump');
+      if (bump) {
+        bump.style.width = markerSize * 0.4 + 'em';
+        bump.style.height = markerSize * 0.25 + 'em';
+      }
     }
   });
 }
