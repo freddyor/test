@@ -5,17 +5,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebas
 import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
-// --- Monetag Interstitial Loader: GLOBAL ---
-(function loadMonetagGlobal() {
-  if (!document.getElementById('monetag-vignette-script')) {
-    const script = document.createElement('script');
-    script.id = 'monetag-vignette-script';
-    script.dataset.zone = '9876971';
-    script.src = 'https://groleegni.net/vignette.min.js';
-    document.body.appendChild(script);
-  }
-})();
-
 const firebaseConfig = {
   apiKey: "AIzaSyDjv5uUNOx86FvYsXdKSMkl8vui2Jynt7M",
   authDomain: "britmap-64cb3.firebaseapp.com",
@@ -527,7 +516,7 @@ function getDistanceMeters(lat1, lng1, lat2, lng2) {
     const R = 6371000;
     const toRad = x => x * Math.PI / 180;
     const dLat = toRad(lat2 - lat1);
-    const dLng = toRad(lat2 - lng1);
+    const dLng = toRad(lng2 - lng1);
     const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
         Math.cos(toRad(lat1) ) * Math.cos(toRad(lat2) ) *
@@ -536,7 +525,6 @@ function getDistanceMeters(lat1, lng1, lat2, lng2) {
     return R * c;
 }
 
-// --- Locations Markers (Monetag is now global, no loader/trigger!) ---
 locations.forEach((location) => {
   const { element: markerElement } = createCustomMarker(
     location.image,
@@ -557,7 +545,6 @@ locations.forEach((location) => {
   });
 });
 
-// --- Buildings Markers (Monetag is now global, no loader/trigger!) ---
 buildings.forEach((building) => {
   let outlineColor;
   if (building.hidden === 'yes') {
@@ -1281,9 +1268,9 @@ function renderArchivePhotos() {
     // Move it a little north-west from the previous bottom-right corner
     // Previous: left: '100%', top: '100%', translate(-50%, -50%)
     // New: left: '92%', top: '8%', translate(-50%, -50%)
-    removeBtn.style.left = '82%';    // 100% - 18% = 82%
-    removeBtn.style.top = '82%';     // 100% - 18% = 82%
-    removeBtn.style.transform = 'translate(-50%, -50%)';
+removeBtn.style.left = '82%';    // 100% - 18% = 82%
+removeBtn.style.top = '82%';     // 100% - 18% = 82%
+removeBtn.style.transform = 'translate(-50%, -50%)';
     removeBtn.style.width = '17.6px'; // 22px * 0.8
     removeBtn.style.height = '17.6px';
     removeBtn.style.background = '#000';
