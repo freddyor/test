@@ -311,6 +311,8 @@ progressBarContainer.addEventListener('click', function (e) {
   }
 });
 
+// ...previous code...
+
 function showProgressBarHint() {
   const existingPopup = document.getElementById('progress-bar-popup');
   if (existingPopup) existingPopup.remove();
@@ -349,7 +351,7 @@ function showProgressBarHint() {
   popup.style.display = 'flex';
   popup.style.alignItems = 'center';
   popup.style.justifyContent = 'center';
-  popup.style.flexDirection = 'row';
+  popup.style.flexDirection = 'column';
   popup.style.minWidth = '260px';
   popup.style.fontFamily = "'Poppins', sans-serif";
   popup.style.fontWeight = 'bold';
@@ -363,6 +365,15 @@ function showProgressBarHint() {
   text.style.flex = '1';
   text.style.textAlign = 'center';
   text.style.lineHeight = '1.1';
+
+  // New sentence about yellow markers
+  const yellowSentence = document.createElement('span');
+  yellowSentence.innerHTML = 'The <span style="color: #ffd600; font-weight: bold;">yellow</span> markers are hidden treasures!';
+  yellowSentence.style.display = 'block';
+  yellowSentence.style.marginTop = '8px';
+  yellowSentence.style.fontWeight = 'bold';
+  yellowSentence.style.textAlign = 'center';
+  yellowSentence.style.fontSize = '16px';
 
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '❌';
@@ -389,11 +400,14 @@ function showProgressBarHint() {
   };
 
   popup.appendChild(text);
+  popup.appendChild(yellowSentence); // <-- Add this line
   popup.appendChild(closeBtn);
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
 }
+
+// ...rest of code unchanged...
 
 signInAnonymously(auth);
 
