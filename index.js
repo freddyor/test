@@ -1322,7 +1322,7 @@ function scaleMarkersBasedOnZoom() {
   const minZoom = 13;
   const maxZoom = 19;
   const minSize = 0;    // marker hidden at minZoom, or set to e.g. 0.5 for always visible
-  const maxSize = 3.0;  // maximum marker size at maxZoom
+  const maxSize = 6.0;  // maximum marker size at maxZoom
 
   let zoomLevel = map.getZoom();
   zoomLevel = Math.max(minZoom, Math.min(zoomLevel, maxZoom)); // clamp
