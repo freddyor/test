@@ -1268,9 +1268,9 @@ function renderArchivePhotos() {
     // Move it a little north-west from the previous bottom-right corner
     // Previous: left: '100%', top: '100%', translate(-50%, -50%)
     // New: left: '92%', top: '8%', translate(-50%, -50%)
-removeBtn.style.left = '100%';
-removeBtn.style.top = '100%';
-removeBtn.style.transform = 'translate(-100%, -100%)';
+removeBtn.style.left = '82%';    // 100% - 18% = 82%
+removeBtn.style.top = '82%';     // 100% - 18% = 82%
+removeBtn.style.transform = 'translate(-50%, -50%)';
     removeBtn.style.width = '17.6px'; // 22px * 0.8
     removeBtn.style.height = '17.6px';
     removeBtn.style.background = '#000';
