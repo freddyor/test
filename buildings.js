@@ -159,7 +159,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_9A7257B1-E152-4DFD-835A-DF2C7A34F300 - VEED Export.mp4",          
     "posterUrl": "https://freddyor.github.io/british-map/videos/importance.jpg",
     "social media": "yes",
-    "text": ",
+    "text": "",
   },
                                                   {
      'name': 'The Burton Stone',
