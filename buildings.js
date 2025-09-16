@@ -70,7 +70,7 @@ export const buildings = [
                                                     {
      'name': 'Bitchdaughter Tower',
      'coords': [-1.0844502224443802, 53.9531939003168],
-    "image": "https://freddyor.github.io/british-map/videos/bitchtower.jpg",
+    "image": "https://freddyor.github.io/british-map/videos/bitchtower.jpeg",
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_B62C5168-E0F4-4C08-A85C-933156D2D706 - VEED Export.mp4",          
     "posterUrl": "https://freddyor.github.io/british-map/videos/bitcht.jpg",
     "social media": "yes",
@@ -117,7 +117,7 @@ export const buildings = [
                                                   {
      'name': 'Peter Gibson',
      'coords': [-1.0839839263357374, 53.96247773993501],
-    "image": "https://freddyor.github.io/british-map/videos/petergibson.jpg",
+    "image": "https://freddyor.github.io/british-map/videos/petergibson.jpeg",
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_04183D6C-95E9-4993-A02A-2DEA0650151F - VEED Export.mp4",          
     "posterUrl": "https://freddyor.github.io/british-map/videos/viewofminster.jpg",
     "social media": "yes",
