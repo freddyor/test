@@ -16,8 +16,8 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/oldrail.jpg",
     "social media": "yes",
     "text": "One of the oldest railway buildings on the planet",
+                                                    "hidden": "yes",
   },
-  "hidden": "yes",
                                                 {
      'name': 'St Cuthberts Graveyard',
      'coords': [-1.0751762300928644, 53.960833149055716],
