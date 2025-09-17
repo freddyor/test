@@ -2,7 +2,7 @@ import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -129,8 +129,7 @@ progressBarWrapper.appendChild(progressBarContainer);
 progressBarWrapper.appendChild(exploreButton);
 document.body.appendChild(progressBarWrapper);
 
-/* --- FIREBASE AUTH UI POPUP LOGIC --- */
-let authUi = null;
+/* --- FIREBASE AUTH UI POPUP LOGIC (used for gating actions) --- */
 let authUiInstance = null;
 function showAuthPopup(reason = '') {
   // Only create the popup if not already present
@@ -188,7 +187,7 @@ function showAuthPopup(reason = '') {
   reasonText.style.margin = '0 0 10px 0';
 
   const firebaseUiDiv = document.createElement('div');
-  firebaseUiDiv.id = 'firebaseui-auth-container';
+  firebaseUiDiv.id = 'firebaseui-auth-container-popup';
 
   popup.appendChild(closeBtn);
   popup.appendChild(title);
@@ -200,10 +199,10 @@ function showAuthPopup(reason = '') {
 
   // FirebaseUI config
   const uiConfig = {
-  signInOptions: [
-    'google.com',
-    'password'
-  ],
+    signInOptions: [
+      'google.com',
+      'password'
+    ],
     signInFlow: 'popup',
     callbacks: {
       signInSuccessWithAuthResult: function(authResult, redirectUrl) {
@@ -220,303 +219,33 @@ function showAuthPopup(reason = '') {
   }
   // Initialize FirebaseUI Auth
   // eslint-disable-next-line no-undef
-  authUiInstance = new window.firebaseui.auth.AuthUI(auth);
-  authUiInstance.start('#firebaseui-auth-container', uiConfig);
+  authUiInstance = new window.firebaseui?.auth?.AuthUI ? new window.firebaseui.auth.AuthUI(auth) : null;
+  if (authUiInstance) {
+    authUiInstance.start('#firebaseui-auth-container-popup', uiConfig);
+  } else {
+    // If firebaseui script isn't loaded, inject it and retry
+    ensureFirebaseUiScript(() => {
+      authUiInstance = new window.firebaseui.auth.AuthUI(auth);
+      authUiInstance.start('#firebaseui-auth-container-popup', uiConfig);
+    });
+  }
 }
-
 /* --- END FIREBASE AUTH UI POPUP LOGIC --- */
 
-exploreButton.onclick = function() {
-  if (document.getElementById('explore-popup-overlay')) {
-    document.getElementById('explore-popup-overlay').remove();
-  }
-  const bottomBar = document.getElementById('bottom-bar');
-  let bottomBarHeight = bottomBar && bottomBar.offsetHeight ? bottomBar.offsetHeight : 54;
-  const overlay = document.createElement('div');
-  overlay.id = 'explore-popup-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.width = '100vw';
-  overlay.style.height = `calc(100vh - ${bottomBarHeight}px)`;
-  overlay.style.background = 'rgba(40,40,40,0.18)';
-  overlay.style.backdropFilter = 'blur(10px)';
-  overlay.style.webkitBackdropFilter = 'blur(10px)';
-  overlay.style.zIndex = '20000';
-  overlay.style.display = 'flex';
-  overlay.style.alignItems = 'flex-end';
-  overlay.style.justifyContent = 'center';
+/* NOTE: We do NOT auto sign-in anonymously. Users must sign in to use gated features. */
 
-  const popup = document.createElement('div');
-  popup.id = 'explore-popup';
-  popup.style.position = 'fixed';
-  popup.style.left = '50%';
-  popup.style.transform = 'translateX(-50%)';
-  popup.style.top = '24px';
-  popup.style.bottom = `${bottomBarHeight + 16}px`;
-  popup.style.width = '84vw';
-  popup.style.maxWidth = '620px';
-  popup.style.background = '#e0e0e0';
-  popup.style.borderRadius = '14px';
-  popup.style.border = '2px solid #111';
-  popup.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-  popup.style.padding = '20px 12px 14px 12px';
-  popup.style.zIndex = '20001';
-  popup.style.overflow = 'visible';
-  popup.style.display = 'flex';
-  popup.style.flexDirection = 'column';
-  popup.style.fontFamily = "'Poppins', sans-serif";
-
-  const closeBtn = document.createElement('button');
-  closeBtn.id = 'explore-popup-close-btn';
-  closeBtn.innerHTML = '❌';
-  closeBtn.title = 'Close';
-  closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '-14px';
-  closeBtn.style.right = '-14px';
-  closeBtn.style.width = '28px';
-  closeBtn.style.height = '28px';
-  closeBtn.style.background = '#111';
-  closeBtn.style.border = 'none';
-  closeBtn.style.borderRadius = '50%';
-  closeBtn.style.color = '#ff4444';
-  closeBtn.style.fontSize = '13px';
-  closeBtn.style.fontFamily = 'inherit';
-  closeBtn.style.cursor = 'pointer';
-  closeBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
-  closeBtn.style.zIndex = '20002';
-  closeBtn.style.display = 'flex';
-  closeBtn.style.alignItems = 'center';
-  closeBtn.style.justifyContent = 'center';
-  closeBtn.onclick = () => overlay.remove();
-  popup.appendChild(closeBtn);
-
-  const grid = document.createElement('div');
-  grid.id = 'explore-popup-grid';
-  grid.style.display = 'grid';
-  grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-  grid.style.columnGap = '8px';
-  grid.style.rowGap = '4px';
-  grid.style.marginTop = '8px';
-  grid.style.justifyItems = 'center';
-  grid.style.alignItems = 'start';
-  grid.style.overflowY = 'auto';
-
-  if (!document.getElementById('posterimg-spinner-keyframes')) {
-    const style = document.createElement('style');
-    style.id = 'posterimg-spinner-keyframes';
-    style.innerHTML = `@keyframes spin {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}`;
-    document.head.appendChild(style);
-  }
-
-buildings.forEach((building, idx) => {
-  const cell = document.createElement('div');
-  cell.style.display = 'flex';
-  cell.style.flexDirection = 'column';
-  cell.style.alignItems = 'center';
-  cell.style.justifyContent = 'center';
-  cell.style.position = 'relative';
-
-  const spinner = document.createElement('div');
-  spinner.style.width = '32px';
-  spinner.style.height = '32px';
-  spinner.style.border = '5px solid #eee';
-  spinner.style.borderTop = '5px solid #9b4dca';
-  spinner.style.borderRadius = '50%';
-  spinner.style.animation = 'spin 1s linear infinite';
-  spinner.style.margin = '24px 0';
-
-  cell.appendChild(spinner);
-
-  const img = document.createElement('img');
-  img.src = building.posterUrl || building.image;
-  img.className = 'explore-popup-img';
-  img.alt = building.name;
-  img.title = building.name;
-  img.style.width = '98px';
-  img.style.height = 'auto';
-  img.style.objectFit = 'contain';
-  img.style.borderRadius = '10px';
-  img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-  img.style.border = '2px solid #111';
-  img.style.background = '#e0e0e0';
-  img.style.cursor = 'pointer';
-  img.style.transition = 'transform 0.12s';
-  img.style.display = 'none';
-
-  // Prioritize first images' loading
-  img.loading = (idx < 6) ? 'eager' : 'lazy'; // Top two rows in a 3-column grid
-
-  img.onload = () => {
-    spinner.style.display = 'none';
-    img.style.display = 'block';
-  };
-
-  img.onerror = () => {
-    spinner.style.borderTop = '5px solid red';
-    spinner.title = 'Image failed to load';
-  };
-
-  img.onmouseover = () => img.style.transform = 'scale(1.07)';
-  img.onmouseout = () => img.style.transform = 'scale(1)';
-
-  img.onclick = function() {
-    overlay.remove();
-    map.flyTo({
-      center: building.coords,
-      zoom: 17,
-      pitch: 45,
-      bearing: -17.6,
-      speed: 1.2,
-      curve: 1,
-      essential: true
-    });
-  };
-
-  cell.appendChild(img);
-  grid.appendChild(cell);
-});
-
-  popup.appendChild(grid);
-  overlay.appendChild(popup);
-  document.body.appendChild(overlay);
-
-  overlay.onclick = function(e) {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
-  };
-};
-
-function updateProgressBar() {
-  const totalMarkers = buildings.length;
-  const visitedMarkers = buildings.filter(
-    b => completedMarkers['completed-marker-' + b.name]
-  ).length;
-
-  progressBarLabel.textContent = `${visitedMarkers} / ${totalMarkers}`;
-  const percent = totalMarkers > 0 ? Math.round((visitedMarkers / totalMarkers) * 100) : 0;
-  progressFill.style.width = percent + '%';
-}
-
-progressBarContainer.addEventListener('click', function (e) {
-  if (e.target === exploreButton) return;
-  const totalMarkers = buildings.length;
-  const visitedMarkers = buildings.filter(
-    b => completedMarkers['completed-marker-' + b.name]
-  ).length;
-
-  if (visitedMarkers === 0) {
-    showProgressBarHint();
-  }
-});
-
-function showProgressBarHint() {
-  const existingPopup = document.getElementById('progress-bar-popup');
-  if (existingPopup) existingPopup.remove();
-  const existingOverlay = document.getElementById('progress-bar-popup-overlay');
-  if (existingOverlay) existingOverlay.remove();
-
-  const overlay = document.createElement('div');
-  overlay.id = 'progress-bar-popup-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.width = '100vw';
-  overlay.style.height = '100vh';
-  overlay.style.background = 'rgba(0,0,0,0.1)';
-  overlay.style.zIndex = '10009';
-
-  overlay.onclick = function (e) {
-    if (e.target === overlay) {
-      popup.remove();
-      overlay.remove();
-    }
-  };
-
-  const popup = document.createElement('div');
-  popup.id = 'progress-bar-popup';
-  popup.style.position = 'fixed';
-  popup.style.top = '50%';
-  popup.style.left = '50%';
-  popup.style.transform = 'translate(-50%, -50%)';
-  popup.style.background = '#e0e0e0';
-  popup.style.borderRadius = '14px';
-  popup.style.border = '2px solid #111';
-  popup.style.boxShadow = '0 2px 12px rgba(0,0,0,0.18)';
-  popup.style.padding = '18px 32px 18px 32px';
-  popup.style.zIndex = '10010';
-  popup.style.display = 'flex';
-  popup.style.alignItems = 'center';
-  popup.style.justifyContent = 'center';
-  popup.style.flexDirection = 'column';
-  popup.style.minWidth = '260px';
-  popup.style.fontFamily = "'Poppins', sans-serif";
-  popup.style.fontWeight = 'bold';
-  popup.style.fontSize = '16px';
-  popup.style.color = '#111';
-  popup.style.userSelect = 'none';
-  popup.style.lineHeight = '1.1';
-
-  const text = document.createElement('span');
-  text.textContent = "This is the your Visited Progress Bar. Press the 'Unvisited' button on a marker to confirm your first visit!";
-  text.style.flex = '1';
-  text.style.textAlign = 'center';
-  text.style.lineHeight = '1.1';
-
-  // New sentence about yellow markers
-  const yellowSentence = document.createElement('span');
-  yellowSentence.innerHTML = 'The <span style="color: #ffd600; font-weight: bold;">yellow</span> markers are hidden treasures!';
-  yellowSentence.style.display = 'block';
-  yellowSentence.style.marginTop = '8px';
-  yellowSentence.style.fontWeight = 'bold';
-  yellowSentence.style.textAlign = 'center';
-  yellowSentence.style.fontSize = '16px';
-
-  const closeBtn = document.createElement('button');
-  closeBtn.textContent = '❌';
-  closeBtn.title = 'Close';
-  closeBtn.style.position = 'absolute';
-  closeBtn.style.top = '-14px';
-  closeBtn.style.right = '-14px';
-  closeBtn.style.width = '28px';
-  closeBtn.style.height = '28px';
-  closeBtn.style.background = '#000';
-  closeBtn.style.color = '#fff';
-  closeBtn.style.border = '1.5px solid #E9E8E0';
-  closeBtn.style.borderRadius = '50%';
-  closeBtn.style.cursor = 'pointer';
-  closeBtn.style.fontSize = '0.9rem';
-  closeBtn.style.zIndex = '10011';
-  closeBtn.style.display = 'flex';
-  closeBtn.style.alignItems = 'center';
-  closeBtn.style.justifyContent = 'center';
-
-  closeBtn.onclick = () => {
-    popup.remove();
-    overlay.remove();
-  };
-
-  popup.appendChild(text);
-  popup.appendChild(yellowSentence);
-  popup.appendChild(closeBtn);
-
-  document.body.appendChild(overlay);
-  document.body.appendChild(popup);
-}
-
-/* Updated: sign in anonymous only if not already signed in */
-if (!auth.currentUser) {
-  signInAnonymously(auth);
-}
-
+/* --- AUTH STATE HANDLING --- */
 onAuthStateChanged(auth, async (user) => {
   firebaseUser = user;
   await loadCompletedMarkers();
   applyDimmedMarkers();
   updateProgressBar();
+  await loadArchivePhotos();
+  renderArchivePhotos();
+  renderUserInfo(user); // update About section user info
 });
 
+/* --- FIRESTORE: load/save completed markers --- */
 async function loadCompletedMarkers() {
   if (!firebaseUser) return;
   try {
@@ -524,6 +253,8 @@ async function loadCompletedMarkers() {
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       completedMarkers = docSnap.data().completedMarkers || {};
+    } else {
+      completedMarkers = {};
     }
   } catch (err) {
     completedMarkers = {};
@@ -533,11 +264,16 @@ async function loadCompletedMarkers() {
 async function saveCompletedMarker(markerKey) {
   if (!firebaseUser) return;
   completedMarkers[markerKey] = true;
-  const docRef = doc(db, "users", firebaseUser.uid);
-  await setDoc(docRef, { completedMarkers }, { merge: true });
+  try {
+    const docRef = doc(db, "users", firebaseUser.uid);
+    await setDoc(docRef, { completedMarkers }, { merge: true });
+  } catch (err) {
+    console.error('Failed to save completed marker:', err);
+  }
   updateProgressBar();
 }
 
+/* --- APPLY DIMMED STYLE BASED ON COMPLETION --- */
 function applyDimmedMarkers() {
   buildings.forEach((building) => {
     const markerKey = 'completed-marker-' + building.name;
@@ -554,7 +290,7 @@ function applyDimmedMarkers() {
   });
 }
 
-
+/* --- MAP SETUP --- */
 mapboxgl.accessToken =
   'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
@@ -569,6 +305,8 @@ var map = new mapboxgl.Map({
   maxZoom: 19,
   // minZoom removed!
 });
+
+window.map = map; // so the HTML inline script's resize call can access
 
 // Geolocate control, but DO NOT trigger on load
 const geolocate = new mapboxgl.GeolocateControl({
@@ -626,6 +364,7 @@ function getDistanceMeters(lat1, lng1, lat2, lng2) {
     return R * c;
 }
 
+/* --- LOCATION MARKERS --- */
 locations.forEach((location) => {
   const { element: markerElement } = createCustomMarker(
     location.image,
@@ -646,6 +385,7 @@ locations.forEach((location) => {
   });
 });
 
+/* --- BUILDING MARKERS --- */
 buildings.forEach((building) => {
   let outlineColor;
   if (building.hidden === 'yes') {
@@ -758,9 +498,17 @@ buildings.forEach((building) => {
     visitBtn.style.display = 'flex';
     visitBtn.style.zIndex = 11;
 
+    // If not signed in, visually indicate disabled state
+    if (!firebaseUser) {
+      visitBtn.disabled = true;
+      visitBtn.title = "Sign in to use this feature";
+      visitBtn.style.opacity = "0.6";
+      visitBtn.style.cursor = "not-allowed";
+    }
+
     visitBtn.onclick = async function () {
       // If not signed in with real account, show auth popup
-      if (!firebaseUser || firebaseUser.isAnonymous) {
+      if (!firebaseUser) {
         showAuthPopup("Please sign in to track your visited buildings!");
         return;
       }
@@ -1091,7 +839,7 @@ buildings.forEach((building) => {
         addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
           // If not signed in with real account, show auth popup
-          if (!firebaseUser || firebaseUser.isAnonymous) {
+          if (!firebaseUser) {
             showAuthPopup("Sign in to archive your photos and keep them safe!");
             return;
           }
@@ -1258,11 +1006,16 @@ function openDB() {
 }
 
 async function addPhotoToArchive(imgSrc, markerName, buttonRef) {
+  if (!firebaseUser) {
+    showAuthPopup("Sign in to archive your photos and keep them safe!");
+    return;
+  }
   const db = await openDB();
   const tx = db.transaction(STORE_NAME, 'readwrite');
   const store = tx.objectStore(STORE_NAME);
   await store.add({ src: imgSrc, name: markerName, ts: Date.now() });
-  await tx.complete;
+  // Awaiting transaction completion isn't standardized across browsers; keep simple
+  tx.oncomplete = () => {};
   await loadArchivePhotos();
   if (buttonRef) {
     buttonRef.textContent = 'Archived';
@@ -1283,11 +1036,15 @@ async function getArchivePhotos() {
 }
 
 async function removePhoto(id) {
+  if (!firebaseUser) {
+    showAuthPopup("Sign in to remove photos from your archive!");
+    return;
+  }
   const db = await openDB();
   const tx = db.transaction(STORE_NAME, 'readwrite');
   const store = tx.objectStore(STORE_NAME);
   await store.delete(id);
-  await tx.complete;
+  tx.oncomplete = () => {};
   await loadArchivePhotos();
 }
 
@@ -1309,10 +1066,14 @@ function ensureArchiveSection() {
   return archiveSection;
 }
 
-// ...all previous code remains unchanged...
-
 function renderArchivePhotos() {
   const archiveSection = ensureArchiveSection();
+  // If not logged in, show a message instead of the archive
+  if (!firebaseUser) {
+    archiveSection.innerHTML = '<p style="text-align:center; line-height:1.01;">Sign in to access your photo archive!</p>';
+    return;
+  }
+
   archiveSection.innerHTML = '<h2 style="text-align:center;font-family:\'Poppins\',sans-serif;">Your archive 🇬🇧</h2>';
 
   const divider = document.createElement('div');
@@ -1323,7 +1084,6 @@ function renderArchivePhotos() {
   archiveSection.appendChild(divider);
 
   if (!archivePhotos || archivePhotos.length === 0) {
-    // Reduced line spacing for "No photos archived yet..." message
     archiveSection.innerHTML += `<p style="text-align:center; line-height: 1.01; ">No photos archived yet. On top of each video, you can find the camera button. Take some pictures!</p>`;
     return;
   }
@@ -1371,18 +1131,13 @@ function renderArchivePhotos() {
     img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
     img.style.display = 'block';
 
-    // Button: red horizontal line inside a black circle, 20% smaller
-    // Move it north-westerly so it's more on the image, but still hanging off
     const removeBtn = document.createElement('button');
     removeBtn.title = 'Remove from archive';
     removeBtn.style.position = 'absolute';
-    // Move it a little north-west from the previous bottom-right corner
-    // Previous: left: '100%', top: '100%', translate(-50%, -50%)
-    // New: left: '92%', top: '8%', translate(-50%, -50%)
-removeBtn.style.left = '82%';    // 100% - 18% = 82%
-removeBtn.style.top = '82%';     // 100% - 18% = 82%
-removeBtn.style.transform = 'translate(-50%, -50%)';
-    removeBtn.style.width = '17.6px'; // 22px * 0.8
+    removeBtn.style.left = '82%';
+    removeBtn.style.top = '82%';
+    removeBtn.style.transform = 'translate(-50%, -50%)';
+    removeBtn.style.width = '17.6px';
     removeBtn.style.height = '17.6px';
     removeBtn.style.background = '#000';
     removeBtn.style.border = '1.2px solid #E9E8E0';
@@ -1413,10 +1168,9 @@ removeBtn.style.transform = 'translate(-50%, -50%)';
   archiveSection.appendChild(grid);
 }
 
-// ...rest of code unchanged...
-
 document.addEventListener('DOMContentLoaded', loadArchivePhotos);
 
+/* --- STOP/PAUSE utility for modal videos --- */
 function stopAllModalVideos(except = null) {
   activeModalVideos.forEach((video) => {
     if (!except || video !== except) {
@@ -1429,6 +1183,7 @@ function stopAllModalVideos(except = null) {
   });
 }
 
+/* --- SCALE MARKERS WITH ZOOM --- */
 function scaleMarkersBasedOnZoom() {
   const minZoom = 13;
   const maxZoom = 19;
@@ -1477,7 +1232,7 @@ map.on('load', () => {
   const minDuration = 5000;
 
   function showBottomBar() {
-    loadingScreen.style.display = 'none';
+    if (loadingScreen) loadingScreen.style.display = 'none';
     if (bottomBar) bottomBar.style.display = 'flex';
     if (document.getElementById('map-section')?.style.display !== 'none') {
       progressBarWrapper.style.display = 'flex';
@@ -1552,6 +1307,11 @@ function showSection(section) {
     map.resize();
   } else {
     progressBarWrapper.style.display = 'none';
+  }
+
+  // If about section shown, initialize FirebaseUI there
+  if (section === 'about-section') {
+    initFirebaseUIAboutSection();
   }
 }
 
@@ -1709,3 +1469,237 @@ function createPopupContent(location, isFirebase = false) {
 }
 
 updateProgressBar();
+
+function updateProgressBar() {
+  const totalMarkers = buildings.length;
+  const visitedMarkers = buildings.filter(
+    b => completedMarkers['completed-marker-' + b.name]
+  ).length;
+
+  progressBarLabel.textContent = `${visitedMarkers} / ${totalMarkers}`;
+  const percent = totalMarkers > 0 ? Math.round((visitedMarkers / totalMarkers) * 100) : 0;
+  progressFill.style.width = percent + '%';
+}
+
+progressBarContainer.addEventListener('click', function (e) {
+  if (e.target === exploreButton) return;
+  const totalMarkers = buildings.length;
+  const visitedMarkers = buildings.filter(
+    b => completedMarkers['completed-marker-' + b.name]
+  ).length;
+
+  if (visitedMarkers === 0) {
+    showProgressBarHint();
+  }
+});
+
+function showProgressBarHint() {
+  const existingPopup = document.getElementById('progress-bar-popup');
+  if (existingPopup) existingPopup.remove();
+  const existingOverlay = document.getElementById('progress-bar-popup-overlay');
+  if (existingOverlay) existingOverlay.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'progress-bar-popup-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.background = 'rgba(0,0,0,0.1)';
+  overlay.style.zIndex = '10009';
+
+  overlay.onclick = function (e) {
+    if (e.target === overlay) {
+      popup.remove();
+      overlay.remove();
+    }
+  };
+
+  const popup = document.createElement('div');
+  popup.id = 'progress-bar-popup';
+  popup.style.position = 'fixed';
+  popup.style.top = '50%';
+  popup.style.left = '50%';
+  popup.style.transform = 'translate(-50%, -50%)';
+  popup.style.background = '#e0e0e0';
+  popup.style.borderRadius = '14px';
+  popup.style.border = '2px solid #111';
+  popup.style.boxShadow = '0 2px 12px rgba(0, 0, 0, 0.18)';
+  popup.style.padding = '18px 32px 18px 32px';
+  popup.style.zIndex = '10010';
+  popup.style.display = 'flex';
+  popup.style.alignItems = 'center';
+  popup.style.justifyContent = 'center';
+  popup.style.flexDirection = 'column';
+  popup.style.minWidth = '260px';
+  popup.style.fontFamily = "'Poppins', sans-serif";
+  popup.style.fontWeight = 'bold';
+  popup.style.fontSize = '16px';
+  popup.style.color = '#111';
+  popup.style.userSelect = 'none';
+  popup.style.lineHeight = '1.1';
+
+  const text = document.createElement('span');
+  text.textContent = "This is the your Visited Progress Bar. Press the 'Unvisited' button on a marker to confirm your first visit!";
+  text.style.flex = '1';
+  text.style.textAlign = 'center';
+  text.style.lineHeight = '1.1';
+
+  // New sentence about yellow markers
+  const yellowSentence = document.createElement('span');
+  yellowSentence.innerHTML = 'The <span style="color: #ffd600; font-weight: bold;">yellow</span> markers are hidden treasures!';
+  yellowSentence.style.display = 'block';
+  yellowSentence.style.marginTop = '8px';
+  yellowSentence.style.fontWeight = 'bold';
+  yellowSentence.style.textAlign = 'center';
+  yellowSentence.style.fontSize = '16px';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '❌';
+  closeBtn.title = 'Close';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '-14px';
+  closeBtn.style.right = '-14px';
+  closeBtn.style.width = '28px';
+  closeBtn.style.height = '28px';
+  closeBtn.style.background = '#000';
+  closeBtn.style.color = '#fff';
+  closeBtn.style.border = '1.5px solid #E9E8E0';
+  closeBtn.style.borderRadius = '50%';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.style.fontSize = '0.9rem';
+  closeBtn.style.zIndex = '10011';
+  closeBtn.style.display = 'flex';
+  closeBtn.style.alignItems = 'center';
+  closeBtn.style.justifyContent = 'center';
+
+  closeBtn.onclick = () => {
+    popup.remove();
+    overlay.remove();
+  };
+
+  popup.appendChild(text);
+  popup.appendChild(yellowSentence);
+  popup.appendChild(closeBtn);
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+}
+
+/* --- Firebase Auth UI in About Section (embedded) --- */
+
+function ensureFirebaseUiScript(cb) {
+  if (window.firebaseui && window.firebaseui.auth) {
+    if (cb) cb();
+    return;
+  }
+  // inject CSS
+  if (!document.querySelector('link[href="https://cdn.firebase.com/libs/firebaseui/6.0.2/firebaseui.css"]')) {
+    const fUiCss = document.createElement('link');
+    fUiCss.rel = 'stylesheet';
+    fUiCss.href = 'https://cdn.firebase.com/libs/firebaseui/6.0.2/firebaseui.css';
+    document.head.appendChild(fUiCss);
+  }
+  // inject script
+  if (!document.querySelector('script[src="https://cdn.firebase.com/libs/firebaseui/6.0.2/firebaseui.js"]')) {
+    const fUiScript = document.createElement('script');
+    fUiScript.src = 'https://cdn.firebase.com/libs/firebaseui/6.0.2/firebaseui.js';
+    fUiScript.onload = () => {
+      if (cb) cb();
+    };
+    document.head.appendChild(fUiScript);
+  } else {
+    // If script tag exists but firebaseui not ready yet, poll
+    const interval = setInterval(() => {
+      if (window.firebaseui && window.firebaseui.auth) {
+        clearInterval(interval);
+        if (cb) cb();
+      }
+    }, 200);
+  }
+}
+
+function ensureFirebaseUiAbout() {
+  const aboutSection = document.getElementById('about-section');
+  if (aboutSection && !document.getElementById('firebaseui-auth-container')) {
+    // Insert container after about-section-content so existing content stays above
+    const container = document.createElement('div');
+    container.id = 'firebaseui-auth-container';
+    container.style.marginTop = '18px';
+    aboutSection.querySelector('#about-section-content')?.appendChild(container);
+
+    const userInfoDiv = document.createElement('div');
+    userInfoDiv.id = 'firebaseui-user-info';
+    userInfoDiv.style.marginTop = '16px';
+    aboutSection.querySelector('#about-section-content')?.appendChild(userInfoDiv);
+  }
+}
+
+function initFirebaseUIAboutSection() {
+  ensureFirebaseUiScript(() => {
+    ensureFirebaseUiAbout();
+    if (!window.firebaseui || !window.firebaseui.auth) return;
+
+    if (window._aboutFirebaseUiInstance) {
+      window._aboutFirebaseUiInstance.reset();
+    }
+
+    const uiConfig = {
+      signInOptions: [
+        'google.com',
+        'password'
+      ],
+      signInFlow: 'popup',
+      callbacks: {
+        signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+          renderUserInfo(authResult.user);
+          return false; // Prevent redirect
+        }
+      },
+      credentialHelper: 'none'
+    };
+
+    window._aboutFirebaseUiInstance = new window.firebaseui.auth.AuthUI(auth);
+    window._aboutFirebaseUiInstance.start('#firebaseui-auth-container', uiConfig);
+
+    renderUserInfo(auth.currentUser);
+  });
+}
+
+function renderUserInfo(user) {
+  const userInfoDiv = document.getElementById('firebaseui-user-info');
+  if (!userInfoDiv) return;
+  if (user) {
+    userInfoDiv.innerHTML = `
+      <div style="margin-top: 10px; text-align:center;">
+        <div style="font-weight:bold; margin-bottom:6px;">Signed in as</div>
+        <div style="margin-bottom:6px;">${user.displayName || user.email || 'User'}</div>
+        <button id="firebaseui-signout-btn" style="margin-top:7px;padding:7px 13px;font-size:15px;border-radius:7px;background:#eee;border:1px solid #888;cursor:pointer;">Sign out</button>
+      </div>
+    `;
+    document.getElementById('firebaseui-signout-btn').onclick = () => {
+      auth.signOut();
+    };
+  } else {
+    userInfoDiv.innerHTML = "";
+  }
+}
+
+onAuthStateChanged(auth, (user) => {
+  renderUserInfo(user);
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize embedded About section UI but only once script is available
+  setTimeout(initFirebaseUIAboutSection, 500);
+});
+
+/* --- Helper: generate shareable map link (already present earlier) --- */
+// (function present earlier remains)
+
+/* --- Remaining utilities (if any) --- */
+// ensure progress bar is initialized and shows counts
+updateProgressBar();
+
+// End of index.js
