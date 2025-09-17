@@ -4,9 +4,6 @@ import { locations } from './locations.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
-import { getRedirectResult, signInWithPopup, GoogleAuthProvider, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import { getAuth as getUiAuth, EmailAuthProvider as UiEmailAuthProvider, GoogleAuthProvider as UiGoogleAuthProvider } from "https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js";
-import "https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDjv5uUNOx86FvYsXdKSMkl8vui2Jynt7M",
