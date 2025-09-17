@@ -201,10 +201,10 @@ function showAuthPopup(reason = '') {
 
   // FirebaseUI config
   const uiConfig = {
-    signInOptions: [
-      GoogleAuthProvider.PROVIDER_ID,
-      EmailAuthProvider.PROVIDER_ID,
-    ],
+  signInOptions: [
+    'google.com',
+    'password'
+  ],
     signInFlow: 'popup',
     callbacks: {
       signInSuccessWithAuthResult: function(authResult, redirectUrl) {
