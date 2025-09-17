@@ -2,8 +2,11 @@ import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getRedirectResult, signInWithPopup, GoogleAuthProvider, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getAuth as getUiAuth, EmailAuthProvider as UiEmailAuthProvider, GoogleAuthProvider as UiGoogleAuthProvider } from "https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js";
+import "https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDjv5uUNOx86FvYsXdKSMkl8vui2Jynt7M",
@@ -128,6 +131,103 @@ progressBarContainer.appendChild(progressBar);
 progressBarWrapper.appendChild(progressBarContainer);
 progressBarWrapper.appendChild(exploreButton);
 document.body.appendChild(progressBarWrapper);
+
+/* --- FIREBASE AUTH UI POPUP LOGIC --- */
+let authUi = null;
+let authUiInstance = null;
+function showAuthPopup(reason = '') {
+  // Only create the popup if not already present
+  if (document.getElementById('firebase-auth-popup-overlay')) return;
+  const overlay = document.createElement('div');
+  overlay.id = 'firebase-auth-popup-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.top = '0';
+  overlay.style.left = '0';
+  overlay.style.width = '100vw';
+  overlay.style.height = '100vh';
+  overlay.style.background = 'rgba(0,0,0,0.22)';
+  overlay.style.zIndex = '999999';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+
+  const popup = document.createElement('div');
+  popup.id = 'firebase-auth-popup';
+  popup.style.background = '#fff';
+  popup.style.borderRadius = '16px';
+  popup.style.boxShadow = '0 6px 32px rgba(0,0,0,0.25)';
+  popup.style.padding = '22px 10px 10px 10px';
+  popup.style.position = 'relative';
+  popup.style.maxWidth = '380px';
+  popup.style.width = '90vw';
+  popup.style.fontFamily = "'Poppins', sans-serif";
+  popup.style.zIndex = '9999999';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '❌';
+  closeBtn.title = 'Close';
+  closeBtn.style.position = 'absolute';
+  closeBtn.style.top = '8px';
+  closeBtn.style.right = '14px';
+  closeBtn.style.background = 'none';
+  closeBtn.style.border = 'none';
+  closeBtn.style.fontSize = '18px';
+  closeBtn.style.cursor = 'pointer';
+  closeBtn.onclick = () => { overlay.remove(); };
+
+  const title = document.createElement('h3');
+  title.textContent = 'Sign in to save progress';
+  title.style.textAlign = 'center';
+  title.style.margin = '0 0 10px 0';
+  title.style.fontWeight = 'bold';
+  title.style.fontSize = '1.25rem';
+  title.style.fontFamily = "'Poppins', sans-serif";
+
+  const reasonText = document.createElement('p');
+  reasonText.textContent = reason || "Sign in to save your archive and visited places. It's quick & secure!";
+  reasonText.style.textAlign = 'center';
+  reasonText.style.fontSize = '1rem';
+  reasonText.style.color = '#444';
+  reasonText.style.margin = '0 0 10px 0';
+
+  const firebaseUiDiv = document.createElement('div');
+  firebaseUiDiv.id = 'firebaseui-auth-container';
+
+  popup.appendChild(closeBtn);
+  popup.appendChild(title);
+  popup.appendChild(reasonText);
+  popup.appendChild(firebaseUiDiv);
+
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+
+  // FirebaseUI config
+  const uiConfig = {
+    signInOptions: [
+      GoogleAuthProvider.PROVIDER_ID,
+      EmailAuthProvider.PROVIDER_ID,
+    ],
+    signInFlow: 'popup',
+    callbacks: {
+      signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+        setTimeout(() => { overlay.remove(); }, 400);
+        return false; // Prevent redirect.
+      },
+    },
+    credentialHelper: 'none'
+  };
+
+  // Remove any previous instance
+  if (authUiInstance) {
+    authUiInstance.reset();
+  }
+  // Initialize FirebaseUI Auth
+  // eslint-disable-next-line no-undef
+  authUiInstance = new window.firebaseui.auth.AuthUI(auth);
+  authUiInstance.start('#firebaseui-auth-container', uiConfig);
+}
+
+/* --- END FIREBASE AUTH UI POPUP LOGIC --- */
 
 exploreButton.onclick = function() {
   if (document.getElementById('explore-popup-overlay')) {
@@ -408,15 +508,16 @@ function showProgressBarHint() {
   document.body.appendChild(popup);
 }
 
-signInAnonymously(auth);
+/* Updated: sign in anonymous only if not already signed in */
+if (!auth.currentUser) {
+  signInAnonymously(auth);
+}
 
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    firebaseUser = user;
-    await loadCompletedMarkers();
-    applyDimmedMarkers();
-    updateProgressBar();
-  }
+  firebaseUser = user;
+  await loadCompletedMarkers();
+  applyDimmedMarkers();
+  updateProgressBar();
 });
 
 async function loadCompletedMarkers() {
@@ -661,6 +762,11 @@ buildings.forEach((building) => {
     visitBtn.style.zIndex = 11;
 
     visitBtn.onclick = async function () {
+      // If not signed in with real account, show auth popup
+      if (!firebaseUser || firebaseUser.isAnonymous) {
+        showAuthPopup("Please sign in to track your visited buildings!");
+        return;
+      }
       isVisited = !isVisited;
       if (isVisited) {
         visitBtn.textContent = 'Visited';
@@ -987,6 +1093,11 @@ buildings.forEach((building) => {
         addToArchiveBtn.style.fontWeight = 'bold';
         addToArchiveBtn.onclick = function (e) {
           e.preventDefault();
+          // If not signed in with real account, show auth popup
+          if (!firebaseUser || firebaseUser.isAnonymous) {
+            showAuthPopup("Sign in to archive your photos and keep them safe!");
+            return;
+          }
           addPhotoToArchive(imgPreview.src, building.name, addToArchiveBtn);
         };
         posterContainer.appendChild(addToArchiveBtn);
