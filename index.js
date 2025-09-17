@@ -21,7 +21,7 @@ const bottomBar = document.getElementById('bottom-bar');
 if (bottomBar) { bottomBar.style.display = 'none'; }
 
 const loadingScreenStart = Date.now();
-const app = initializeApp(firebaseConfig);
+const app = firebase.initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
