@@ -455,7 +455,7 @@ function applyDimmedMarkers() {
 
 
 mapboxgl.accessToken =
-  'pk.eyJ1IjoiZnJlZGRvbWFzZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
+  'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
 // --- MAP INITIALIZATION: always start above York, no minZoom restriction ---
 var map = new mapboxgl.Map({
