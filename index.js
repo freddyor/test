@@ -6,12 +6,13 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 /*
-  index.js - full file (no truncation)
+  index.js - full file (patched)
+  - Fix: buttons (Visit) no longer set disabled=true so clicks can trigger the auth popup.
+  - Safe creation of firebaseui.AuthUI instances (no `new` with optional chaining).
   - Implements Mapbox UI, markers, camera & archive features.
   - Firebase Auth gating for "Visited" and "Archive Photo".
   - IndexedDB local archive storage.
   - FirebaseUI popup and About-section embedded Auth UI.
-  - Safe creation of firebaseui.AuthUI instances (no `new` with optional chaining).
 */
 
 /* --- FIREBASE CONFIG --- */
@@ -549,11 +550,11 @@ function openBuildingModal(building, markerElement) {
   visitBtn.style.display = 'flex';
   visitBtn.style.zIndex = 11;
 
+  // If no user, provide a visual hint but do NOT disable the button so click events still fire
   if (!firebaseUser) {
-    visitBtn.disabled = true;
     visitBtn.title = "Sign in to use this feature";
-    visitBtn.style.opacity = "0.6";
-    visitBtn.style.cursor = "not-allowed";
+    visitBtn.style.opacity = "0.95";
+    visitBtn.style.cursor = "pointer";
   }
 
   visitBtn.onclick = async function () {
