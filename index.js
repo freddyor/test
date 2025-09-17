@@ -157,35 +157,101 @@ function createFirebaseUiInstanceSafely() {
   return null;
 }
 
+// Replace your existing ensureFirebaseUiScript with this robust version
 function ensureFirebaseUiScript(cb) {
+  // If already available, call callback immediately
   if (window.firebaseui && window.firebaseui.auth) {
     if (cb) cb();
     return;
   }
-  // CSS
-  if (!document.querySelector('link[href="https://cdn.firebase.com/libs/firebaseui/6.0.2/firebaseui.css"]')) {
-    const fUiCss = document.createElement('link');
-    fUiCss.rel = 'stylesheet';
-    fUiCss.href = 'https://cdn.firebase.com/libs/firebaseui/6.0.2/firebaseui.css';
-    document.head.appendChild(fUiCss);
-  }
-  // Script
-  if (!document.querySelector('script[src="https://cdn.firebase.com/libs/firebaseui/6.0.2/firebaseui.js"]')) {
-    const fUiScript = document.createElement('script');
-    fUiScript.src = 'https://cdn.firebase.com/libs/firebaseui/6.0.2/firebaseui.js';
-    fUiScript.onload = () => {
-      if (cb) cb();
-    };
-    document.head.appendChild(fUiScript);
-  } else {
-    // If present but not ready, poll
-    const interval = setInterval(() => {
-      if (window.firebaseui && window.firebaseui.auth) {
-        clearInterval(interval);
-        if (cb) cb();
+
+  // Preferred CDN (official hosting)
+  const CSS_CDN_1 = 'https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui.css';
+  const JS_CDN_1 = 'https://www.gstatic.com/firebasejs/ui/6.0.2/firebase-ui.js';
+
+  // Fallback CDN (unpkg)
+  const CSS_CDN_2 = 'https://unpkg.com/firebaseui@6.0.2/dist/firebase-ui.css';
+  const JS_CDN_2 = 'https://unpkg.com/firebaseui@6.0.2/dist/firebase-ui.js';
+
+  // Helper to inject CSS (returns Promise)
+  function injectCss(url) {
+    return new Promise((resolve, reject) => {
+      // If already present, resolve
+      if (document.querySelector(`link[href="${url}"]`) || document.querySelector('link[href*="firebase-ui.css"]')) {
+        resolve();
+        return;
       }
-    }, 200);
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = url;
+      link.onload = () => resolve();
+      link.onerror = () => reject(new Error('CSS load error: ' + url));
+      document.head.appendChild(link);
+    });
   }
+
+  // Helper to inject JS (returns Promise)
+  function injectScript(url) {
+    return new Promise((resolve, reject) => {
+      // If already present, resolve when ready
+      if (window.firebaseui && window.firebaseui.auth) {
+        resolve();
+        return;
+      }
+      // avoid adding duplicate tags
+      if (document.querySelector(`script[src="${url}"]`)) {
+        // if script tag exists, wait briefly for library to become available
+        const interval = setInterval(() => {
+          if (window.firebaseui && window.firebaseui.auth) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 200);
+        // give up after a few seconds
+        setTimeout(() => {
+          clearInterval(interval);
+          if (window.firebaseui && window.firebaseui.auth) resolve();
+          else reject(new Error('Script present but firebaseui not ready: ' + url));
+        }, 6000);
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = url;
+      s.async = true;
+      s.onload = () => {
+        // small delay to ensure global initialized
+        setTimeout(() => {
+          if (window.firebaseui && window.firebaseui.auth) resolve();
+          else reject(new Error('firebaseui loaded but window.firebaseui not available: ' + url));
+        }, 50);
+      };
+      s.onerror = () => reject(new Error('Script load error: ' + url));
+      document.head.appendChild(s);
+    });
+  }
+
+  // Try primary CDN, fallback to secondary
+  (async () => {
+    try {
+      await injectCss(CSS_CDN_1);
+      await injectScript(JS_CDN_1);
+      if (cb) cb();
+      return;
+    } catch (err1) {
+      console.warn('FirebaseUI primary CDN failed:', err1);
+      // try fallback
+      try {
+        await injectCss(CSS_CDN_2);
+        await injectScript(JS_CDN_2);
+        if (cb) cb();
+        return;
+      } catch (err2) {
+        console.error('FirebaseUI fallback CDN also failed:', err2);
+        // final fallback: inform user via console and UI hint
+        console.error('Unable to load FirebaseUI. Check network, CSP, or browser extensions (adblock/privacy) that might block third-party CDNs.');
+      }
+    }
+  })();
 }
 
 /* --- AUTH POPUP (used when users try gated actions) --- */
