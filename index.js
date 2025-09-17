@@ -1,11 +1,9 @@
-import "https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js";
-import "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js";
-import "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js";
 import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
-// Expose firebase for FirebaseUI (not strictly necessary, but harmless)
-window.firebase = window.firebase || firebase;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDjv5uUNOx86FvYsXdKSMkl8vui2Jynt7M",
@@ -21,7 +19,7 @@ const bottomBar = document.getElementById('bottom-bar');
 if (bottomBar) { bottomBar.style.display = 'none'; }
 
 const loadingScreenStart = Date.now();
-const app = firebase.initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
