@@ -1,10 +1,11 @@
-import firebase from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js";
+import "https://www.gstatic.com/firebasejs/12.2.1/firebase-app-compat.js";
 import "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth-compat.js";
 import "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore-compat.js";
 import { buildings } from './buildings.js';
 import { locations } from './locations.js';
 
-window.firebase = firebase;
+// Expose firebase for FirebaseUI (not strictly necessary, but harmless)
+window.firebase = window.firebase || firebase;
 
 const firebaseConfig = {
   apiKey: "AIzaSyDjv5uUNOx86FvYsXdKSMkl8vui2Jynt7M",
