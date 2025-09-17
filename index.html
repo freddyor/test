@@ -6,7 +6,7 @@
     <meta name="description" content="Free historic map for tourists visiting York, UK 🇬🇧. Short video breakdowns of each building and unseen curiosity in the city. Independent made.">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#192b4a" media="(prefers-color-scheme: dark)">
-    <title>Britmap</title>
+    <title>YorkMapped</title>
 
     <link rel="icon" href="https://freddyor.github.io/british-map/videos/favicon.png" type="image/png" sizes="32x32">
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css" rel="stylesheet" />
@@ -63,8 +63,6 @@
             padding: 0;
             position: relative;
             box-sizing: border-box;
-            /* Optional: for extra safety on iOS 16+ */
-            /* height: calc(100dvh - 44.8px - env(safe-area-inset-top, 0px)); */
         }
 
         #loading-screen {
@@ -150,11 +148,11 @@
         }
         #about-section-content {
             max-width: 400px;
-            margin: 40px auto 0 auto;
-            padding: 24px 16px 32px 16px;
-    background: none; /* Remove the white background */
-    border-radius: 0; /* Remove rounded corners */
-    box-shadow: none;
+            margin: 0 auto;
+            padding: 0 16px 32px 16px;
+            background: none;
+            border-radius: 0;
+            box-shadow: none;
             font-family: 'Poppins', sans-serif;
             font-size: 15px;
             line-height: 1.5;
@@ -165,10 +163,12 @@
             height: 80px;
             border-radius: 50%;
             object-fit: cover;
-            margin-bottom: 15px;
+            margin-top: 0;
+            margin-bottom: 10px;
         }
         #about-section-content .project-info {
-            margin-bottom: 15px;
+            margin-top: 8px;
+            margin-bottom: 0;
         }
         #about-section-content .donor-subtext {
             font-size: 12px;
@@ -190,7 +190,7 @@
         }
 
         .custom-bullets {
-            padding-left: 2.5em; /* Increased padding for more indent */
+            padding-left: 2.5em;
         }
 
         .mapboxgl-ctrl-logo {
@@ -222,39 +222,41 @@
         <div id="archive-section" style="display:none;">
             <!-- Archive content to come -->
         </div>
-<div id="about-section-content" style="position: relative;">
-  <!-- Policy Links Start -->
-  <div style="display: flex; justify-content: center; gap: 18px; margin-top: 16px; margin-bottom: 8px;">
-    <a href="privacy-policy.html" style="color: #888; font-size: 14px; text-decoration: none;">Privacy Policy</a>
-    <a href="terms-of-service.html" style="color: #888; font-size: 14px; text-decoration: none;">Terms of Service</a>
-  </div>
-  <!-- Policy Links End -->
+        <div id="about-section" style="display:none;">
+            <div id="about-section-content">
+                <!-- Policy Links Start -->
+                <div style="display: flex; justify-content: center; gap: 18px; margin-top: 0; margin-bottom: 8px;">
+                  <a href="privacy-policy.html" style="color: #888; font-size: 14px; text-decoration: none;">Privacy Policy</a>
+                  <a href="terms-of-service.html" style="color: #888; font-size: 14px; text-decoration: none;">Terms of Service</a>
+                </div>
+                <!-- Policy Links End -->
 
-  <div style="display: flex; flex-direction: column; align-items: center;">
-    <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jpeg" alt="Profile Photo" style="margin-top: 0; margin-bottom: 10px;" />
-  </div>
-  <a href="https://buy.stripe.com/3cI8wQ6IG2I71ZxbDubwk00" target="_blank" rel="noopener">
-    <button style="padding:12px 24px;background:#635bff;color:#fff;border:none;border-radius:8px;font-size:16px;font-family:sans-serif;cursor:pointer;">
-      Subscribe Monthly ❤️
-    </button>
-  </a>
-  <div class="project-info" style="margin-top: 10px;">
-    <b>My mission is to inspire interest and enthusiasm in British heritage for the next generation.</b>
-  </div>
-  <div class="project-info" style="margin-top: 8px;">
-    My name is Freddy. I am not a historian or a scholar, but I know how to engage a modern, younger audience like few historians are capable of.
-  </div>
-  <div class="project-info" style="margin-top: 8px;">
+                <div style="display: flex; flex-direction: column; align-items: center;">
+                    <img src="https://freddyor.github.io/british-map/videos/IMG_7251.jpeg" 
+                        alt="Profile Photo" style="margin-top: 0; margin-bottom: 10px;" />
+                </div>
+                <a href="https://buy.stripe.com/3cI8wQ6IG2I71ZxbDubwk00" target="_blank" rel="noopener">
+  <button style="padding:12px 24px;background:#635bff;color:#fff;border:none;border-radius:8px;font-size:16px;font-family:sans-serif;cursor:pointer;">
+    Subscribe Monthly ❤️
+  </button>
+</a>
+                <div class="project-info" style="margin-top: 10px;">
+                    <b>My mission is to inspire interest and enthusiasm in British heritage for the next generation.</b>
+                </div>
+                <div class="project-info" style="margin-top: 8px;">
+                    My name is Freddy. I am not a historian or a scholar, but I know how to engage a modern, younger audience like few historians are capable of.
+                </div>
+                <div class="project-info" style="margin-top: 8px;">
     The site aims to solve two of your problems:
     <ul class="custom-bullets" style="list-style-type: disc; text-align: left; margin-top: 5px;">
-      <li>allow you to see the hidden and unknown (<span style="color: #ffd600; font-weight: bold;">yellow</span> markers)</li>
-      <li>allow you to discover the story behind any building that you are looking at (white markers)</li>
+        <li>allow you to see the hidden and unknown (<span style="color: #ffd600; font-weight: bold;">yellow</span> markers)</li>
+        <li>allow you to discover the story behind any building that you are looking at (white markers)</li>
     </ul>
-  </div>
-  <div class="project-info" style="margin-top: 8px;">
-    Email me: freddy@britmap.com 📧
-  </div>
 </div>
+                <div class="project-info" style="margin-top: 8px;">
+                    Email me: freddy@britmap.com 📧
+                </div>
+            </div>
         </div>
     </div>
 
