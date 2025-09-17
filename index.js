@@ -455,7 +455,7 @@ function applyDimmedMarkers() {
 
 
 mapboxgl.accessToken =
-  'pk.eyJ1IjoiZnJlZGRvbWF0ZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
+  'pk.eyJ1IjoiZnJlZGRvbWFzZSIsImEiOiJjbTc1bm5zYnQwaG1mMmtxeDdteXNmeXZ0In0.PuDNORq4qExIJ_fErdO_8g';
 
 // --- MAP INITIALIZATION: always start above York, no minZoom restriction ---
 var map = new mapboxgl.Map({
@@ -544,6 +544,195 @@ locations.forEach((location) => {
     toggleBottomSheet(contentHTML);
   });
 });
+
+/* ---------------- Monetag interstitial helper ----------------
+   This function injects your provided Monetag snippet safely into a
+   fullscreen interstitial. It uses localStorage cooldown and an
+   autoClose fallback. Call it before playing a video, e.g.
+
+   showMonetagInterstitial(() => {
+     // create & play video
+   }, { cooldownMinutes: 30, autoCloseMs: 20000 });
+
+   The Monetag tag provided:
+   <script>(function(s){s.dataset.zone='9876971',s.src='https://groleegni.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+----------------------------------------------------------------*/
+function showMonetagInterstitial(continueCallback, options = {}) {
+  const cooldownMinutes = Number.isFinite(options.cooldownMinutes) ? options.cooldownMinutes : 30;
+  const autoCloseMs = Number.isFinite(options.autoCloseMs) ? options.autoCloseMs : 20000;
+  const storageKey = 'monetagNativeInterstitialLastShown';
+  const storageNow = Date.now();
+
+  try {
+    const last = parseInt(localStorage.getItem(storageKey) || '0', 10);
+    if (cooldownMinutes > 0 && (storageNow - last) < cooldownMinutes * 60 * 1000) {
+      // cooldown active -> skip ad
+      if (typeof continueCallback === 'function') {
+        try { continueCallback(); } catch (err) { console.error(err); }
+      }
+      return;
+    }
+  } catch (e) {
+    // localStorage may be unavailable; continue to show by default
+    console.warn('localStorage read failed, proceeding to show interstitial', e);
+  }
+
+  // inject styles once
+  if (!document.getElementById('monetag-interstitial-styles')) {
+    const style = document.createElement('style');
+    style.id = 'monetag-interstitial-styles';
+    style.textContent = `
+      .monetag-interstitial-overlay {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.6);
+        z-index: 200000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px;
+        box-sizing: border-box;
+      }
+      .monetag-interstitial-card {
+        width: min(95vw, 720px);
+        max-height: 90vh;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        position: relative;
+        overflow: auto;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .monetag-interstitial-close {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: none;
+        background: #000;
+        color: #fff;
+        cursor: pointer;
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+      .monetag-interstitial-adslot {
+        width: 100%;
+        min-height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .monetag-interstitial-countdown {
+        position: absolute;
+        left: 12px;
+        top: 12px;
+        background: rgba(0,0,0,0.6);
+        color: #fff;
+        padding: 6px 8px;
+        border-radius: 8px;
+        font-weight: bold;
+        z-index: 4;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // Build overlay elements
+  const overlay = document.createElement('div');
+  overlay.className = 'monetag-interstitial-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+
+  const card = document.createElement('div');
+  card.className = 'monetag-interstitial-card';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'monetag-interstitial-close';
+  closeBtn.title = 'Close ad';
+  closeBtn.innerText = '✕';
+
+  const adSlot = document.createElement('div');
+  adSlot.className = 'monetag-interstitial-adslot';
+  adSlot.id = 'monetag-native-interstitial-slot';
+
+  card.appendChild(closeBtn);
+  card.appendChild(adSlot);
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+
+  // Create the monetag script element safely instead of injecting the raw IIFE string.
+  const monetagScript = document.createElement('script');
+  monetagScript.dataset.zone = '9876971';
+  monetagScript.src = 'https://groleegni.net/vignette.min.js';
+  monetagScript.async = true;
+  // Append to adSlot so script runs in the right DOM context
+  adSlot.appendChild(monetagScript);
+
+  // mark shown time for cooldown
+  try {
+    localStorage.setItem(storageKey, String(Date.now()));
+  } catch (e) {
+    // ignore
+  }
+
+  // Auto close fallback
+  let autoTimer = null;
+  if (autoCloseMs > 0) {
+    autoTimer = setTimeout(() => {
+      cleanupAndContinue(true);
+    }, autoCloseMs);
+  }
+
+  // Close handlers
+  closeBtn.addEventListener('click', () => {
+    cleanupAndContinue(true);
+  });
+
+  overlay.addEventListener('mousedown', (e) => {
+    if (!card.contains(e.target)) {
+      cleanupAndContinue(true);
+    }
+  });
+
+  function cleanupAndContinue(userClosed) {
+    try {
+      if (autoTimer) {
+        clearTimeout(autoTimer);
+        autoTimer = null;
+      }
+      if (monetagScript && monetagScript.parentNode) {
+        monetagScript.parentNode.removeChild(monetagScript);
+      }
+      if (adSlot && adSlot.parentNode) {
+        adSlot.innerHTML = '';
+      }
+      if (overlay && overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
+    } catch (err) {
+      console.error('Error cleaning up interstitial:', err);
+    }
+
+    if (typeof continueCallback === 'function') {
+      try { continueCallback(); } catch (err) { console.error(err); }
+    }
+  }
+
+  return {
+    close: cleanupAndContinue
+  };
+}
+/* ---------------------------------------------------------------- */
 
 buildings.forEach((building) => {
   let outlineColor;
@@ -1082,47 +1271,53 @@ buildings.forEach((building) => {
     overlay.appendChild(posterContainer);
     document.body.appendChild(overlay);
 
+    // Wrap original play behavior inside monetag interstitial call.
     playBtn.onclick = () => {
-      playBtn.style.display = 'none';
-      spinner.style.display = 'block';
-      const videoElement = document.createElement('video');
-      videoElement.src = videoUrl;
-      if (posterUrl) videoElement.poster = posterUrl;
-      videoElement.style.border = '1.5px solid #E9E8E0';
-      videoElement.style.maxWidth = '88vw';
-      videoElement.style.maxHeight = '80vh';
-      videoElement.style.borderRadius = '14px';
-      videoElement.preload = 'auto';
-      videoElement.autoplay = true;
-      videoElement.setAttribute('playsinline', '');
-      videoElement.setAttribute('webkit-playsinline', '');
-      videoElement.playsInline = true;
+      // Show Monetag interstitial first, then play video when it is dismissed or times out.
+      showMonetagInterstitial(() => {
+        // Existing play logic starts here:
+        playBtn.style.display = 'none';
+        spinner.style.display = 'block';
+        const videoElement = document.createElement('video');
+        videoElement.src = videoUrl;
+        if (posterUrl) videoElement.poster = posterUrl;
+        videoElement.style.border = '1.5px solid #E9E8E0';
+        videoElement.style.maxWidth = '88vw';
+        videoElement.style.maxHeight = '80vh';
+        videoElement.style.borderRadius = '14px';
+        videoElement.preload = 'auto';
+        videoElement.autoplay = true;
+        videoElement.setAttribute('playsinline', '');
+        videoElement.setAttribute('webkit-playsinline', '');
+        videoElement.playsInline = true;
 
-      posterContainer.replaceChild(videoElement, posterImg);
+        posterContainer.replaceChild(videoElement, posterImg);
 
-      activeModalVideos.add(videoElement);
+        activeModalVideos.add(videoElement);
 
-      videoElement.addEventListener('playing', () => { spinner.style.display = 'none'; });
-      videoElement.addEventListener('waiting', () => { spinner.style.display = 'block'; });
-      videoElement.addEventListener('error', () => {
-        spinner.style.display = 'none';
-        playBtn.style.display = 'block';
-        alert('Video failed to load.');
-      });
-      videoElement.addEventListener('ended', () => {
-        videoElement.parentElement.parentElement.remove();
-      });
-      videoElement.addEventListener('click', () => {
-        videoElement.controls = true;
-      });
+        videoElement.addEventListener('playing', () => { spinner.style.display = 'none'; });
+        videoElement.addEventListener('waiting', () => { spinner.style.display = 'block'; });
+        videoElement.addEventListener('error', () => {
+          spinner.style.display = 'none';
+          playBtn.style.display = 'block';
+          alert('Video failed to load.');
+        });
+        videoElement.addEventListener('ended', () => {
+          videoElement.parentElement.parentElement.remove();
+        });
+        videoElement.addEventListener('click', () => {
+          videoElement.controls = true;
+        });
 
-      overlay.addEventListener('remove', () => {
-        videoElement.pause();
-        videoElement.currentTime = 0;
-        activeModalVideos.delete(videoElement);
-      });
+        overlay.addEventListener('remove', () => {
+          videoElement.pause();
+          videoElement.currentTime = 0;
+          activeModalVideos.delete(videoElement);
+        });
 
-      videoElement.load();
+        videoElement.load();
+        // Existing play logic ends here.
+      }, { cooldownMinutes: 30, autoCloseMs: 20000 });
     };
   });
 });
