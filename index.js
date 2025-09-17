@@ -212,70 +212,73 @@ exploreButton.onclick = function() {
     document.head.appendChild(style);
   }
 
-  buildings.forEach((building, idx) => {
-    const cell = document.createElement('div');
-    cell.style.display = 'flex';
-    cell.style.flexDirection = 'column';
-    cell.style.alignItems = 'center';
-    cell.style.justifyContent = 'center';
-    cell.style.position = 'relative';
+buildings.forEach((building, idx) => {
+  const cell = document.createElement('div');
+  cell.style.display = 'flex';
+  cell.style.flexDirection = 'column';
+  cell.style.alignItems = 'center';
+  cell.style.justifyContent = 'center';
+  cell.style.position = 'relative';
 
-    const spinner = document.createElement('div');
-    spinner.style.width = '32px';
-    spinner.style.height = '32px';
-    spinner.style.border = '5px solid #eee';
-    spinner.style.borderTop = '5px solid #9b4dca';
-    spinner.style.borderRadius = '50%';
-    spinner.style.animation = 'spin 1s linear infinite';
-    spinner.style.margin = '24px 0';
+  const spinner = document.createElement('div');
+  spinner.style.width = '32px';
+  spinner.style.height = '32px';
+  spinner.style.border = '5px solid #eee';
+  spinner.style.borderTop = '5px solid #9b4dca';
+  spinner.style.borderRadius = '50%';
+  spinner.style.animation = 'spin 1s linear infinite';
+  spinner.style.margin = '24px 0';
 
-    cell.appendChild(spinner);
+  cell.appendChild(spinner);
 
-    const img = document.createElement('img');
-    img.src = building.posterUrl || building.image;
-    img.className = 'explore-popup-img';
-    img.alt = building.name;
-    img.title = building.name;
-    img.style.width = '98px';
-    img.style.height = 'auto';
-    img.style.objectFit = 'contain';
-    img.style.borderRadius = '10px';
-    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-    img.style.border = '2px solid #111';
-    img.style.background = '#e0e0e0';
-    img.style.cursor = 'pointer';
-    img.style.transition = 'transform 0.12s';
-    img.style.display = 'none';
+  const img = document.createElement('img');
+  img.src = building.posterUrl || building.image;
+  img.className = 'explore-popup-img';
+  img.alt = building.name;
+  img.title = building.name;
+  img.style.width = '98px';
+  img.style.height = 'auto';
+  img.style.objectFit = 'contain';
+  img.style.borderRadius = '10px';
+  img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
+  img.style.border = '2px solid #111';
+  img.style.background = '#e0e0e0';
+  img.style.cursor = 'pointer';
+  img.style.transition = 'transform 0.12s';
+  img.style.display = 'none';
 
-    img.onload = () => {
-      spinner.style.display = 'none';
-      img.style.display = 'block';
-    };
+  // Prioritize first images' loading
+  img.loading = (idx < 6) ? 'eager' : 'lazy'; // Top two rows in a 3-column grid
 
-    img.onerror = () => {
-      spinner.style.borderTop = '5px solid red';
-      spinner.title = 'Image failed to load';
-    };
+  img.onload = () => {
+    spinner.style.display = 'none';
+    img.style.display = 'block';
+  };
 
-    img.onmouseover = () => img.style.transform = 'scale(1.07)';
-    img.onmouseout = () => img.style.transform = 'scale(1)';
+  img.onerror = () => {
+    spinner.style.borderTop = '5px solid red';
+    spinner.title = 'Image failed to load';
+  };
 
-    img.onclick = function() {
-      overlay.remove();
-      map.flyTo({
-        center: building.coords,
-        zoom: 17,
-        pitch: 45,
-        bearing: -17.6,
-        speed: 1.2,
-        curve: 1,
-        essential: true
-      });
-    };
+  img.onmouseover = () => img.style.transform = 'scale(1.07)';
+  img.onmouseout = () => img.style.transform = 'scale(1)';
 
-    cell.appendChild(img);
-    grid.appendChild(cell);
-  });
+  img.onclick = function() {
+    overlay.remove();
+    map.flyTo({
+      center: building.coords,
+      zoom: 17,
+      pitch: 45,
+      bearing: -17.6,
+      speed: 1.2,
+      curve: 1,
+      essential: true
+    });
+  };
+
+  cell.appendChild(img);
+  grid.appendChild(cell);
+});
 
   popup.appendChild(grid);
   overlay.appendChild(popup);
