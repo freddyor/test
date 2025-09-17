@@ -545,27 +545,27 @@ locations.forEach((location) => {
   });
 });
 
-/* ---------------- Monetag interstitial helper ----------------
-   This function injects your provided Monetag snippet safely into a
-   fullscreen interstitial. It uses localStorage cooldown and an
-   autoClose fallback. Call it before playing a video, e.g.
+/* ---------------- Monetag sandboxed interstitial helper (Approach A) ----------------
+   This version loads the Monetag ad inside a sandboxed iframe (srcdoc) to isolate it
+   from the main page's globals (prevents the ad script from interfering with Mapbox).
+   Call it like:
 
-   showMonetagInterstitial(() => {
-     // create & play video
-   }, { cooldownMinutes: 30, autoCloseMs: 20000 });
+     showMonetagInterstitialSandboxed(() => {
+       // continue (play video, open content...)
+     }, { cooldownMinutes: 30, autoCloseMs: 20000 });
 
-   The Monetag tag provided:
-   <script>(function(s){s.dataset.zone='9876971',s.src='https://groleegni.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-----------------------------------------------------------------*/
-function showMonetagInterstitial(continueCallback, options = {}) {
+   The monetag snippet you provided is injected inside the iframe's HTML:
+   (function(s){s.dataset.zone='9876971',s.src='https://groleegni.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
+--------------------------------------------------------------------------------------*/
+function showMonetagInterstitialSandboxed(continueCallback, options = {}) {
   const cooldownMinutes = Number.isFinite(options.cooldownMinutes) ? options.cooldownMinutes : 30;
   const autoCloseMs = Number.isFinite(options.autoCloseMs) ? options.autoCloseMs : 20000;
   const storageKey = 'monetagNativeInterstitialLastShown';
-  const storageNow = Date.now();
+  const now = Date.now();
 
   try {
     const last = parseInt(localStorage.getItem(storageKey) || '0', 10);
-    if (cooldownMinutes > 0 && (storageNow - last) < cooldownMinutes * 60 * 1000) {
+    if (cooldownMinutes > 0 && (now - last) < cooldownMinutes * 60 * 1000) {
       // cooldown active -> skip ad
       if (typeof continueCallback === 'function') {
         try { continueCallback(); } catch (err) { console.error(err); }
@@ -573,11 +573,10 @@ function showMonetagInterstitial(continueCallback, options = {}) {
       return;
     }
   } catch (e) {
-    // localStorage may be unavailable; continue to show by default
     console.warn('localStorage read failed, proceeding to show interstitial', e);
   }
 
-  // inject styles once
+  // inject minimal styles once
   if (!document.getElementById('monetag-interstitial-styles')) {
     const style = document.createElement('style');
     style.id = 'monetag-interstitial-styles';
@@ -597,16 +596,13 @@ function showMonetagInterstitial(continueCallback, options = {}) {
       }
       .monetag-interstitial-card {
         width: min(95vw, 720px);
-        max-height: 90vh;
+        height: min(90vh, 720px);
         background: #fff;
         border-radius: 12px;
         box-shadow: 0 6px 20px rgba(0,0,0,0.3);
         position: relative;
-        overflow: auto;
-        padding: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
+        overflow: hidden;
+        padding: 0;
       }
       .monetag-interstitial-close {
         position: absolute;
@@ -624,24 +620,6 @@ function showMonetagInterstitial(continueCallback, options = {}) {
         align-items: center;
         justify-content: center;
         font-size: 16px;
-      }
-      .monetag-interstitial-adslot {
-        width: 100%;
-        min-height: 120px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .monetag-interstitial-countdown {
-        position: absolute;
-        left: 12px;
-        top: 12px;
-        background: rgba(0,0,0,0.6);
-        color: #fff;
-        padding: 6px 8px;
-        border-radius: 8px;
-        font-weight: bold;
-        z-index: 4;
       }
     `;
     document.head.appendChild(style);
@@ -661,22 +639,54 @@ function showMonetagInterstitial(continueCallback, options = {}) {
   closeBtn.title = 'Close ad';
   closeBtn.innerText = '✕';
 
-  const adSlot = document.createElement('div');
-  adSlot.className = 'monetag-interstitial-adslot';
-  adSlot.id = 'monetag-native-interstitial-slot';
+  // iframe that will host the ad; sandbox to isolate scripts
+  const iframe = document.createElement('iframe');
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = 'none';
+  // allow-same-origin so the ad script can run normally; allow-scripts to execute script; allow-popups in case ad opens popup
+  // Note: if you want stricter isolation, remove allow-same-origin (then you cannot access iframe content from parent)
+  iframe.sandbox = 'allow-scripts allow-same-origin allow-popups';
 
+  // Build the iframe HTML (srcdoc). Insert the monetag script safely inside.
+  const adHtml = `
+    <!doctype html>
+    <html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1"/>
+        <style>html,body{height:100%;margin:0;background:#fff;display:flex;align-items:center;justify-content:center;}#ad-root{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style>
+      </head>
+      <body>
+        <div id="ad-root"></div>
+        <script>
+          (function() {
+            try {
+              // Create the monetag script element with the dataset and src from your snippet.
+              var s = document.createElement('script');
+              s.dataset.zone = '9876971';
+              s.src = 'https://groleegni.net/vignette.min.js';
+              s.async = true;
+              var root = document.getElementById('ad-root');
+              root.appendChild(s);
+            } catch (err) {
+              // If ad injection fails, display a minimal fallback
+              var root = document.getElementById('ad-root');
+              root.innerHTML = '<div style="padding:16px;font-family:sans-serif;color:#000;">Ad failed to load.</div>';
+            }
+          })();
+        </script>
+      </body>
+    </html>
+  `;
+  // Use srcdoc for modern browsers; fallback to data URL if srcdoc unsupported (some older)
+  iframe.srcdoc = adHtml;
+
+  // Append elements
   card.appendChild(closeBtn);
-  card.appendChild(adSlot);
+  card.appendChild(iframe);
   overlay.appendChild(card);
   document.body.appendChild(overlay);
-
-  // Create the monetag script element safely instead of injecting the raw IIFE string.
-  const monetagScript = document.createElement('script');
-  monetagScript.dataset.zone = '9876971';
-  monetagScript.src = 'https://groleegni.net/vignette.min.js';
-  monetagScript.async = true;
-  // Append to adSlot so script runs in the right DOM context
-  adSlot.appendChild(monetagScript);
 
   // mark shown time for cooldown
   try {
@@ -693,40 +703,26 @@ function showMonetagInterstitial(continueCallback, options = {}) {
     }, autoCloseMs);
   }
 
-  // Close handlers
-  closeBtn.addEventListener('click', () => {
-    cleanupAndContinue(true);
-  });
-
-  overlay.addEventListener('mousedown', (e) => {
-    if (!card.contains(e.target)) {
-      cleanupAndContinue(true);
-    }
-  });
-
   function cleanupAndContinue(userClosed) {
     try {
       if (autoTimer) {
         clearTimeout(autoTimer);
         autoTimer = null;
       }
-      if (monetagScript && monetagScript.parentNode) {
-        monetagScript.parentNode.removeChild(monetagScript);
-      }
-      if (adSlot && adSlot.parentNode) {
-        adSlot.innerHTML = '';
-      }
-      if (overlay && overlay.parentNode) {
-        overlay.parentNode.removeChild(overlay);
-      }
+      if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
     } catch (err) {
       console.error('Error cleaning up interstitial:', err);
     }
-
     if (typeof continueCallback === 'function') {
       try { continueCallback(); } catch (err) { console.error(err); }
     }
   }
+
+  // Close handlers
+  closeBtn.addEventListener('click', () => cleanupAndContinue(true));
+  overlay.addEventListener('mousedown', (e) => {
+    if (!card.contains(e.target)) cleanupAndContinue(true);
+  });
 
   return {
     close: cleanupAndContinue
@@ -1271,10 +1267,10 @@ buildings.forEach((building) => {
     overlay.appendChild(posterContainer);
     document.body.appendChild(overlay);
 
-    // Wrap original play behavior inside monetag interstitial call.
+    // Wrap original play behavior inside sandboxed monetag interstitial call.
     playBtn.onclick = () => {
-      // Show Monetag interstitial first, then play video when it is dismissed or times out.
-      showMonetagInterstitial(() => {
+      // Show Monetag interstitial inside iframe sandbox first, then play video when it is dismissed or times out.
+      showMonetagInterstitialSandboxed(() => {
         // Existing play logic starts here:
         playBtn.style.display = 'none';
         spinner.style.display = 'block';
@@ -1461,8 +1457,6 @@ function renderArchivePhotos() {
     removeBtn.title = 'Remove from archive';
     removeBtn.style.position = 'absolute';
     // Move it a little north-west from the previous bottom-right corner
-    // Previous: left: '100%', top: '100%', translate(-50%, -50%)
-    // New: left: '92%', top: '8%', translate(-50%, -50%)
 removeBtn.style.left = '82%';    // 100% - 18% = 82%
 removeBtn.style.top = '82%';     // 100% - 18% = 82%
 removeBtn.style.transform = 'translate(-50%, -50%)';
