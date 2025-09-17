@@ -1,9 +1,9 @@
-import { buildings } from './buildings.js';
-import { locations } from './locations.js';
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import * as firebase from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { buildings } from './buildings.js';
+import { locations } from './locations.js';
 
 window.firebase = firebase;
 
