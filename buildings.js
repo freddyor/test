@@ -1,4 +1,13 @@
 export const buildings = [
+                                                      {
+     'name': 'Minster Gates Electric Lamp',
+     'coords': [-1.0823857313449285, 53.961496616049644],
+    "image": "https://freddyor.github.io/british-map/videos/lamplogo.jpg",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/copy_8C64AB32-1A2B-4BAC-8A49-17F40C018F60 - VEED Export.mp4",          
+    "posterUrl": "https://freddyor.github.io/british-map/videos/lamp.jpg",
+    "social media": "yes",
+    "text": "The last of the original 1900 electricc street lights in York",
+  },
                                                     {
      'name': '35 Stonegate',
      'coords': [-1.0828849422539573, 53.961144850274266],
@@ -389,7 +398,7 @@ export const buildings = [
   },
                                         {
    'name': 'Minerva',
-     'coords': [-1.0824420398052197, 53.961516242817126],
+     'coords': [-1.0824661976151546, 53.96152817645264],
     image: "https://freddyor.github.io/british-map/videos/IMG_8120.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_DE71F6.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8113.webp",
