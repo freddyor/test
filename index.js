@@ -545,306 +545,10 @@ locations.forEach((location) => {
   });
 });
 
-/* ---------------- Monetag sandboxed interstitial helper (Approach A) ----------------
-   This version loads the Monetag ad inside a sandboxed iframe (srcdoc) to isolate it
-   from the main page's globals (prevents the ad script from interfering with Mapbox).
-
-   Changes made relative to earlier version:
-   - Default cooldown is now 0 when called from play flow below (so ad can appear every time).
-   - Adds a small retry / fallback helper: if the ad iframe appears empty after a short timeout
-     the user can retry the iframe load. This avoids silently failing with "nothing shows".
---------------------------------------------------------------------------------------*/
-function showMonetagInterstitialSandboxed(continueCallback, options = {}) {
-  const cooldownMinutes = Number.isFinite(options.cooldownMinutes) ? options.cooldownMinutes : 30;
-  const autoCloseMs = Number.isFinite(options.autoCloseMs) ? options.autoCloseMs : 20000;
-  const storageKey = 'monetagNativeInterstitialLastShown';
-  const now = Date.now();
-
-  try {
-    const last = parseInt(localStorage.getItem(storageKey) || '0', 10);
-    if (cooldownMinutes > 0 && (now - last) < cooldownMinutes * 60 * 1000) {
-      // cooldown active -> skip ad
-      if (typeof continueCallback === 'function') {
-        try { continueCallback(); } catch (err) { console.error(err); }
-      }
-      return;
-    }
-  } catch (e) {
-    console.warn('localStorage read failed, proceeding to show interstitial', e);
-  }
-
-  // inject minimal styles once
-  if (!document.getElementById('monetag-interstitial-styles')) {
-    const style = document.createElement('style');
-    style.id = 'monetag-interstitial-styles';
-    style.textContent = `
-      .monetag-interstitial-overlay {
-        position: fixed;
-        inset: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0,0,0,0.6);
-        z-index: 200000;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 12px;
-        box-sizing: border-box;
-      }
-      .monetag-interstitial-card {
-        width: min(95vw, 720px);
-        height: min(90vh, 720px);
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        position: relative;
-        overflow: hidden;
-        padding: 0;
-        display:flex;
-        flex-direction:column;
-      }
-      .monetag-interstitial-close {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        border: none;
-        background: #000;
-        color: #fff;
-        cursor: pointer;
-        z-index: 3;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-      }
-      .monetag-interstitial-fallback {
-        position: absolute;
-        left: 12px;
-        bottom: 12px;
-        background: rgba(0,0,0,0.6);
-        color: #fff;
-        padding: 6px 8px;
-        border-radius: 8px;
-        font-weight: bold;
-        z-index: 4;
-        cursor: pointer;
-        font-size: 13px;
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  // Build overlay elements
-  const overlay = document.createElement('div');
-  overlay.className = 'monetag-interstitial-overlay';
-  overlay.setAttribute('role', 'dialog');
-  overlay.setAttribute('aria-modal', 'true');
-
-  const card = document.createElement('div');
-  card.className = 'monetag-interstitial-card';
-
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'monetag-interstitial-close';
-  closeBtn.title = 'Close ad';
-  closeBtn.innerText = '✕';
-
-  // iframe that will host the ad; sandbox to isolate scripts
-  const iframe = document.createElement('iframe');
-  iframe.style.width = '100%';
-  iframe.style.height = '100%';
-  iframe.style.border = 'none';
-  // allow-same-origin so the ad script can run normally; allow-scripts to execute script; allow-popups in case ad opens popup
-  iframe.sandbox = 'allow-scripts allow-same-origin allow-popups';
-
-  // Build the iframe HTML (srcdoc). Insert the monetag script safely inside.
-  const adHtml = `
-    <!doctype html>
-    <html>
-      <head>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width,initial-scale=1"/>
-        <style>html,body{height:100%;margin:0;background:#fff;display:flex;align-items:center;justify-content:center;}#ad-root{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}</style>
-      </head>
-      <body>
-        <div id="ad-root"></div>
-        <script>
-          (function() {
-            try {
-              // Create the monetag script element with the dataset and src from your snippet.
-              var s = document.createElement('script');
-              s.dataset.zone = '9876971';
-              s.src = 'https://groleegni.net/vignette.min.js';
-              s.async = true;
-              var root = document.getElementById('ad-root');
-              root.appendChild(s);
-
-              // Inform parent when a script element is appended (best-effort)
-              try { parent.postMessage({ type: 'monetag-script-inserted' }, '*'); } catch (e) {}
-            } catch (err) {
-              var root = document.getElementById('ad-root');
-              root.innerHTML = '<div style="padding:16px;font-family:sans-serif;color:#000;">Ad failed to load.</div>';
-              try { parent.postMessage({ type: 'monetag-script-error' }, '*'); } catch (e) {}
-            }
-          })();
-        </script>
-      </body>
-    </html>
-  `;
-  // Use srcdoc for modern browsers
-  iframe.srcdoc = adHtml;
-
-  // fallback button (shown if iframe appears empty)
-  const fallbackBtn = document.createElement('div');
-  fallbackBtn.className = 'monetag-interstitial-fallback';
-  fallbackBtn.textContent = 'Retry ad';
-  fallbackBtn.title = 'Retry loading ad (fallback)';
-  fallbackBtn.style.display = 'none';
-
-  // Append elements
-  card.appendChild(closeBtn);
-  card.appendChild(iframe);
-  card.appendChild(fallbackBtn);
-  overlay.appendChild(card);
-  document.body.appendChild(overlay);
-
-  // mark shown time for cooldown
-  try {
-    localStorage.setItem(storageKey, String(Date.now()));
-  } catch (e) {
-    // ignore
-  }
-
-  // Auto close fallback
-  let autoTimer = null;
-  if (autoCloseMs > 0) {
-    autoTimer = setTimeout(() => {
-      cleanupAndContinue(true);
-    }, autoCloseMs);
-  }
-
-  // Monitor iframe - if it stays empty for a short while show retry UI
-  let iframeCheckTimer = setTimeout(() => {
-    try {
-      // try to inspect iframe contentWindow document body textContent length if same-origin
-      let empty = true;
-      try {
-        const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
-        if (doc && doc.getElementById('ad-root')) {
-          const root = doc.getElementById('ad-root');
-          if (root && root.children && root.children.length > 0) {
-            empty = false;
-          }
-        }
-      } catch (e) {
-        // cross-origin or access denied - cannot inspect, so assume iframe attempted load
-        empty = false;
-      }
-
-      if (empty) {
-        // show a small retry / fallback hint to user
-        fallbackBtn.style.display = 'block';
-      }
-    } catch (err) {
-      console.warn('iframe check failed', err);
-    }
-  }, 1800); // check after ~1.8s
-
-  // Allow parent to receive a simple message from iframe when script was appended.
-  function onMessage(e) {
-    if (!e.data || typeof e.data !== 'object') return;
-    if (e.data.type === 'monetag-script-inserted') {
-      // hide fallback if visible
-      fallbackBtn.style.display = 'none';
-    } else if (e.data.type === 'monetag-script-error') {
-      fallbackBtn.style.display = 'block';
-    }
-  }
-  window.addEventListener('message', onMessage);
-
-  // Fallback: reload iframe srcdoc on click
-  fallbackBtn.addEventListener('click', () => {
-    // reload the iframe by reassigning srcdoc
-    try {
-      fallbackBtn.style.display = 'none';
-      iframe.srcdoc = adHtml;
-      // re-check after a short delay
-      setTimeout(() => {
-        try {
-          const doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
-          if (doc && doc.getElementById('ad-root') && doc.getElementById('ad-root').children.length > 0) {
-            // good
-          } else {
-            // still empty -> show manual inject button (replace below)
-            fallbackBtn.textContent = 'Fallback: inject in page';
-            fallbackBtn.style.display = 'block';
-            // change handler to perform manual injection into parent if user clicks again
-            fallbackBtn.onclick = function manualInject() {
-              fallbackBtn.textContent = 'Injecting...';
-              fallbackBtn.disabled = true;
-              // Create monetag script element in parent (last-resort - may interfere with Mapbox)
-              try {
-                const s = document.createElement('script');
-                s.dataset.zone = '9876971';
-                s.src = 'https://groleegni.net/vignette.min.js';
-                s.async = true;
-                card.appendChild(s);
-                // hide button after injection
-                fallbackBtn.style.display = 'none';
-                console.warn('Monetag injected directly into page as fallback. This may affect other scripts (Mapbox).');
-              } catch (err) {
-                console.error('Manual inject failed', err);
-                fallbackBtn.textContent = 'Inject failed';
-                fallbackBtn.disabled = false;
-              }
-            };
-          }
-        } catch (err) {
-          console.warn('post-retry check failed', err);
-        }
-      }, 1200);
-    } catch (err) {
-      console.error('Retry failed', err);
-      fallbackBtn.style.display = 'block';
-    }
-  });
-
-  // Close handlers
-  closeBtn.addEventListener('click', () => {
-    cleanupAndContinue(true);
-  });
-
-  overlay.addEventListener('mousedown', (e) => {
-    if (!card.contains(e.target)) cleanupAndContinue(true);
-  });
-
-  function cleanupAndContinue(userClosed) {
-    try {
-      if (autoTimer) {
-        clearTimeout(autoTimer);
-        autoTimer = null;
-      }
-      if (iframeCheckTimer) {
-        clearTimeout(iframeCheckTimer);
-        iframeCheckTimer = null;
-      }
-      window.removeEventListener('message', onMessage);
-      if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-    } catch (err) {
-      console.error('Error cleaning up interstitial:', err);
-    }
-    if (typeof continueCallback === 'function') {
-      try { continueCallback(); } catch (err) { console.error(err); }
-    }
-  }
-
-  return {
-    close: cleanupAndContinue
-  };
-}
-/* ---------------------------------------------------------------- */
+/* ----------------------------------------------------------------
+   Removed interstitial helper. When a video is played we now inject
+   the provided Monetag banner script directly and then play the video.
+------------------------------------------------------------------*/
 
 buildings.forEach((building) => {
   let outlineColor;
@@ -1383,54 +1087,60 @@ buildings.forEach((building) => {
     overlay.appendChild(posterContainer);
     document.body.appendChild(overlay);
 
-    // Wrap original play behavior inside sandboxed monetag interstitial call.
+    // When user clicks play we inject the provided Monetag banner script and then play the video.
     playBtn.onclick = () => {
-      // Show Monetag interstitial inside iframe sandbox first, then play video when it is dismissed or times out.
-      // NOTE: cooldownMinutes set to 0 so the interstitial can appear on every video play attempt.
-      showMonetagInterstitialSandboxed(() => {
-        // Existing play logic starts here:
-        playBtn.style.display = 'none';
-        spinner.style.display = 'block';
-        const videoElement = document.createElement('video');
-        videoElement.src = videoUrl;
-        if (posterUrl) videoElement.poster = posterUrl;
-        videoElement.style.border = '1.5px solid #E9E8E0';
-        videoElement.style.maxWidth = '88vw';
-        videoElement.style.maxHeight = '80vh';
-        videoElement.style.borderRadius = '14px';
-        videoElement.preload = 'auto';
-        videoElement.autoplay = true;
-        videoElement.setAttribute('playsinline', '');
-        videoElement.setAttribute('webkit-playsinline', '');
-        videoElement.playsInline = true;
+      // Inject the provided script tag into the page (banner ad)
+      try {
+        (function(s){
+          s.dataset.zone='9877225';
+          s.src='https://gizokraijaw.net/vignette.min.js';
+        })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+      } catch (err) {
+        console.error('Failed to inject monetag script', err);
+      }
 
-        posterContainer.replaceChild(videoElement, posterImg);
+      // Existing play logic starts here:
+      playBtn.style.display = 'none';
+      spinner.style.display = 'block';
+      const videoElement = document.createElement('video');
+      videoElement.src = videoUrl;
+      if (posterUrl) videoElement.poster = posterUrl;
+      videoElement.style.border = '1.5px solid #E9E8E0';
+      videoElement.style.maxWidth = '88vw';
+      videoElement.style.maxHeight = '80vh';
+      videoElement.style.borderRadius = '14px';
+      videoElement.preload = 'auto';
+      videoElement.autoplay = true;
+      videoElement.setAttribute('playsinline', '');
+      videoElement.setAttribute('webkit-playsinline', '');
+      videoElement.playsInline = true;
 
-        activeModalVideos.add(videoElement);
+      posterContainer.replaceChild(videoElement, posterImg);
 
-        videoElement.addEventListener('playing', () => { spinner.style.display = 'none'; });
-        videoElement.addEventListener('waiting', () => { spinner.style.display = 'block'; });
-        videoElement.addEventListener('error', () => {
-          spinner.style.display = 'none';
-          playBtn.style.display = 'block';
-          alert('Video failed to load.');
-        });
-        videoElement.addEventListener('ended', () => {
-          videoElement.parentElement.parentElement.remove();
-        });
-        videoElement.addEventListener('click', () => {
-          videoElement.controls = true;
-        });
+      activeModalVideos.add(videoElement);
 
-        overlay.addEventListener('remove', () => {
-          videoElement.pause();
-          videoElement.currentTime = 0;
-          activeModalVideos.delete(videoElement);
-        });
+      videoElement.addEventListener('playing', () => { spinner.style.display = 'none'; });
+      videoElement.addEventListener('waiting', () => { spinner.style.display = 'block'; });
+      videoElement.addEventListener('error', () => {
+        spinner.style.display = 'none';
+        playBtn.style.display = 'block';
+        alert('Video failed to load.');
+      });
+      videoElement.addEventListener('ended', () => {
+        videoElement.parentElement.parentElement.remove();
+      });
+      videoElement.addEventListener('click', () => {
+        videoElement.controls = true;
+      });
 
-        videoElement.load();
-        // Existing play logic ends here.
-      }, { cooldownMinutes: 0, autoCloseMs: 20000 });
+      overlay.addEventListener('remove', () => {
+        videoElement.pause();
+        videoElement.currentTime = 0;
+        activeModalVideos.delete(videoElement);
+      });
+
+      videoElement.load();
+      // Existing play logic ends here.
     };
   });
 });
