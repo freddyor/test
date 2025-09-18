@@ -545,11 +545,6 @@ locations.forEach((location) => {
   });
 });
 
-/* ----------------------------------------------------------------
-   Removed interstitial helper. When a video is played we now inject
-   the provided Monetag banner script directly and then play the video.
-------------------------------------------------------------------*/
-
 buildings.forEach((building) => {
   let outlineColor;
   if (building.hidden === 'yes') {
@@ -1087,19 +1082,8 @@ buildings.forEach((building) => {
     overlay.appendChild(posterContainer);
     document.body.appendChild(overlay);
 
-    // When user clicks play we inject the provided Monetag banner script and then play the video.
+    // Play behavior: create and play the video (no ads)
     playBtn.onclick = () => {
-      // Inject the provided script tag into the page (banner ad)
-      try {
-        (function(s){
-          s.dataset.zone='9877225';
-          s.src='https://gizokraijaw.net/vignette.min.js';
-        })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-      } catch (err) {
-        console.error('Failed to inject monetag script', err);
-      }
-
-      // Existing play logic starts here:
       playBtn.style.display = 'none';
       spinner.style.display = 'block';
       const videoElement = document.createElement('video');
@@ -1140,7 +1124,6 @@ buildings.forEach((building) => {
       });
 
       videoElement.load();
-      // Existing play logic ends here.
     };
   });
 });
