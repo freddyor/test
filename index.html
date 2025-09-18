@@ -208,6 +208,26 @@
             max-height: 100%;
             -webkit-overflow-scrolling: touch;
         }
+        /* Donation button styles */
+        .donation-button {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            background: #46CB18 !important;
+            color: #111 !important;
+            border: 2px solid #111 !important;
+            border-radius: 14px !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;
+            font-size: 15px !important;
+            font-family: 'Poppins', sans-serif !important;
+            font-weight: bold !important;
+            padding-left: 24px !important;
+            padding-right: 24px !important;
+            cursor: pointer;
+            display: inline-block;
+            /* Overwrites old inline style */
+        }
     </style>
 </head>
 <body>
@@ -225,7 +245,7 @@
         <div id="about-section" style="display:none;">
             <div id="about-section-content">
                 <!-- Policy Links Start -->
-                <div style="display: flex; justify-content: center; gap: 18px; margin-top: 0; margin-bottom: 8px;">
+                <div style="display: flex; justify-content: center; gap: 18px; margin-top: 8; margin-bottom: 8px;">
                   <a href="privacy-policy.html" style="color: #888; font-size: 14px; text-decoration: none;">Privacy Policy</a>
                   <a href="terms-of-service.html" style="color: #888; font-size: 14px; text-decoration: none;">Terms of Service</a>
                 </div>
@@ -247,16 +267,16 @@
                     If you used my site, please pay forward for the next person.
                 </div>
                 </div>
-                                <a href="https://buy.stripe.com/3cI8wQ6IG2I71ZxbDubwk00" target="_blank" rel="noopener">
-  <button style="padding:12px 24px;background:#635bff;color:#fff;border:none;border-radius:8px;font-size:16px;font-family:sans-serif;cursor:pointer;">
-    Support me £5 monthly
-  </button>
-</a>
+                <a href="https://buy.stripe.com/3cI8wQ6IG2I71ZxbDubwk00" target="_blank" rel="noopener">
+                  <button class="donation-button">
+                    Support me £5 monthly
+                  </button>
+                </a>
                 <a href="https://donate.stripe.com/bJe3cw2sqbeDeMjePGbwk01" target="_blank" rel="noopener">
-  <button style="padding:12px 24px;background:#635bff;color:#fff;border:none;border-radius:8px;font-size:16px;font-family:sans-serif;cursor:pointer;">
-    One-time donation 
-  </button>
-</a>
+                  <button class="donation-button">
+                    One-time donation 
+                  </button>
+                </a>
                 <div class="project-info" style="margin-top: 10px;">
                     <b>My mission is to inspire interest and enthusiasm in British heritage for the next generation.</b>
                 </div>
