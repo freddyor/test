@@ -955,21 +955,6 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6056.webp",
   },
   {
-    "name": "Lendal Bridge Arch",
-    "coords": [-1.0869891645941883, 53.96018862807536],
-    "image": "https://freddyor.github.io/british-map/videos/IMG_5565.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_7978BD.mp4", 
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6001.webp",
-  },
-  {
-    "name": "Lendal AV Symbols",
-    "coords": [-1.0871930124790716, 53.959968092170136],
-    "image": "https://freddyor.github.io/british-map/videos/IMG_5564.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8C1281.mp4", 
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6049.webp",
-    "hidden": "yes",
-  },
-  {
     "name": "Lendal Ferry",
     "coords": [-1.0877585352552135, 53.95984269725424],
     "image": "https://freddyor.github.io/british-map/videos/IMG_5566.webp",
