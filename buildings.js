@@ -460,13 +460,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_56083D.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7923.webp",
   },
-                                {
-    name: "Minster Stoneyard",
-    coords: [-1.081206476571289, 53.96193315494013 ],
-    image: "https://freddyor.github.io/british-map/videos/IMG_7935.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_FF1F0E.mp4",
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7831.webp",
-  },
+                                
                                 {
     name: "The Deanery",
     coords: [-1.0818160619753086, 53.96370689764441 ],
