@@ -6,7 +6,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_8C64AB32-1A2B-4BAC-8A49-17F40C018F60 - VEED Export.mp4",          
     "posterUrl": "https://freddyor.github.io/british-map/videos/lamp.jpg",
     "social media": "yes",
-    "text": "The last of the original 1900 electricc street lights in York",
+    "text": "The last of the original 1900 electric street lights in York",
   },
                                                     {
      'name': '35 Stonegate',
