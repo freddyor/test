@@ -1,4 +1,36 @@
 export const buildings = [
+                                                          {
+     'name': '',
+     'coords': [],
+    "image": "https://freddyor.github.io/british-map/videos/.jpg",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/.mp4",          
+    "posterUrl": "https://freddyor.github.io/british-map/videos/.jpg",
+    "text": "",
+  },
+                                                          {
+     'name': 'York twin',
+     'coords': [-1.0799364830095664, 53.95722209942089],
+    "image": "https://freddyor.github.io/british-map/videos/twin.jpg",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/copy_E8122948-B7CE-413F-B82F-09F1D82D0C63 - VEED Export.mp4",          
+    "posterUrl": "https://freddyor.github.io/british-map/videos/twinned.jpg",
+    "text": "",
+  },
+                                                          {
+     'name': 'Empty Metal Railings',
+     'coords': [-1.100088554363247, 53.95389121467578],
+    "image": "https://freddyor.github.io/british-map/videos/emptyrailing.jpg",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/copy_9D0510EF-45DB-4BA9-A758-BCC91D4B9831 - VEED Export.mp4",          
+    "posterUrl": "https://freddyor.github.io/british-map/videos/railings.jpg",
+    "text": "These metal railings were ripped off to be made into munitions during WW2",
+  },
+                                                        {
+     'name': 'Rowntrees Cocoa',
+     'coords': [-1.0774980723311363, 53.97386478764724],
+    "image": "https://freddyor.github.io/british-map/videos/6yoliz.jpg",
+    "videoUrl": "https://freddyor.github.io/british-map/videos/copy_DF81C9A3-42EF-4BBD-B883-8C8CF33D9924.mp4",          
+    "posterUrl": "https://freddyor.github.io/british-map/videos/rowntreeschoc.jpg",
+    "text": "Here Queen Elizabeth II was given the only chocolate bar ever made with full British ingredients",
+  },
                                                       {
      'name': 'Minster Gates Electric Lamp',
      'coords': [-1.0823857313449285, 53.961496616049644],
