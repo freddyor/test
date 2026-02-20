@@ -1,13 +1,5 @@
 export const buildings = [
                                                           {
-     'name': '',
-     'coords': [],
-    "image": "https://freddyor.github.io/british-map/videos/.jpg",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/.mp4",          
-    "posterUrl": "https://freddyor.github.io/british-map/videos/.jpg",
-    "text": "",
-  },
-                                                          {
      'name': 'York twin',
      'coords': [-1.0799364830095664, 53.95722209942089],
     "image": "https://freddyor.github.io/british-map/videos/twin.jpg",
