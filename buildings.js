@@ -6,6 +6,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_E8122948-B7CE-413F-B82F-09F1D82D0C63 - VEED Export.mp4",          
     "posterUrl": "https://freddyor.github.io/british-map/videos/twinned.jpg",
     "text": "",
+                                                            "topic": "roman",
   },
                                                           {
      'name': 'Empty Metal Railings',
