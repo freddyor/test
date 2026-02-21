@@ -1434,18 +1434,21 @@ function stopAllModalVideos(except = null) {
 function scaleMarkersBasedOnZoom() {
   const minZoom = 13;
   const maxZoom = 19;
-  const minSize = 0;    // marker hidden at minZoom, or set to e.g. 0.5 for always visible
-  const maxSize = 4.7;  // maximum marker size at maxZoom
+  const minSize = 0;
+  const maxSize = 4.7;
 
   let zoomLevel = map.getZoom();
-  zoomLevel = Math.max(minZoom, Math.min(zoomLevel, maxZoom)); // clamp
+  zoomLevel = Math.max(minZoom, Math.min(zoomLevel, maxZoom));
 
   let markerSize = ((zoomLevel - minZoom) / (maxZoom - minZoom)) * (maxSize - minSize) + minSize;
 
   document.querySelectorAll('.location-marker, .building-marker').forEach((marker) => {
+    // Check if marker should be hidden by topic filter
+    const isHiddenByFilter = marker.style.display === 'none' && selectedTopic !== null;
+    
     if (markerSize <= 0.01) {
       marker.style.display = 'none';
-    } else {
+    } else if (!isHiddenByFilter) {
       marker.style.display = 'flex';
       marker.style.width = markerSize + 'em';
       marker.style.height = markerSize + 'em';
