@@ -1,34 +1,37 @@
-// Assuming we are using a framework like React for this example
-
 import React, { useState } from 'react';
+import Marker from './Marker';
 
-const Index = () => {
-    const [markers, setMarkers] = useState([]);
-    const [selectedTopic, setSelectedTopic] = useState('');
-    const topics = [...new Set(markers.map(marker => marker.topic))]; // Unique topics from markers
+const LocationsMap = ({ markers }) => {
+  const [filteredMarkers, setFilteredMarkers] = useState(markers);
+  const [selectedTopic, setSelectedTopic] = useState('');
 
-    const handleTopicChange = (event) => {
-        setSelectedTopic(event.target.value);
-    };
+  const filterByTopic = (topic) => {
+    if (topic) {
+      const newFilteredMarkers = markers.filter(marker => marker.topic === topic);
+      setFilteredMarkers(newFilteredMarkers);
+    } else {
+      setFilteredMarkers(markers);
+    }
 
-    const filteredMarkers = selectedTopic ? markers.filter(marker => marker.topic === selectedTopic) : markers;
+    setSelectedTopic(topic);
+  };
 
-    return (
-        <div>
-            <h1>Marker Map</h1>
-            <select onChange={handleTopicChange} value={selectedTopic}>
-                <option value=''>All Topics</option>
-                {topics.map((topic, index) => (
-                    <option key={index} value={topic}>{topic}</option>
-                ))}
-            </select>
-            <div>
-                {filteredMarkers.map(marker => (
-                    <div key={marker.id}>{marker.name}</div>
-                ))}
-            </div>
+  return (
+    <div className="locations-map">
+      <button onClick={() => filterByTopic('')}>Explore Locations</button>
+      <button onClick={() => setDropdownVisible(!dropdownVisible)}>Topics</button>
+      {dropdownVisible && (
+        <div className="dropdown">
+          <button onClick={() => filterByTopic('roman')}>Roman</button>
+          <button onClick={() => filterByTopic('lgbt')}>LGBT</button>
+          <button onClick={() => filterByTopic('norman')}>Norman</button>
         </div>
-    );
+      )}
+      {filteredMarkers.map(marker => (
+        <Marker key={marker.id} {...marker} />
+      ))}
+    </div>
+  );
 };
 
-export default Index;
+export default LocationsMap;
