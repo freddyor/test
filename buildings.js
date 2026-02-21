@@ -995,6 +995,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_2AAF6B(1).mp4",
     subtitle: "The oldest church in York",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6042-1.webp",
+    "topic": "Roman",
   },
   {
     name: "Walmgate Killing Grounds",
