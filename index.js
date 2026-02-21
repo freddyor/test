@@ -481,14 +481,6 @@ function showProgressBarHint() {
   text.style.textAlign = 'center';
   text.style.lineHeight = '1.1';
 
-  // New sentence about yellow markers
-  const yellowSentence = document.createElement('span');
-  yellowSentence.innerHTML = 'The <span style="color: #ffd600; font-weight: bold;">yellow</span> markers are hidden treasures!';
-  yellowSentence.style.display = 'block';
-  yellowSentence.style.marginTop = '8px';
-  yellowSentence.style.fontWeight = 'bold';
-  yellowSentence.style.textAlign = 'center';
-  yellowSentence.style.fontSize = '16px';
 
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '❌';
@@ -515,7 +507,6 @@ function showProgressBarHint() {
   };
 
   popup.appendChild(text);
-  popup.appendChild(yellowSentence);
   popup.appendChild(closeBtn);
 
   document.body.appendChild(overlay);
@@ -664,9 +655,7 @@ locations.forEach((location) => {
 
 buildings.forEach((building) => {
   let outlineColor;
-  if (building.hidden === 'yes') {
-    outlineColor = '#ffd600'; // yellow
-  } else if (building.colour === 'yes') {
+  if (building.colour === 'yes') {
     outlineColor = '#FF69B4'; // pink
   } else {
     outlineColor = '#FFFFFF'; // default
