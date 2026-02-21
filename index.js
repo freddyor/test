@@ -26,6 +26,7 @@ const auth = getAuth(app);
 let firebaseUser = null;
 let completedMarkers = {};
 let activeModalVideos = new Set();
+let selectedTopic = null;
 
 const progressBarWrapper = document.createElement('div');
 progressBarWrapper.id = 'progress-bar-wrapper';
