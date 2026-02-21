@@ -96,7 +96,7 @@ progressBarLabel.style.zIndex = '2';
 
 const exploreButton = document.createElement('button');
 exploreButton.id = 'explore-locations-button';
-exploreButton.textContent = 'Explore locations 🔍';
+exploreButton.textContent = 'Explore';
 exploreButton.title = 'Explore all locations';
 exploreButton.style.height = '28px';
 exploreButton.style.minHeight = '28px';
@@ -125,7 +125,7 @@ exploreButton.style.transition = 'box-shadow 0.2s';
 
 const topicsButton = document.createElement('button');
 topicsButton.id = 'topics-button';
-topicsButton.textContent = 'Topics 📚';
+topicsButton.textContent = 'Topics';
 topicsButton.title = 'Filter by topic';
 topicsButton.style.height = '28px';
 topicsButton.style.minHeight = '28px';
