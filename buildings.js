@@ -402,7 +402,7 @@ export const buildings = [
    'name': 'Henry Percy',
      'coords': [-1.0802966818280781, 53.95837314948938],
     image: "https://freddyor.github.io/british-map/videos/IMG_8118.webp",
-    "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_05D5C0.mp4",
+    "videoUrl": "https://pub-986ca5e9809c4e9899c78d574d5fa0c2.r2.dev/Captions_05D5C0.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_8109.webp",
    "text": "Sir Thomas Percy was hung here in 1572",
                                           "hidden": "yes",
