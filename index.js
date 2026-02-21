@@ -234,6 +234,7 @@ function filterMarkersByTopic(topic) {
   
   topicsDropdown.style.display = 'none';
   updateTopicsDropdown();
+  scaleMarkersBasedOnZoom();  // Add this line to rescale markers to current zoom
 }
 
 progressBar.appendChild(progressFill);
