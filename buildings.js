@@ -6,7 +6,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_E8122948-B7CE-413F-B82F-09F1D82D0C63 - VEED Export.mp4",          
     "posterUrl": "https://freddyor.github.io/british-map/videos/twinned.jpg",
     "text": "",
-                                                            "topic": "roman",
+                                                            "topic": "Viking",
   },
                                                           {
      'name': 'Empty Metal Railings',
@@ -184,7 +184,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/romecol.jpg",
     "social media": "yes",
     "text": "2000 year old Roman column in 1000 Anglo-Saxon church",
-                                                    "hidden": "yes",
+                                                    "topic": "Roman",
   },
                                                   {
      'name': 'York',
@@ -250,7 +250,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/humanpoo.jpg",
     "social media": "yes",
     "text": "The largest ever fossilised human turd was found under this bank",
-                                                    "hidden": "yes",
+                                                    "topic": "Viking",
   },
                                                   {
      'name': 'Penguin terrorist attack',
@@ -270,7 +270,7 @@ export const buildings = [
     "posterUrl": "https://freddyor.github.io/british-map/videos/mithras.jpg",
     "social media": "yes",
     "text": "At the base of this Norman church is Roman masonry as this was once the location of a Roman cult temple",
-                                                    "hidden": "yes",
+                                                    "topic": "Roman",
   },
                                                   {
      'name': 'Interior burials',
@@ -501,6 +501,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D234BC.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7834.webp",
                                   "text": "Roman column from 100AD",
+                                  "topic": "Roman",
   },
                                 {
     name: "Margaret Clitherow",
@@ -539,8 +540,7 @@ export const buildings = [
     coords: [-1.0841101848384787, 53.96197230208156 ],
     image: "https://freddyor.github.io/british-map/videos/IMG_7933.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_D36A4D.mp4",
-    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7829.webp",
-                                  "text": "Roman column from 100AD",
+    "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7829.webp",                               
   },
                                 {
     name: "Margaret Clitherow",
@@ -721,6 +721,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_B81B8E.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_7139.webp",
                         "text": "17th century defences built on top of 3rd century Roman defences",
+                        "topic": "Roman",
   },
                       {
     name: "Hospitium",
