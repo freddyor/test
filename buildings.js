@@ -871,7 +871,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/copy_436D0BDC-2B59-4A3F-A030-18AEA37E356F - VEED Export.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/synagogue.jpg",
     "text": "York's first synagogue for 600 years was hidden in this workshop from 1886",
-    "hidden": "yes",
+    "topic": "Jewish",
   },
   {
     'name': 'Aldwark Wesleyan Chapel',
@@ -893,7 +893,7 @@ export const buildings = [
     image: "https://freddyor.github.io/british-map/videos/IMG_6760.webp",
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_8EFB54.mp4",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6766.webp",
-    "hidden": "yes",
+    "topic": "Jewish",
   },
   {
     'name': 'St William',
@@ -1051,7 +1051,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_1C52DB.mp4",
     "subtitle": "The largest of its kind in England",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6035.webp",
-    "hidden": "yes",
+    "topic": "Jewish",
   },
   {
     "name": "The Minster School",
@@ -1116,7 +1116,7 @@ export const buildings = [
     "videoUrl": "https://freddyor.github.io/british-map/videos/Captions_12AA18.mp4",
     "subtitle": "The Jew who fled Nazi Germany to York",
     "posterUrl": "https://freddyor.github.io/british-map/videos/IMG_6034.webp",
-    "hidden": "yes",
+    "topic": "Jewish",
   },
   {
     "name": "St Denys Church",
