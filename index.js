@@ -221,6 +221,8 @@ topicsButton.onclick = () => {
 
 function filterMarkersByTopic(topic) {
   selectedTopic = topic;
+  
+  // Hide/show markers (your existing code)
   document.querySelectorAll('.building-marker').forEach((marker) => {
     const buildingName = marker.getAttribute('data-marker-key').replace('completed-marker-', '');
     const building = buildings.find(b => b.name === buildingName);
@@ -232,11 +234,20 @@ function filterMarkersByTopic(topic) {
     }
   });
   
+  // NEW: Update Explore button text
+  const exploreBtn = document.getElementById('explore-locations-button');
+  if (selectedTopic) {
+    exploreBtn.textContent = `Explore ${selectedTopic.charAt(0).toUpperCase() + selectedTopic.slice(1)}`;
+  } else {
+    exploreBtn.textContent = 'Explore';
+  }
+  
   topicsDropdown.style.display = 'none';
   updateTopicsDropdown();
   scaleMarkersBasedOnZoom();  
-  updateProgressBar();  // This updates progress bar for selected topic only
+  updateProgressBar();
 }
+
 
 
 progressBar.appendChild(progressFill);
@@ -331,7 +342,8 @@ exploreButton.onclick = function() {
     document.head.appendChild(style);
   }
 
-  buildings.forEach((building, idx) => {
+  const filteredBuildings = selectedTopic ? buildings.filter(b => b.topic === selectedTopic) : buildings;
+filteredBuildings.forEach((building, idx) => {
     const cell = document.createElement('div');
     cell.style.display = 'flex';
     cell.style.flexDirection = 'column';
