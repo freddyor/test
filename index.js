@@ -234,8 +234,10 @@ function filterMarkersByTopic(topic) {
   
   topicsDropdown.style.display = 'none';
   updateTopicsDropdown();
-  scaleMarkersBasedOnZoom();  // Add this line to rescale markers to current zoom
+  scaleMarkersBasedOnZoom();  
+  updateProgressBar();  // This updates progress bar for selected topic only
 }
+
 
 progressBar.appendChild(progressFill);
 progressBar.appendChild(progressBarLabel);
@@ -406,15 +408,25 @@ exploreButton.onclick = function() {
 };
 
 function updateProgressBar() {
-  const totalMarkers = buildings.length;
-  const visitedMarkers = buildings.filter(
-    b => completedMarkers['completed-marker-' + b.name]
-  ).length;
+  let totalMarkers;
+  let visitedMarkers;
+
+  if (selectedTopic) {
+    // SHOW ONLY THIS TOPIC'S PROGRESS
+    const topicBuildings = buildings.filter(b => b.topic === selectedTopic);
+    totalMarkers = topicBuildings.length;
+    visitedMarkers = topicBuildings.filter(b => completedMarkers['completed-marker-' + b.name]).length;
+  } else {
+    // SHOW ALL BUILDINGS PROGRESS (normal behavior)
+    totalMarkers = buildings.length;
+    visitedMarkers = buildings.filter(b => completedMarkers['completed-marker-' + b.name]).length;
+  }
 
   progressBarLabel.textContent = `${visitedMarkers} / ${totalMarkers}`;
   const percent = totalMarkers > 0 ? Math.round((visitedMarkers / totalMarkers) * 100) : 0;
   progressFill.style.width = percent + '%';
 }
+
 
 progressBarContainer.addEventListener('click', function (e) {
   if (e.target === exploreButton) return;
