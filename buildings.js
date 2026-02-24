@@ -7,6 +7,7 @@ export const buildings = [
     "posterUrl": "https://pub-986ca5e9809c4e9899c78d574d5fa0c2.r2.dev/.webp",
     "text": "1700-year-old Roman saxa quadrata (squared stone)",
                                                             "topic": "Roman",
+                                                                },
                                                                                                                             {
      'name': 'Museum Gardens Interval Tower',
      'coords': [-1.0864672799608317, 53.96105987731972],
@@ -15,6 +16,7 @@ export const buildings = [
     "posterUrl": "https://pub-986ca5e9809c4e9899c78d574d5fa0c2.r2.dev/.webp",
     "text": "Roman interval tower",
                                                             "topic": "Roman",
+                                                                },
                                                             {
      'name': 'Cannonball Multangular Tower',
      'coords': [-1.0869033390538352, 53.96130869024488],
