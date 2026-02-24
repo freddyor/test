@@ -473,26 +473,49 @@ function showProgressBarHint() {
   popup.style.borderRadius = '14px';
   popup.style.border = '2px solid #111';
   popup.style.boxShadow = '0 2px 12px rgba(0,0,0,0.18)';
-  popup.style.padding = '18px 32px 18px 32px';
+  popup.style.padding = '24px 32px';
   popup.style.zIndex = '10010';
   popup.style.display = 'flex';
   popup.style.alignItems = 'center';
   popup.style.justifyContent = 'center';
   popup.style.flexDirection = 'column';
-  popup.style.minWidth = '260px';
+  popup.style.minWidth = '320px';
+  popup.style.maxHeight = '80vh';
+  popup.style.overflowY = 'auto';
   popup.style.fontFamily = "'Poppins', sans-serif";
   popup.style.fontWeight = 'bold';
   popup.style.fontSize = '16px';
   popup.style.color = '#111';
   popup.style.userSelect = 'none';
   popup.style.lineHeight = '1.1';
+  popup.style.gap = '16px';
 
   const text = document.createElement('span');
-  text.textContent = "This is the your Visited Progress Bar. Press the 'Unvisited' button on a marker to confirm your first visit!";
-  text.style.flex = '1';
+  text.textContent = "This is your Visited Progress Bar. Press the 'Unvisited' button on a marker to confirm your first visit!";
   text.style.textAlign = 'center';
-  text.style.lineHeight = '1.1';
+  text.style.lineHeight = '1.2';
 
+  // NEW: All Topics Progress Bars
+  const topicsProgressContainer = document.createElement('div');
+  topicsProgressContainer.style.display = 'flex';
+  topicsProgressContainer.style.flexDirection = 'column';
+  topicsProgressContainer.style.gap = '12px';
+  topicsProgressContainer.style.width = '100%';
+  topicsProgressContainer.style.padding = '12px 0';
+
+  // All Topics first
+  const allTopicsProgress = createMiniProgressBar('All Topics');
+  topicsProgressContainer.appendChild(allTopicsProgress);
+
+  // Individual topics
+  const topics = [...new Set(buildings.map(b => b.topic).filter(t => t))];
+  topics.forEach(topic => {
+    const topicProgress = createMiniProgressBar(topic);
+    topicsProgressContainer.appendChild(topicProgress);
+  });
+
+  popup.appendChild(text);
+  popup.appendChild(topicsProgressContainer);
 
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '❌';
@@ -518,12 +541,77 @@ function showProgressBarHint() {
     overlay.remove();
   };
 
-  popup.appendChild(text);
   popup.appendChild(closeBtn);
 
   document.body.appendChild(overlay);
   document.body.appendChild(popup);
 }
+
+// NEW HELPER FUNCTION - creates mini progress bars for popup
+function createMiniProgressBar(topicName) {
+  const container = document.createElement('div');
+  container.style.display = 'flex';
+  container.style.alignItems = 'center';
+  container.style.gap = '12px';
+  container.style.padding = '8px 12px';
+  container.style.background = '#f5f5f5';
+  container.style.borderRadius = '10px';
+  container.style.border = '1px solid #ddd';
+
+  const label = document.createElement('span');
+  label.textContent = topicName;
+  label.style.fontSize = '14px';
+  label.style.fontWeight = '600';
+  label.style.minWidth = '80px';
+  label.style.flex = '1';
+
+  const progressContainer = document.createElement('div');
+  progressContainer.style.height = '20px';
+  progressContainer.style.width = '120px';
+  progressContainer.style.background = '#e0e0e0';
+  progressContainer.style.borderRadius = '10px';
+  progressContainer.style.border = '1px solid #ccc';
+  progressContainer.style.display = 'flex';
+  progressContainer.style.alignItems = 'center';
+
+  const progressFill = document.createElement('div');
+  progressFill.style.height = '100%';
+  progressFill.style.borderRadius = '9px';
+  progressFill.style.transition = 'width 0.3s ease';
+
+  const progressText = document.createElement('span');
+  progressText.style.position = 'absolute';
+  progressText.style.fontSize = '11px';
+  progressText.style.fontWeight = 'bold';
+  progressText.style.color = '#111';
+  progressText.style.width = '100%';
+  progressText.style.textAlign = 'center';
+
+  progressContainer.appendChild(progressFill);
+  progressContainer.appendChild(progressText);
+  container.appendChild(label);
+  container.appendChild(progressContainer);
+
+  // Calculate progress
+  let totalMarkers, visitedMarkers;
+  if (topicName === 'All Topics') {
+    totalMarkers = buildings.length;
+    visitedMarkers = buildings.filter(b => completedMarkers['completed-marker-' + b.name]).length;
+  } else {
+    const topicBuildings = buildings.filter(b => b.topic === topicName);
+    totalMarkers = topicBuildings.length;
+    visitedMarkers = topicBuildings.filter(b => completedMarkers['completed-marker-' + b.name]).length;
+  }
+
+  progressText.textContent = `${visitedMarkers}/${totalMarkers}`;
+  const percent = totalMarkers > 0 ? (visitedMarkers / totalMarkers) * 100 : 0;
+  progressFill.style.width = percent + '%';
+  progressFill.style.background = visitedMarkers === totalMarkers ? '#4caf50' : 
+                                  visitedMarkers > 0 ? '#9b4dca' : '#ccc';
+
+  return container;
+}
+
 
 signInAnonymously(auth);
 
