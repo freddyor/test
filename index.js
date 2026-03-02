@@ -1349,7 +1349,7 @@ function renderArchivePhotos() {
   }
 
   const tipText = document.createElement('div');
-  tipText.textContent = 'Tap and hold the image to download or share it - it would look really cool on your Instagram story :)';
+  tipText.textContent = 'Tap and hold the image to download or share it :)';
   tipText.style.fontSize = '14px';
   tipText.style.fontFamily = "'Poppins', sans-serif";
   tipText.style.color = '#000';
