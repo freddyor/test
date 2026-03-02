@@ -249,16 +249,6 @@ export const buildings = [
     "text": "",
   },
                                                   {
-     'name': 'Kings Manor Window',
-     'coords': [-1.086253038881069, 53.96227307807901],
-    "image": "https://pub-986ca5e9809c4e9899c78d574d5fa0c2.r2.dev/window2.jpg",
-    "videoUrl": "https://pub-986ca5e9809c4e9899c78d574d5fa0c2.r2.dev/copy_083020FB-D3C1-4E5F-A591-1EA30F668796 - VEED Export.mp4",          
-    "posterUrl": "https://pub-986ca5e9809c4e9899c78d574d5fa0c2.r2.dev/window.jpg",
-    "social media": "yes",
-    "text": "This tiny window in Henry VIII's personal bathroom",
-                                                    "hidden": "yes",
-  },
-                                                  {
      'name': 'Aviva Building',
      'coords': [-1.0873782238098568, 53.95946965185836],
     "image": "https://pub-986ca5e9809c4e9899c78d574d5fa0c2.r2.dev/viva.jpg",
