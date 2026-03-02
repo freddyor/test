@@ -68,7 +68,7 @@ export const buildings = [
      'coords': [-1.086795967716937, 53.96155105581115],
     "image": "https://pub-986ca5e9809c4e9899c78d574d5fa0c2.r2.dev/IMG_6744.webp",
     "videoUrl": "https://pub-986ca5e9809c4e9899c78d574d5fa0c2.r2.dev/copy_6ECF13D6-4216-49B8-8F9C-E025D91D3442.mov",          
-    "posterUrl": "https://pub-986ca5e9809c4e9899c78d574d5fa0c2.r2.dev/twinned.jpg",
+    "posterUrl": "https://pub-986ca5e9809c4e9899c78d574d5fa0c2.r2.dev/posters.webp",
     "text": "1700-year-old Roman saxa quadrata (squared stone)",
                                                             "topic": "Roman",
                                                                 },
